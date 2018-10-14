@@ -99,14 +99,13 @@ settimer F4Button,Off
 Return
 
 F4Button:
-send szrhu
+send "suzrh"
 Return
 
-
-$^q::
+$~w::
 send {5}
 settimer qButton,22
-KeyWait q
+KeyWait w
 settimer qButton,Off
 Return
 
@@ -133,7 +132,7 @@ settimer F5Button,Off
 Return
 
 F5Button:
-send {s}{d}{u}{q}{z}{r}{h}
+send {s}{u}{d}{z}{r}{h}{q}
 Return
 
 Home::
