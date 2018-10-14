@@ -1,0 +1,494 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed 0
+GroupAdd MyGroup,ahk_class XLMAIN
+GroupAdd MyGroup,ahk_class SciTEWindow
+;===================================================
+;=              Grid_Health配置文件                =
+;===================================================
+LineCount:=0
+Loop, read, D:\Program Files\AutoHotkey\Wow_DataBase\Tw_Wow_Ini.txt		;读取配置文件。
+{
+	LineCount++
+	Line%LineCount% := A_LoopReadLine	;行数、行内容。
+}
+
+Loop %LineCount%
+{
+	element:=Line%A_Index%		;中间变量
+	StringLeft Left4Words,element,4
+	if(Left4Words=="Raid" or Left4Words=="Play" or Left4Words=="Targ"){
+		variableName:=element
+		%variableName%_count:=0
+		num:=%variableName%_count
+		Continue
+	}
+
+	%variableName%_count++
+	num:=%variableName%_count
+	
+	StringSplit ARRAY,element,`,
+	%variableName%_X_%num%:=ARRAY1
+	%variableName%_Y_%num%:=ARRAY2
+	%variableName%_value_%num%:=ARRAY3
+}
+
+;===================================================
+;=                  截点工具包                     =
+;===================================================
+^Numpad8::
+GetColorAndXy(395,1020,0x000000)
+return
+
+^Numpad9::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard = %mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+
+;~ Numpad4::
+;~ SKILL_OUTPUT:=""
+;~ loop 3{
+;~ 	SKILL_OUTPUT:=SKILL_OUTPUT . "`n" . 280 . "," . 129+(A_Index-1)*12 . ",". GetColor(280,129+(A_Index-1)*12)
+;~ }
+;~ Clipboard:=SKILL_OUTPUT
+;~ ToolTip
+;~ ToolTip %n%`n"ok",840,0
+;~ sleep 200
+;~ ToolTip
+;~ Return
+
+;~ Numpad4::
+;~ SKILL_OUTPUT:=""
+;~ loop 12{
+;~ 	SKILL_OUTPUT:=SKILL_OUTPUT . "`n" . 353+(A_Index-1)*42 . "," . 1020 . ",". GetColor(353+(A_Index-1)*42,1020)
+;~ }
+;~ Clipboard:=SKILL_OUTPUT
+;~ MsgBox "技能截取OK"
+;~ Return
+
+;~ Numpad4::
+;~ SKILL_OUTPUT:=""
+;~ loop 12{
+;~ 	SKILL_OUTPUT:=SKILL_OUTPUT . "`n" . 353+(A_Index-1)*42 . "," . 968 . ",". GetColor(353+(A_Index-1)*42,968)
+;~ }
+;~ Clipboard:=SKILL_OUTPUT
+;~ MsgBox "技能2截取OK"
+;~ Return
+
+;~ Numpad4::
+;~ SKILL_OUTPUT:=""
+;~ loop 12{
+;~ 	SKILL_OUTPUT:=SKILL_OUTPUT . "`n" . 863+(A_Index-1)*42 . "," . 968 . ",". GetColor(863+(A_Index-1)*42,968)
+;~ }
+;~ Clipboard:=SKILL_OUTPUT
+;~ MsgBox "技能3截取OK"
+;~ Return
+
+;~ Numpad4::
+;~ SKILL_OUTPUT:=""
+;~ loop 250{
+;~ 	SKILL_OUTPUT:=SKILL_OUTPUT . "`n" . 320+A_Index . "," . 213 . ",". GetColor(320+A_Index,213)
+;~ }
+;~ Clipboard:=SKILL_OUTPUT
+;~ MsgBox "血量截取OK"
+;~ Return
+
+;~ Numpad4::
+;~ SKILL_OUTPUT:=""
+;~ loop 20{
+;~ 	SKILL_OUTPUT:=SKILL_OUTPUT . "`n" . 789+(A_Index-1)*25 . "," . 630 . ",". GetColor(789+(A_Index-1)*25,630)
+;~ }
+;~ Clipboard:=SKILL_OUTPUT
+;~ MsgBox "增益OK"
+;~ Return
+
+;===================================================
+;=                   正文                          =
+;===================================================
+#IfWinActive ahk_class GxWindowClass
+AOE_SWITCH:=0
+AOE_CD_INSIDE:=0
+Interrupt_CD:=0
+bigSwitch:=False
+
+~1::
+bigSwitch:=False
+AOE_SWITCH:=1
+AOE_CD_INSIDE:=0
+Interrupt_CD:=0
+;~ DCCD:=0
+n:="SOLO 模式"
+ToolTip %n%,840,0
+SetTimer mainCircle,200
+Return
+
+~2::
+bigSwitch:=False
+AOE_SWITCH:=2
+AOE_CD_INSIDE:=0
+Interrupt_CD:=0
+n:="AOE 模式"
+ToolTip %n%,840,0
+SetTimer mainCircle,200
+Return
+
+~Esc::
+bigSwitch:=True
+Return
+
+mainCircle:
+	tarKind:=GetColor(353,1020,0x545B43)
+	
+	if(bigSwitch){
+		Ending()
+	}else if(tarKind=0x545B43){
+		MainMode(False) ;友好目標。
+	}else if(tarKind=0xBACC41){
+		MainMode(True) ;敵對目標。
+	}else{
+		Ending()
+	}
+Return
+
+;~ Knight(){
+;~ 	;载具战。
+;~ 	if(judge(163,1025,0xFFFFFF)){
+;~ 		send {F9}
+;~ 	}else if(judge(116,1025,0xFFFFFF)){
+;~ 		send {F8}
+;~ 	}else if(judge(70,1025,0xFFFFFF)){
+;~ 		send {f7}
+;~ 	}else if(judge(23,1025,0xFFFFFF)){
+;~ 		send {f6}
+;~ 	}
+;~ }
+
+Ending(){
+	global AOE_SWITCH,AOE_CD_INSIDE
+	SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+	SetTimer mainCircle,Off
+	ToolTip
+	AOE_SWITCH:=0
+	AOE_CD_INSIDE:=0
+	Interrupt_CD:=0
+	send ^{f12}
+}
+
+~F1::
+~F2::
+~F3::
+~F4::
+~f5::
+send ^{f12} ;中斷施法。
+Return
+
+Select_Target(){
+	global n
+	m:=5
+	Danger_Level:=0
+	Danger_Raider_Num:=0
+	
+	while(m>0){
+		Current_Level_%m%:=0
+		Corn1_Clr:=GetColor(342+m*37-37,199)
+		Corn4_Clr:=judge(368+m*37-37,226,0xFF0000)
+		
+		if(Corn1_Clr=0xFF0000){
+			Current_Level_%m%--
+			m--
+			Continue ;如果超出射程、死掉。則忽略該玩家。
+		}else if(Corn1_Clr=0xFFFFFF){
+			Current_Level_%m%:=100-GetUnitRaidHealth(m)	;危險係數1:損失的血量。;危險係數2;仇恨。危險係數3:DEBUFF。
+			Current_Level_%m%*=1+Corn4_Clr
+
+			if(Current_Level_%m%>Danger_Level){
+				Danger_Level:=Current_Level_%m%
+				Danger_Raider_Num:=m
+			}
+		}else if(Corn1_Clr=0x0000FF){
+			NowaSelectionNum:=m	;現在的選擇是M。
+			
+			Current_Level_%m%:=100-GetUnitRaidHealth(m)	;危險係數1:損失的血量。;危險係數2;仇恨。危險係數3:DEBUFF。
+			Current_Level_%m%*=1+Corn4_Clr
+
+			if(Current_Level_%m%>Danger_Level){
+				Danger_Level:=Current_Level_%m%
+				Danger_Raider_Num:=m
+				
+			}
+		}	
+		
+		m--
+	}
+	
+	if(not NowaSelectionNum=Danger_Raider_Num){
+		PressButten(Danger_Raider_Num)	;如果不為已選成員。
+	}
+
+;~ 	ToolTip
+;~  	ToolTip %n%`n%Current_Level_1%`n%Current_Level_2%`n%Current_Level_3%`n%Current_Level_4%`n%Current_Level_5%`n%Danger_Raider_Num%,840,0
+}
+
+PressButten(num){
+	if(num=1){
+		send {F1}
+	}else if(num=2){
+		send {F2}
+	}else if(num=3){
+		send {F3}
+	}else if(num=4){
+		send {F4}
+	}else if(num=5){
+		send {F5}
+	}else if(num=6){
+		send {Numpad0} ;焦點
+	}
+}
+
+MainMode(isHarm){
+	global AOE_SWITCH,AOE_CD_INSIDE,DCCD,n,Interrupt_CD
+	PlayerHealth:=GetValue("PlayerHealth")
+	TargetHealth:=GetValue("TargetHealth")
+	PlayerRune:=GetValue("PlayerRune")
+	In5Yards:=ATT_RANGE(5)
+	Tar_Casing:=judge(734,641,0x000409)
+	Plyr_Stnc:=GetColor(1663,509,0xFBF7E6)	;玩家戰鬥姿態。
+	SHZW:=judge(724,624,0x43F39E) ;舒和之霧中。
+	isMoving:=IsMoving()
+	
+;~ 	ToolTip
+;~ 	ToolTip %n%`n%AOE_SWITCH%`n%AOE_CD_INSIDE%,840,0
+	if(AOE_SWITCH=2){
+		Select_Target()
+	}
+	
+	if(isHarm and not Plyr_Stnc=0x311C11){
+		send ^{F2} ;猛虎式。
+	}else if(not isHarm and not Plyr_Stnc=0xFBF7E6){
+		send ^{F1} ;靈蛟式。	
+	}else if(PlayerHealth<90 and judge(1283,968,0x02814C)){
+		send {\} ;鬥轉星移
+	}else if(PlayerHealth<40 and judge(1325,968,0xABA17A)){
+		send {=} ;石形絕釀
+	}else if(){
+		
+	}
+	
+	if(Tar_Casing and isHarm and judge(521,1020,0x302015)){
+		send {v} ;震動掌
+	}else if(Tar_Casing and isHarm and judge(563,1020,0x785315)){
+		send {6} ;天矛鎖喉手。
+	}
+	
+	if(not isHarm){
+		
+	}else if(judge(479,1020,0xACF5DC) and not judge(789,630,0x6AF7E4)){
+		send {c} ;虎掌
+	}else if(judge(437,1020,0x30393F)){
+		send {x} ;滅寂腿
+	}else if(judge(401,1029,0x454B60)){
+		send {z} ;刺擊
+	}
+
+	if(isHarm){
+		
+	}else if(TargetHealth>=95 and SHZW){	
+		send ^{f12}
+	}else if(TargetHealth<45 and judge(647,1020,0x417954)){
+		send {8} ;氣蘭護體。
+	}else if(TargetHealth<98 and not judge(814,630,0xF7FFFF) and judge(395,1020,0xE0FDF7)){
+		send {z} ;禪心玉
+	}else if(TargetHealth<85 and judge(773,1020,0x566EBC)){
+		send {-} ;聚雷茶。
+	}else if(TargetHealth<95 and not judge(839,630,0x081C08) and judge(605,1020,0x08210B)){
+		send {7} ;回生迷霧。
+	}else if(not isMoving and not SHZW and judge(437,1020,0x55ECAB) and TargetHealth<95){
+		send {x} ;舒和之霧
+	}else if(not isMoving and SHZW and judge(563,1020,0x39385A) and TargetHealth<=65){
+		send {6} ;迷霧繚繞
+	}else if(not isMoving and SHZW and judge(479,1020,0x9CD773) and TargetHealth<=70){
+		send {c} ;回春迷霧
+	}else if(TargetHealth<70 and judge(731,1020,0x002418) and judge(839,630,0x081C08)){
+		send {0} ;振氣決。
+	}else if(){
+		
+	}else if(){
+		
+	}
+	
+;~ 	if(Interrupt_CD>10){
+;~ 		;8秒的内置CD。
+;~ 		Interrupt_CD:=0
+;~ 	}else if(Interrupt_CD>0){
+;~ 		Interrupt_CD++
+;~ 	}
+}
+
+Blood_Change(){
+	;血块转换。
+	return judge(1294,988,0xEEEEEE,0x888888,0x888888,0xFFFFFF,0x060102) or judge(1294,988,0x999999,0x0D0203,0x060203,0x30090D,0x100408)
+}
+
+ATT_RANGE(dis){
+	if(dis<=5){
+		Return judge(820,865,0xE6E6E6)
+	}else if(dis<=8){
+		judge(820,865,0xE6E6E6) or judge(818,867,0x0EDFD2)
+	}else if(dis<=10){
+		Return judge(820,865,0xE6E6E6) or judge(818,867,0x0EDFD2) or judge(815,868,0x13C4C1)
+	}
+}
+
+;~ TAR_CASTING(){
+;~ 	Return judge(280,129,0x006A00,0x5C4000) or judge(280,151,0x006A00,0x5C4000) or judge(280,163,0x006A00,0x5C4000)
+;~ }
+
+;~ Blood_Rune(){	;计算剩余血符文数。
+;~ 	Return 2-judge(114,100,0xFFFF00)-judge(139,100,0xFFFF00)
+;~ }
+
+;~ Frost_Rune(){	;计算剩余冰符文数。
+;~ 	Return 2-judge(165,100,0xFFFF00)-judge(191,100,0xFFFF00)
+;~ }
+
+;~ Evil_Rune(){	;计算剩余邪符文数。
+;~ 	Return 2-judge(217,100,0xFFFF00)-judge(243,100,0xFFFF00)
+;~ }
+
+;~ IsPvpTarget(tarClr){
+;~ 	Return tarClr=0xC41F3B or tarClr=0x9482C9 or tarClr=0xF58CBA or tarClr=0xFFFFFF or tarClr=0xC79C6E or tarClr=0x69CCF0 or tarClr=0xFF7D0A or tarClr=0x0070DE or tarClr=0xFFF569 or tarClr=0xABD473
+;~ }
+
+;~ RuneCost(skillCost,player_RP,player_HP,petExists){
+;~ 	gargoyle_Avlb:=not judge(397,1025,0xFFFF00)	;召唤石像鬼不在CD
+;~ 	disasterContract_Avlb:=player_HP<75 and petExists and not judge(70,975,0xFFFF00)	;玩家血量不满75、宠物存在、天灾契约不在CD。
+;~ 	
+;~ 	mindFreeze_Avlb:=not judge(257,1025,0xFFFF00)	;心灵冰冻不在CD。
+;~ 	iceboundFortitude_Avlb:=player_HP<80 and not judge(1467,1025,0xFFFF00)	;玩家血不满80、冰封之韧不在CD。
+;~ 	antiMagicShield_Avlb:=judge(163,975,0xFFFF00)	;反魔法护罩不在CD。
+;~ 	globalRPLeft:=mindFreeze_Avlb or iceboundFortitude_Avlb or antiMagicShield_Avlb
+;~ 	
+;~ 	
+;~ 	
+;~ 	Return player_RP>=(skillCost+gargoyle_Avlb*60+globalRPLeft*20+disasterContract_Avlb*40)/1.3
+;~ }
+
+;===================================================
+;=                  状态计量函数                   =
+;===================================================
+GetUnitRaidHealth(SequenceNum){
+	local min_Num:=0
+	local max_Num:=Raid%SequenceNum%_count-1
+	while(max_Num-min_Num>1){
+		local mid_Num:=Round((min_Num+max_Num)/2)
+		if(GetColor(Raid%SequenceNum%_X_%mid_Num%,Raid%SequenceNum%_Y_%mid_Num%)=Raid%SequenceNum%_value_%mid_Num%){
+			min_Num:=mid_Num
+		}else{
+			max_Num:=mid_Num
+		}
+	}
+
+	Return Round(min_Num/(Raid%SequenceNum%_count-1)*100)
+}
+
+GetValue(valueName){
+	local min_Num:=0
+	local max_Num:=%valueName%_count-1
+	while(max_Num-min_Num>1){
+		local mid_Num:=Round((min_Num+max_Num)/2)
+		if(GetColor(%valueName%_X_%mid_Num%,%valueName%_Y_%mid_Num%)=%valueName%_value_%mid_Num%){
+			min_Num:=mid_Num
+		}else{
+			max_Num:=mid_Num
+		}
+	}
+
+	Return Round(min_Num/(%valueName%_count-1)*100)
+}
+
+;===================================================
+;=               常用函数、工具                    =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+Eql2(a,b="",c="",d="",e="",f=""){
+	Return a=b or a=c or a=d or a=e or a=f
+}
+
+IsMoving(){
+	Return GetKeyState("w","p") or GetKeyState("a","p") or GetKeyState("s","p") or GetKeyState("d","p")
+}
+
+GetColorAndXy(x,y,binColor=""){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%x%,%y%,%gColor%
+	MsgBox %x%,%y%,%gColor%
+}
+
+GetColor(x,y,binColor=""){
+	PixelGetColor theColor,x,y,RGB
+	return theColor
+}
+
+^Numpad4::
+Clipboard = 0504aslan@163.com
+send ^{v}{Tab}
+sleep 128
+Clipboard = chao1986
+send ^{v}{enter}
+return
+
+;右Ctrl快速得到颜色。
+~RCtrl::
+    while(GetKeyState("RCtrl")){
+        MouseGetPos x,y
+		PixelGetColor mouse_color,x,y,RGB
+        ToolTip % x "," y "," mouse_color
+        Sleep 16
+    }
+    ToolTip
+return
+
+;===================================================
+;=        Excel和SciTE针对judge()的修缮工具        =
+;===================================================
+#IfWinActive ahk_group MyGroup
+F1::
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F2::
+send +^{Right 2}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F3::
+send +^{Right 4}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F4::
+send +^{Right 6}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F5::
+send +^{Right 8}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+;===================================================
+;=            [武僧][PVE][飛翔的鼻頭烏]            =
+;===================================================

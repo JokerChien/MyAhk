@@ -1,0 +1,138 @@
+Private Declare Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
+
+Dim allWin As New ShellWindows
+Dim oneWin As InternetExplorer
+Dim ie As InternetExplorer
+Dim dom As HTMLDocument
+Dim inputElement As HTMLInputElement
+Dim divElement As HTMLDivElement
+Dim pointerRange As Range
+Dim questions As New Collection
+Dim flagRunning As Boolean
+
+Public Sub StartRunning()
+
+    SheetTiKu.Columns("A:A").NumberFormatLocal = "@"
+
+    
+    '指定第一个空单元格作为指针
+    If SheetTiKu.Cells(1, 1) = "" Then
+        Set pointerRange = SheetTiKu.Cells(1, 1)
+    Else
+        Set pointerRange = SheetTiKu.Cells(1, 1).End(xlDown).Offset(1, 0)
+        For i = 1 To SheetTiKu.Cells(1, 1).End(xlDown).Row
+            questions.Add SheetTiKu.Cells(i, 4).Value, SheetTiKu.Cells(i, 1).Value
+        Next
+    End If
+    '设置开跑标志
+    flagRunning = True
+    '循环查找试卷页面，找到后进入子循环
+    '如果开跑标志被置否，则结束程序
+    '如果子循环跳出，则延时后重新查找试卷页面
+    Do Until flagRunning = False
+        For Each oneWin In allWin
+            If InStr(1, oneWin.FullName, "IEXPLORE.EXE", vbTextCompare) > 0 Then
+                If InStr(1, oneWin.LocationURL, "userpapercurr", vbTextCompare) > 0 Then
+                    Set ie = oneWin
+                    Call LoopGetQuestions
+                End If
+            End If
+        Next
+        Delay 1000
+    Loop
+End Sub
+
+Private Sub LoopGetQuestions()
+    Dim answer As String
+    Dim i As Integer
+    
+    On Error GoTo ErrorHandle
+    Do Until flagRunning = False
+        If ie.readyState = READYSTATE_COMPLETE Then
+            If ie.document.getElementsByName("mainFrame").Length <> 0 Then
+                Set dom = ie.document.frames("mainFrame").document
+                For Each inputElement In dom.getElementsByName("q_id")
+                    If KeyFind(inputElement.Value, questions) = False Then '如果当前题库中没有这道题的编号
+                        questions.Add "", inputElement.Value
+                        pointerRange.Value = inputElement.Value
+                        If InStr(1, inputElement.parentElement.outerHTML, "<INPUT type=radio value=c", vbTextCompare) > 0 Then
+                            pointerRange.Offset(0, 1).Value = "单选题"
+                        ElseIf InStr(1, inputElement.parentElement.outerHTML, "<INPUT type=radio value=a", vbTextCompare) > 0 Then
+                            pointerRange.Offset(0, 1).Value = "判断题"
+                        ElseIf InStr(1, inputElement.parentElement.outerHTML, "<INPUT type=checkbox value=a", vbTextCompare) > 0 Then
+                            pointerRange.Offset(0, 1).Value = "多选题"
+                        End If
+                        pointerRange.Offset(0, 2).Value = Mid(inputElement.parentElement.outerHTML, 3)
+                        Set pointerRange = pointerRange.Offset(1, 0)
+                        pointerRange.Activate
+                    Else '如果当前题库中有这道题的编号
+                        answer = questions(inputElement.Value)
+                        If answer <> "" Then
+                            Set divElement = inputElement.parentElement
+                            If divElement.getElementsByTagName("INPUT").Length <> 0 Then
+                                For i = 0 To divElement.getElementsByTagName("INPUT").Length - 1
+                                    Select Case divElement.getElementsByTagName("INPUT")(i).Value
+                                        Case "a"
+                                            If InStr(1, answer, "A", vbTextCompare) > 0 Or InStr(1, answer, "对", vbTextCompare) > 0 Then
+                                                divElement.getElementsByTagName("INPUT")(i).Checked = True
+                                            End If
+                                        Case "b"
+                                            If InStr(1, answer, "B", vbTextCompare) > 0 Or InStr(1, answer, "错", vbTextCompare) > 0 Then
+                                                divElement.getElementsByTagName("INPUT")(i).Checked = True
+                                            End If
+                                        Case "c"
+                                            If InStr(1, answer, "C", vbTextCompare) > 0 Then
+                                                divElement.getElementsByTagName("INPUT")(i).Checked = True
+                                            End If
+                                        Case "d"
+                                            If InStr(1, answer, "D", vbTextCompare) > 0 Then
+                                                divElement.getElementsByTagName("INPUT")(i).Checked = True
+                                            End If
+                                        Case "e"
+                                            If InStr(1, answer, "E", vbTextCompare) > 0 Then
+                                                divElement.getElementsByTagName("INPUT")(i).Checked = True
+                                            End If
+                                        Case "f"
+                                            If InStr(1, answer, "F", vbTextCompare) > 0 Then
+                                                divElement.getElementsByTagName("INPUT")(i).Checked = True
+                                            End If
+                                    End Select
+                                Next
+                            End If
+                        End If
+                    End If
+                Next
+            End If
+        End If
+        Delay 500
+    Loop
+Exit Sub
+ErrorHandle:
+End Sub
+
+
+Private Sub Delay(ms As Integer)
+    Dim startTime As Single
+    startTime = Timer
+    Do Until Timer - startTime >= CSng(ms) / 1000
+        Sleep 100
+        DoEvents
+    Loop
+End Sub
+
+Private Function KeyFind(key As String, target As Collection) As Boolean
+    On Error GoTo ErrorHandle
+    If target(key) = target(key) Then
+        KeyFind = True
+    End If
+Exit Function
+    
+ErrorHandle:
+    If Err.Number = 5 Then
+        KeyFind = False
+    End If
+End Function
+
+Public Sub StopRunning()
+    flagRunning = False
+End Sub

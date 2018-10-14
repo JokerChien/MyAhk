@@ -1,0 +1,335 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed, 0
+;===================================================
+;=                   全局变量初始化                =
+;===================================================
+#IfWinActive ahk_class D3 Main Window Class
+;===================================================
+;=                     全局变量                    =
+;===================================================
+CoreDist:=160
+Shoot_Count:=1
+SKILL_1ST_TIME:=CURRENT_TIME_STAMP()
+BATTLE_MODE:=0		;1档:聊天。2档:站桩。3档:倒车。4档:左移。5档右移。6:前进。
+TURN_R:=1.95		;转弯半径。数值越大转弯幅度越大。
+;~ Rolling_Time:=A_Now
+;===================================================
+;=                     抓点工具                    =
+;===================================================
+^Numpad9::
+Clipboard := getColorAndXy(722,360,0x613217) 	;33,857,0xFFF3CE 722,360,0x6B4843 722,360,0x29272C
+return
+
+^Numpad6::
+MouseGetPos mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard = %mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+
+^Numpad3::
+ITEM_OUTPUT:=GetColor(872,974) . GetColor(808,974) . GetColor(546,974) . GetColor(611,974) . GetColor(676,974) . GetColor(741,974)
+Clipboard := ITEM_OUTPUT
+MsgBox "技能截取OK"
+Return
+
+^NumpadDot::
+SKILL_OUTPUT:=GetColor(815,725) . "`t" . GetColor(871,725) . "`t" . GetColor(926,725) . "`t" . GetColor(982,725)
+Clipboard := SKILL_OUTPUT
+MsgBox "作废"
+Return
+;===================================================
+;=              	   正文				   		   =
+;===================================================
+~F1::
+if(BATTLE_MODE=1){
+	BATTLE_MODE:=0
+	ToolTip
+}else{
+	BATTLE_MODE:=1
+	ToolTip,Chat Mode,840,250
+}
+Return
+
+~Alt::
+if(BATTLE_MODE=2){	;1档:聊天。2档:站桩。3档:倒车。4档:左移。5档:右移。6档:前进。7档:拾荒。8档:风骚走位
+	BATTLE_MODE:=3
+}
+Rolling_Time:=A_Now
+Return
+
+~Enter::
+~NumpadEnter::
+Loop 5{
+	Sleep 180
+	if(judge(33,857,0xFFF3CE33,0xFFCB8C) and BATTLE_MODE<>1){
+		BATTLE_MODE:=1
+		ToolTip,Chat Mode,840,250
+		Return
+	}
+}
+if(not judge(33,857,0xFFF3CE33,0xFFCB8C) and BATTLE_MODE=1){
+	BATTLE_MODE:=0
+	ToolTip
+}
+Return
+
+~Esc::
+~Space::
+~LButton::
+~RButton::
+~t::
+ifequal,BATTLE_MODE,1,Return
+BATTLE_MODE:=0
+RButtonClick:=0
+ToolTip
+send {shift up}
+Return
+
+F2::
+ifequal,BATTLE_MODE,1,Return
+BATTLE_MODE:=0
+ToolTip
+send {shift up}
+if(RButtonClick=1){
+	RButtonClick:=0
+}else{
+	RButtonClick:=1
+	SetTimer AT_RButtonClick,32
+}
+Return
+
+AT_RButtonClick:
+ifequal,RButtonClick,0,SetTimer AT_RButtonClick,Off
+send {RButton}
+Return
+
+~e::
+ifequal,BATTLE_MODE,1,Return	;如果是聊天模式就跳过。
+if(BATTLE_MODE=0){
+	BATTLE_MODE:=2
+	SetTimer AT_Sht,32
+}Else{
+	BATTLE_MODE:=2
+}
+Return
+
+~r::
+ifequal,BATTLE_MODE,1,Return	;如果是聊天模式就跳过。
+if(BATTLE_MODE=0){
+	BATTLE_MODE:=7
+	SetTimer AT_Sht,32
+}Else{
+	BATTLE_MODE:=7
+}
+Return
+
+~2::
+ifequal,BATTLE_MODE,1,Return	;如果是聊天模式就跳过。
+if(BATTLE_MODE=0){	;8档:风骚走位
+	BATTLE_MODE:=8
+	SetTimer AT_Sht,32
+}Else{
+	BATTLE_MODE:=8
+}
+Return
+
+AT_Sht:
+if(BATTLE_MODE=0){	;如果"0.停止"则中止TIMER。1档:聊天。2档:站桩。3档:倒车。4档:左移。5档:右移。6档:前进。7档:拾荒。8档:风骚走位	
+	SetTimer AT_Sht,Off
+	Return
+}
+
+if(BATTLE_MODE=7){	;7档:拾荒。
+	send {LButton}
+	Return
+}else if(BATTLE_MODE=8){
+	send {n}
+;~ 	IfThenDo(judge(872,974,0x1E221C), "{RButton}","{n}")	;;天罚之剑
+	Return
+}else{
+	MouseGetPos mx,my
+	Shooting(mx,my)
+	ifequal,BATTLE_MODE,2,Return	;如果是"2.原地射击"则该循环结束。
+	TxTy()
+	ifequal,BATTLE_MODE,0,Return	;如果"0.停止"则中止TIMER。
+}
+
+if(BATTLE_MODE=6){
+	send {n}
+}else if(GetKeyState("r","p")){
+	send {n}
+}else{
+	MouseMove tx,ty
+	send {n}
+;~ 	IfThenDo(BATTLE_MODE=3 and judge(872,974,0x1E221C), "{RButton}","{n}")	;;天罚之剑
+	MouseMove mx,my
+}
+Return
+
+TxTy(){
+	global BATTLE_MODE,tx,ty,mx,my,CoreDist,TURN_R
+	if(BATTLE_MODE=3){
+		tx:=-Cos_(mx,my)*CoreDist+840
+		ty:=-Sin_(mx,my)*CoreDist+493
+	}else if(BATTLE_MODE=4){
+		tx:=-Sin_(mx,my)*CoreDist+840
+		ty:=Cos_(mx,my)*CoreDist+450
+		mx-=(tx-840)/Sqrt(CoreDist)*TURN_R
+		my-=(ty-450)/Sqrt(CoreDist)*TURN_R
+	}else if(BATTLE_MODE=5){
+		tx:=Sin_(mx,my)*CoreDist+840
+		ty:=-Cos_(mx,my)*CoreDist+450
+		mx-=(tx-840)/Sqrt(CoreDist)*TURN_R
+		my-=(ty-450)/Sqrt(CoreDist)*TURN_R
+	}
+}
+
+~s::
+ifequal,BATTLE_MODE,1,Return	;如果是聊天模式就跳过。
+if(BATTLE_MODE=0){
+	BATTLE_MODE:=3
+	SetTimer AT_Sht,32
+}Else{
+	BATTLE_MODE:=3
+}
+Return
+
+~d::
+ifequal,BATTLE_MODE,1,Return	;如果是聊天模式就跳过。
+if(BATTLE_MODE=0){
+	BATTLE_MODE:=4
+	SetTimer AT_Sht,32
+}Else{
+	BATTLE_MODE:=4
+}
+Return
+
+~a::
+ifequal,BATTLE_MODE,1,Return	;如果是聊天模式就跳过。
+if(BATTLE_MODE=0){
+	BATTLE_MODE:=5
+	SetTimer AT_Sht,32
+}Else{
+	BATTLE_MODE:=5
+}
+Return
+	
+~w::
+ifequal,BATTLE_MODE,1,Return	;如果是聊天模式就跳过。
+if(BATTLE_MODE=0){
+	BATTLE_MODE:=6
+	SetTimer AT_Sht,32
+}Else{
+	BATTLE_MODE:=6
+}
+Return
+
+Shooting(x=0,y=0){
+	global Shoot_Count,SKILL_1ST_TIME,BATTLE_MODE
+	
+	hpBelow35:=not judge(52,123,0x770000)
+	hpBelow80:=hpBelow35 or not judge(78,123,0x770000)
+	
+	current_time:=CURRENT_TIME_STAMP()
+	
+	if(current_time-SKILL_1ST_TIME>=3.5){
+		send +{LButton}{3}
+		SKILL_1ST_TIME:=CURRENT_TIME_STAMP()
+	}else if(current_time-SKILL_1ST_TIME<3.2){
+;~ 		IfThenDo(judge(808,974,0x1C201A,0x1E221C), "+{LButton}","+{4}")
+		send +{4}{3}
+	}else{
+		send +{LButton}{3}
+	}
+	
+;~ 	cd:=current_time-SKILL_1ST_TIME
+;~ 	
+;~ 	ToolTip ,%current_time%`n%SKILL_1ST_TIME%`n%cd%,840,100
+
+	IfThenDo(hpBelow35, "{q}")	;;如果血不满35%则使用血瓶
+	IfThenDo(judge(546,974,0x555541), "{1}")	
+	IfThenDo(judge(611,974,0x555643), "{2}")	
+	IfThenDo(judge(872,974,0x1E221C,0x1C201A), "{RButton}")	
+;~ 	IfThenDo(judge(676,974,0x555643), "{3}")	
+;~ 	IfThenDo(judge(741,974,0x555643), "{4}")
+;~  	IfThenDo(not BATTLE_MODE=3 and judge(872,974,0x1E221C) and hpBelow80, "{RButton}")	;;天罚之剑
+}
+
+CURRENT_TIME_STAMP(){	;跨月的时候会发生错误，问题不大。
+	nowa_Time:=A_Now
+	StringMid nowa_Day,nowa_Time,7,2
+	StringMid nowa_hr,nowa_Time,9,2
+	StringMid nowa_Min,nowa_Time,11,2
+	StringMid nowa_Sec,nowa_Time,13,2
+	Return nowa_Day*86400+nowa_hr*3600+nowa_Min*60+nowa_Sec+A_MSec/1000
+}
+
+
+;~ 872,974,0x140D08
+;~ 808,974,0x1E221C
+;~ 546,974,0x555541
+;~ 611,974,0x555643
+;~ 676,974,0x7E794F
+;~ 741,974,0x555643
+
+
+
+
+Random_(){
+	Random rand,1,100
+	Return rand
+}
+
+Sin_(x,y){
+	return (y-493)/Sqrt(Square(x-840)+Square(y-493))
+}
+
+Cos_(x,y){
+	return (x-840)/Sqrt(Square(x-840)+Square(y-493))
+}
+
+Square(x){
+	return x*x
+}
+;===================================================
+;=                钱教授的百宝盒                   =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+getColorAndXy(x,y,binColor=""){
+;~ 	MouseMove x,y
+	while(GetKeyState("LCtrl")){
+		cout:=""
+		PixelGetColor mouse_color,x,y,RGB
+;~ 		cout:=RegExReplace(cout,"$",x "," y "," mouse_color "`n")
+		cout:=x . "," . y . "," . mouse_color
+;~         ToolTip % cout
+        Sleep 10
+    }
+    ToolTip
+	Return cout
+}
+
+GetColor(x,y){
+	PixelGetColor clr,x,y,RGB
+	cout:=x . "," . y . "," . clr . "`n"
+	Return cout
+}
+
+IfThenDo(condition=false,action_word="",else_action_word=""){
+	if(condition){
+		send %action_word%
+	}else{
+		send %else_action_word%
+	}
+}
+;==================================================================
+;       DIABLO Ⅲ 赛季 圣教军 锤子流 2016-1-25 00:02:30
+;==================================================================

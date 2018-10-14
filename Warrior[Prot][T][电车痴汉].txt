@@ -1,0 +1,722 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed 0
+GroupAdd MyGroup,ahk_class XLMAIN
+GroupAdd MyGroup,ahk_class SciTEWindow
+;===================================================
+;=              Grid_Health配置文件                =
+;===================================================
+LineCount:=0
+Loop, read, D:\Program Files\AutoHotkey\Wow_DataBase\Grid_Health.txt		;读取配置文件。
+{
+	LineCount++
+	Line%LineCount% := A_LoopReadLine	;行数、行内容。
+}
+
+Loop %LineCount%
+{
+	element:=Line%A_Index%		;中间变量
+	StringLeft Left4Words,element,4
+	if(Left4Words=="Raid" or Left4Words=="Play" or Left4Words=="Targ"){
+		variableName:=element
+		%variableName%_count:=0
+		num:=%variableName%_count
+		Continue
+	}
+
+	%variableName%_count++
+	num:=%variableName%_count
+	
+	StringSplit ARRAY,element,`,
+	%variableName%_X_%num%:=ARRAY1
+	%variableName%_Y_%num%:=ARRAY2
+	%variableName%_value_%num%:=ARRAY3
+}
+;===================================================
+;=                钱教授的工具包                   =
+;===================================================
+^Numpad8::
+GetColorAndXy(16,858,0x000000)
+return
+
+^Numpad9::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard =%mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+;===================================================
+;=                   正文                          =
+;===================================================
+#IfWinActive ahk_class GxWindowClassD3d
+~1::
+ATT_MODE:=1	;SOLO模式
+PRINT:="[SOLO]模式"
+CHARGE_DELAY:=0
+INTERCEPTION_DELAY:=0
+ToolTip %PRINT%,840,0
+SetTimer mainCircle,200
+Return
+
+~2::
+ATT_MODE:=2	;AOE模式。
+PRINT:="[AOE]模式"
+CHARGE_DELAY:=0
+INTERCEPTION_DELAY:=0
+ToolTip %PRINT%,840,0
+SetTimer mainCircle,200
+Return
+
+~Esc::
+ATT_MODE:=0
+Return
+
+mainCircle:
+	trgCantBeAtt:=judge(331,893,0xFFD100)
+	trgPower:=GetColor(465,35)
+	isElite:=trgPower=0x332F30
+	isNormal:=trgPower=0x5F5D5F
+	
+	stanceColor:=GetColor(1597,975)
+	inArmStance:=stanceColor=0xE6D6DC
+	inProStance:=stanceColor=0x2770D8
+	inFryStance:=stanceColor=0x000000
+	
+	trgMana_Color:=GetColor(317,75)
+	StringLeft lft6Words,trgMana_Color,6
+	trgHasMana:=lft6Words="0x0000"
+	
+	eqpShield:=judge(768,1025,0xFFFFFF)
+	trgSingMagic:=judge(709,666,0x080000)
+	
+	player_HP:=GetValue("PlayerHealth")
+	target_HP:=GetValue("TargetHealth")
+	player_RP:=GetValue("PlayerRage")
+	
+	aoeDist:=GetColor(5,835)
+	isNearBy:=aoeDist=0x9F0000
+	in10Yards:=Eql2(aoeDist,0x9F0000,0x9F0050)
+	isClose:=judge(5,815,0x780000)
+	
+	trgPrf:=GetColor(527,28)
+	isHunter:=trgPrf=0xABD473
+	
+	imCtrled:=judge(261,893,0xFFD100)
+	trgIsFree:=judge(296,893,0xFFD100)
+	trgCanBIntercepted:=not trgCantBeAtt and not trgIsFree
+	
+	imUnderAtt:=judge(473,893,0xFFD100)
+	
+	trgPrf:=GetColor(526,28)
+	isPveTarget:=Eql2(trgPrf,0x808080,0xFF0000,0xFFFF00)
+	isPvpTarget:=not isPveTarget and not trgPrf=0x8080FF
+	trgNeed2Disarm:=Eql2(trgPrf,0xC79C6E,0xFFF569,0xF58CBA,0xABD473)	;骑士盗贼战士猎人。
+	
+	trgIsSlowedDown:=trgIsFree or trgCantBeAtt or judge(84,893,0xFFD100) or judge(87,858,0xD3C9D5) or judge(87,858,0x3D07D8)
+	
+	lookAtMe:=judge(465,114,0x9D4321,0x9D0000,0x585969,0x580000)
+;~ 	usingShield:=judge(616,893,0xFFD100)
+	targetHurtMeWithMagic:=(TargetSinging() or judge(526,28,0x69CCF0,0x9482C9) and trgSingMagic) and lookAtMe	;目标企图用法术伤害我=唱指定魔法或术法吟唱、看着我。
+	focusCtrlMewithMagic:=FocusSinging() and focusLookAtMe
+	
+	
+	isMoving:=IsMoving()
+	inCombat:=judge(1654,975,0xFFFFFF)
+	
+	trgHarm:=GetColor(567,1020)
+	isharm:=trgHarm=0x1156A9 and not trgCantBeAtt
+	isHelp:=trgHarm=0x280761
+	
+	if(ATT_MODE=0){
+		Ending()
+	}else if(judge(709,634,0x080000)){
+		;玩家施法什么也不做。
+	}else if(judge(792,25,0x880700,0xA20905)){
+		;载具战。
+		Knight()
+	}else if(isNormal){
+		AttMode()
+		;Att模式。
+	}else if(isElite){
+		AttMode()
+		;精英模式。
+	}else if(ATT_MODE=2 and judge(303,975,0xFFFFFF)){
+		send {;}
+		;好战自动索敌。
+	}else{
+		Ending()
+	}
+Return
+
+Ending(){
+	global ATT_MODE,RUSH_GCD
+	SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+	SetTimer mainCircle,Off
+	ToolTip
+	ATT_MODE:=0
+	RUSH_GCD:=0
+}
+
+Knight(){
+	if(judge(163,1025,0xFFFFFF)){
+		send {F9}
+	}
+	if(judge(116,1025,0xFFFFFF)){
+		send {F8}
+	}
+	if(judge(70,1025,0xFFFFFF)){
+		send {f7}
+	}
+	if(judge(23,1025,0xFFFFFF)){
+		send {f6}
+	}
+}
+
+;右Ctrl快速得到颜色。
+;~ ~RCtrl::
+;~ 	global CHARGE_DELAY,INTERCEPTION_DELAY
+;~     while(not BIG_BLOCK){
+;~ 		af:=0
+;~ 		tooltip %af%,840,20
+;~         ToolTip %CHARGE_DELAY%`n%INTERCEPTION_DELAY%,840,50,aaa
+;~         Sleep 16
+;~     }
+;~     ToolTip
+;~ return
+
+AttMode(){
+	global trgCantBeAtt,trgPower,isElite,isNormal,stanceColor,inArmStance,inProStance,inFryStance,trgHasMana,eqpShield,trgSingMagic,player_HP,target_HP,player_RP,aoeDist,isNearBy,in10Yards,isClose,trgPrf,isHunter,imCtrled,trgIsFree,trgCanBIntercepted,imUnderAtt,trgPrf,isPveTarget,isPvpTarget,trgIsSlowedDown,lookAtMe,usingShield,targetHurtMeWithMagic,focusCtrlMewithMagic,trgNeed2Disarm,isMoving,trgHarm,isharm,isHelp,inCombat,ATT_MODE,RUSH_GCD,CHARGE_DELAY,INTERCEPTION_DELAY,PRINT
+	
+	targetSingMagic:=judge(709,666,0x080000)
+;~ 	charge_Clr:=getColor(23,975)
+;~ 	charge_Avi:=charge_Clr=0xFFFFFF
+;~ 	charge_CD:=charge_Clr=0xFFFF00
+;~ 	interception_Clr:=getColor(70,975)
+;~ 	interception_Avi:=interception_Clr=0xFFFFFF
+;~ 	interception_CD:=interception_Clr=0xFFFF00
+;~ 	if(Last_Charge=False and charge_CD or Last_Interception=False and interception_CD){
+;~ 		RUSH_GCD:=1
+;~ 	}else{
+;~ 		Last_Charge:=charge_CD
+;~ 		Last_Interception:=interception_CD
+;~ 	}	
+;~ 	ToolTip %PRINT%`n%CHARGE_DELAY%`n%INTERCEPTION_DELAY%,840,0
+	
+	if(judge(261,893,0xFFD100) and judge(862,1025,0xFFFFFF)){
+		send {e}
+		;徽章。被控制、技能可用。
+	}else if(judge(438,893,0xFFD100) and judge(1002,1025,0xFFFFFF)){
+		send {x}
+		;狂暴之怒。玩家被恐惧、技能可用。
+	}else if(player_HP<50 and judge(1513,1025,0xFFFFFF)){
+		send {i}
+		;盾墙。
+	}else if(player_HP<=40 and judge(257,975,0xFFFFFF)){
+		send {\}
+		;狂暴回复。
+	}else if(player_HP<=20 and judge(1186,1025,0xFFFFFF)){
+		send {7}
+		;破釜沉舟。
+	}else if(targetHurtMeWithMagic and player_RP>=15 and not reflectionInCD and inFryStance){
+		send {Down}
+		;防御姿态。目标企图伤害我、有15怒气、法术反射无CD、在狂暴姿态。
+	}else if(not inProStance and ATT_MODE=2){
+		send {Down}
+		;防御姿态。
+	}else if(judge(23,975,0xFFFFFF) and CHARGE_DELAY=0){
+		send {k}
+		INTERCEPTION_DELAY:=1
+		;冲锋。技能可用。
+	}else if(judge(70,975,0xFFFFFF) and INTERCEPTION_DELAY=0){
+		send {-}
+		CHARGE_DELAY:=1
+		;拦截。技能可用。
+	}else if(not targetSingMagic and judge(116,975,0xFFFFFF)){
+		send {=}
+		;援护。技能可用。
+	}else if((inProStance and isClose or isharm and not inProStance) and judge(163,1025,0xFFFFFF)){
+		send {F9}
+		;乘胜追击\盾牌格挡。技能可用。
+	}else if(isharm and ATT_MODE=1 and isClose and RageCost(35) and judge(444,1025,0xFFFFFF) and not judge(465,1025,0xEEDE93)){
+		send {Del}
+		;英勇打击。非AOE模式、敌对、近身、能耗15怒、技能可用、未被吊起。
+	}else if(isharm and ATT_MODE=2 and isClose and RageCost(35) and judge(490,1025,0xFFFFFF) and not judge(511,1025,0xE7DB4A)){
+		send {End}
+		;顺劈斩。AOE模式、敌对、近身、能耗20怒、技能可用、未被吊起。
+	}else if(){
+		
+	}
+	
+	if(isharm and trgNeed2Disarm and judge(163,975,0xFFFFFF)){
+		send {[}
+		;缴械。战贼骑猎。
+	}else if(isharm and targetSingMagic and not isHunter and judge(70,1025,0xFFFFFF)){
+		send {F7}
+		;盾击\拳击。目标吟唱、不是猎人、技能可用。
+	}else if(isharm and targetSingMagic and not isHunter and judge(1326,1025,0xFFFFFF)){
+		send {0}
+		;震荡猛击。目标吟唱、不是猎人、技能可用。
+	}else if(targetSingMagic and isClose and isharm and not isHunter and judge(1280,1025,0xFFFFFF)){
+		send {9}
+		;震荡波。
+	}else if(targetHurtMeWithMagic and judge(210,975,0xFFFFFF) and judge(70,1025,0xFFFF00)){
+		send {]}
+		;法术反射。目标要放魔法搞我。
+	}else if(isharm and isPvpTarget and not trgIsSlowedDown and not inProStance and judge(116,1025,0xFFFFFF)){
+		send {F8}
+		;断筋。pvp目标、目标未被减速、非防御姿态、技能可用。
+	}else if(isharm and judge(397,1025,0xFFFFFF)){
+		send {PGUP}
+		;斩杀。技能可用。
+	}else if(isharm and (inFryStance and isClose and RageCost(25) or not inFryStance) and judge(23,1025,0xFFFFFF)){
+		send {F6}
+		;压制\复仇\旋风斩。狂暴姿态要求近身35怒气、技能可用。
+	}else if(isharm and isClose and (not trgHasMana and not judge(155,893,0xFFD100) or ATT_MODE=2) and RageCost(13) and judge(350,1025,0xFFFFFF)){
+		send {Home}
+		;雷霆一击。贴近、目标无蓝、无该DEBUFF、能耗20怒气、技能可用。
+	}else if(isharm and judge(210,1025,0xFFFFFF) and RageCost(20)){
+		send {F10}
+		;盾牌猛击。技能可用、能耗20怒气。
+	}else if(isClose and isharm and ATT_MODE=2 and RageCost(15) and judge(1280,1025,0xFFFFFF)){
+		send {9}
+		;震荡波。AOE模式、15怒气、技能可用。
+	}else if(isharm and RageCost(10) and not judge(119,893,0xFFD100) and judge(257,1025,0xFFFFFF)){
+		send {F11}
+		;撕裂。10怒气、无该DEBUFF、技能可用。
+	}else if(isharm and RageCost(10) and judge(303,1025,0xFFFFFF)){
+		send {Ins}
+		;惩戒痛击。10怒气、技能可用。
+	}else if(isharm and RageCost(15) and judge(1139,1025,0xFFFFFF)){
+		send {6}
+		;毁灭打击。15怒气、技能可用。
+	}else if(not trgHasMana and RageCost(10) and in10Yards and not judge(48,893,0xFFD100) and judge(1095,1025,0xFFFFFF)){
+		send {v}
+		;挫志怒吼。目标没蓝、20怒气、10码内、无该DEBUFF、技能可用。
+	}else if(RageCost(10) and not judge(13,893,0xFFD100) and judge(1654,1025,0xFFFFFF)){
+		send {j}
+		;战斗怒吼。能耗10怒气、无战斗or命令怒吼BUFF、技能可用。
+	}else if(isharm and RageCost(15) and judge(1326,1025,0xFFFFFF)){
+		send {0}
+		;震荡猛击。15怒气、技能可用。
+	}else if(){
+		
+	}
+
+	if(INTERCEPTION_DELAY>8){
+		;1.6秒的内置CD。
+		INTERCEPTION_DELAY:=0
+	}else if(INTERCEPTION_DELAY>0){
+		INTERCEPTION_DELAY++
+	}
+	
+	if(CHARGE_DELAY>8){
+		;1.6秒的内置CD。
+		CHARGE_DELAY:=0
+	}else if(CHARGE_DELAY>0){
+		CHARGE_DELAY++
+	}
+}
+
+RageCost(RageSpending){
+	global player_RP,isPvpTarget,trgIsSlowedDown
+	boxInCD:=judge(70,1025,0xFFFF00)
+	if(isPvpTarget and not trgIsSlowedDown) RageSpending+=10
+	if(not boxInCD) RageSpending+=10
+	Return player_RP>=RageSpending
+}
+
+AllStance(){
+;~ 	global isSlowDown,targetHasMana,equippedShield,targetSingMagic,has15Rage,has10Rage,isNearBy,isHunter,isClose,beStoped,canBeIntercepted,chargeInCD,interceptInCD,underAttack,reflectionInCD,bladeStorming,imInRisk,focusLookAtMe,inFuryStance,inProtectionStance,isPveTarget,isPvpTarget,isSlowDown,lookAtMe,usingShield,targetHurtMeWithMagic,focusCtrlMewithMagic
+;~ 	
+;~ 	if((judge(404,893,0xFFD100) or judge(440,893,0xFFD100)) and judge(864,1024,0xFFFFFF)){
+;~ 		send {e}
+;~ 		;徽章。中了控制技、技能可用。
+;~ 	}else if((judge(510,893,0xFFD100) or judge(546,893,0xFFD100)) and judge(1004,1024,0xFFFFFF)){
+;~ 		send {x}
+;~ 		;狂暴之怒。凿击、忏悔、破胆怒吼、心灵尖叫、恐惧、恐惧嚎叫、闷棍。技能可用。
+;~ 	}else if(judge(581,893,0xFFD100) and judge(1610,1024,0xFFFFFF)){
+;~ 		send {h}
+;~ 		;石像形态。中了减速、钉刺，技能可用。
+;~ 	}else if((targetHurtMeWithMagic or focusCtrlMewithMagic) and judge(118,975,0xFFFFFF)){
+;~ 		send {=}
+;~ 		;法术反射。非猎骑的法系目标看着我、或焦点看我读控制魔法、技能可用。
+;~ 	}else if((focusCtrlMewithMagic or targetHurtMeWithMagic) and has15Rage and not reflectionInCD and inFuryStance){
+;~ 		send {Down}
+;~ 		;防御姿态。焦点企图控制我或目标企图伤害我、有15怒气、法术反射无CD、在狂暴姿态。
+;~ 	}else if(not bladeStorming and not equippedShield and has15Rage and not reflectionInCD and (focusCtrlMewithMagic or targetHurtMeWithMagic)){
+;~ 		send {]}
+;~ 		;持盾。未开剑刃风暴、没装备盾牌、有15怒气、法术反射无CD、焦点看我唱魔法或目标看我唱魔法。
+;~ 	}else if(not bladeStorming and not equippedShield and (lookAtMe and judge(526,28,0xFFF569) or underAttack)){
+;~ 		send {]}
+;~ 		;顶盾。未风车、看着我、非持盾、贼看我或被菜刀狂砍。
+;~ 	}else if(imInRisk){
+;~ 		;危险、不在利刃风暴中。
+;~ 		if(not equippedShield){
+;~ 			send {]}
+;~ 			;持盾。
+;~ 		}else if(not judge(167,963,0x5AA6FF)){
+;~ 			send {Down}
+;~ 			;切换防御姿态。
+;~ 		}else if(judge(397,975,0xFFFFFF)){
+;~ 			send {Numpad0}
+;~ 			;盾墙。
+;~ 		}
+;~ 	}else if(equippedShield and (not lookAtMe or reflectionInCD) and not underAttack and not usingShield){
+;~ 		send {]}
+;~ 		;卸盾。拿着盾牌、没看自己或法术反射CD、不在被菜刀砍、没开盾系技能。
+;~ 	}else if(targetSingMagic and not judge(526,28,0xABD473) and judge(258,1024,0xFFFFFF)){
+;~ 		send {F11}
+;~ 		;盾击拳击。目标吟唱、不是猎人、技能可用。
+;~ 	}else if((targetSingMagic and not isClose or judge(475,893,0xFFD100) or not judge(530,108,0x009E00) and judge(1563,975,0xFFFFFF) or judge(1657,975,0xFFFFFF)) and judge(1237,1024,0xFFFFFF)){
+;~ 		send {8}
+;~ 		;破胆怒吼。远处目标吟唱或被定身或目标的目标濒危或拳击CD、技能可用。
+;~ 	}else if(not judge(137,60,0x00A900) and judge(1470,1024,0xFFFFFF)){
+;~ 		send {u}
+;~ 		;战斗大师。不满20血、饰品可用。
+;~ 	}else if(not has10Rage and judge(1423,1024,0xFFFFFF)){
+;~ 		send {y}
+;~ 		;血性狂暴。不满10怒气、技能可用。
+;~ 	}else if(not judge(164,1024,0xFFFFFF)){
+;~ 		send {;}
+;~ 		;自动攻击。不能断筋时。
+;~ 	}
+;~ 	
+;~ 	if((canBeIntercepted and not inProtectionStance or not isNearBy and not lookAtMe and inProtectionStance) and judge(24,1024,0xFFFFFF)){
+;~ 		send {F6}
+;~ 		;冲锋拦截援护。可被冲锋非防御姿态或在远处不看我防御姿态、技能可用。
+;~ 	}else if(canBeIntercepted and not isNearBy and not judge(167,963,0xE0B185) and not chargeInCD and (interceptInCD or not has10Rage)){
+;~ 		send {left}
+;~ 		;战斗姿态。可被冲锋、在远处、不在战斗姿态、冲锋无CD拦截CD或不满10怒气。
+;~ 	}else if(canBeIntercepted and not isNearBy and not judge(167,963,0xD6C7B5) and not interceptInCD and chargeInCD and judge(123,75,0xA20000)){
+;~ 		send {Right}
+;~ 		;狂暴姿态。可被冲锋、在远处、不在狂暴姿态、拦截无CD、冲锋CD、10怒气。
+;~ 	}else if(canBeIntercepted and not isNearBy and inProtectionStance and not chargeInCD and not interceptInCD){
+;~ 		send {Left}
+;~ 		;战斗姿态。可被冲锋、在远处、防御姿态、冲锋无CD、拦截无CD。
+;~ 	}
+;~ 	
+;~ 	if(equippedShield and bladeStorming){
+;~ 		send {]}
+;~ 		;卸盾。拿着盾牌开风车。
+;~ 	}else if(judge(351,1024,0xFFFFFF)){
+;~ 		send {Home}
+;~ 		;横扫攻击。技能可用。
+;~ 	}else if(not usingShield and isNearBy and judge(221,871,0x040412) and beStoped and judge(631,1024,0xFFFFFF)){
+;~ 		send {2}
+;~ 		;利刃风暴。没开盾牌技能、附近、致死效果、被定身、技能可用。
+;~ 	}else if(not usingShield and isSlowDown and judge(221,871,0x040412) and isNearBy and judge(631,1024,0xFFFFFF) and not judge(526,28,0xC79C6E,0x69CCF0)){
+;~ 		send {2}
+;~ 		;利刃风暴。没开盾牌技能、目标被减速、致死效果、在附近、技能可用、不是战法。
+;~ 	}else if(not usingShield and isSlowDown and judge(221,871,0x040412) and isNearBy and judge(631,1024,0xFFFFFF) and lookAtMe and judge(526,28,0xC79C6E,0xFFF569,0xF58CBA)){
+;~ 		send {2}
+;~ 		;利刃风暴。没开盾牌技能、目标被减速、致死效果、在附近、没持盾、技能可用、看着我、是战贼骑。
+;~ 	}else if(beStoped and judge(1657,1024,0xFFFFFF)){
+;~ 		send {j}
+;~ 		;飞镖。被控制、技能可用。
+;~ 	}
+}
+
+EltMode(){
+	global trgCantBeAtt,trgPower,isElite,isNormal,stanceColor,inArmStance,inProStance,inFryStance,trgHasMana,eqpShield,trgSingMagic,player_HP,target_HP,player_RP,aoeDist,isNearBy,in10Yards,isClose,trgPrf,isHunter,imCtrled,trgIsFree,trgCanBIntercepted,imUnderAtt,trgPrf,isPveTarget,isPvpTarget,trgIsSlowedDown,lookAtMe,usingShield,targetHurtMeWithMagic,focusCtrlMewithMagic,trgNeed2Disarm,isMoving,trgHarm,isharm,isHelp,ATT_MODE
+	
+	if((judge(404,893,0xFFD100) or judge(440,893,0xFFD100)) and judge(864,1024,0xFFFFFF)){
+		send {e}
+		;徽章。致盲、死亡缠绕、深度冻结、翼龙钉刺、龙息术、制裁之锤。技能可用。
+	}else if((not judge(546,893,0xFFD100) and not judge(1470,975,0xFFFFFF)) and judge(864,1024,0xFFFFFF)){
+		send {e}
+		;徽章。中招：盲、龙息术（非恐惧系且无法躲闪）。技能可用。
+	}else if((judge(510,893,0xFFD100) or judge(546,893,0xFFD100)) and judge(1004,1024,0xFFFFFF)){
+		send {x}
+		;狂暴之怒。凿击、忏悔、破胆怒吼、心灵尖叫、恐惧、恐惧嚎叫、闷棍 技能可用。
+	}else if(judge(581,893,0xFFD100) and judge(1610,1024,0xFFFFFF)){
+		send {h}
+		;石像形态。中了减速、钉刺，技能可用。
+	}else if(targetSingMagic and not isHunter and judge(258,1024,0xFFFFFF)){
+		send {F11}
+		;盾击拳击。目标吟唱、不是猎人、技能可用。
+	}else if(lookAtMe and targetSingMagic and judge(118,975,0xFFFFFF)){
+		send {=}
+		;法术反射。看着我、吟唱、技能可用。
+	}else if(not judge(137,60,0x00A900) and judge(1470,1024,0xFFFFFF)){
+		send {u}
+		;战斗大师。不满20血、饰品可用。
+	}else if(not has10Rage and judge(1423,1024,0xFFFFFF)){
+		send {y}
+		;血性狂暴。不满10怒气、技能可用。
+	}else if(lookAtMe and not equippedShield){
+		send {]}
+		;切换盾牌。看着我、没上盾。
+	}else if(lookAtMe and not inProtectionStance){
+		send {Down}
+		;防御姿态。看着我、不在防御姿态。
+	}else if(not lookAtMe and equippedShield){
+		send {]}
+		;切换武器。没看我、持盾。
+	}else if(targetSingMagic and not has25Rage and not lookAtMe and not judge(258,1024,0xFFFF00) and not inFuryStance){
+		send {Right}
+		;狂暴姿态。目标吟唱、不满25怒气、不看我、拳击无CD、不在狂暴姿态。
+	}else if(not has25Rage and not lookAtMe and not inArmStance){
+		send {Left}
+		;战斗姿态。不满25怒气、不看我、不在战斗姿态。
+	}else if(not judge(123,75,0xA20000)){
+		send {;}
+		;自动攻击。不满10怒气。
+	}else if(equippedShield and bladeStorming){
+		send {]}
+		;卸盾。拿着盾牌开风车。
+	}else if(isClose and judge(351,1024,0xFFFFFF)){
+		send {Home}
+		;横扫攻击。近战、技能可用。
+	}else if(isNearBy and judge(221,871,0x040412) and beStoped and judge(631,1024,0xFFFFFF)){
+		send {2}
+		;利刃风暴。附近、致死效果、被定身、技能可用。
+	}else if(isSlowDown and judge(221,871,0x040412) and isNearBy and judge(631,1024,0xFFFFFF) and not judge(526,28,0xC79C6E,0x69CCF0,0xFF7D0A)){
+		send {2}
+		;利刃风暴。目标被减速、致死效果、在附近、技能可用、不是战法德。
+	}else if(isSlowDown and judge(221,871,0x040412) and isNearBy and judge(631,1024,0xFFFFFF) and lookAtMe and judge(526,28,0xC79C6E,0xFFF569,0xF58CBA)){
+		send {2}
+		;利刃风暴。目标被减速、致死效果、在附近、没持盾、技能可用、看着我、是战贼骑。
+	}else if(){
+		
+	}
+	
+	if(canBeIntercepted and judge(24,1024,0xFFFFFF) and not judge(167,963,0x5AA6FF)){
+		send {F6}
+		;冲锋拦截。可被冲锋、技能可用、非防御姿态。
+	}else if(not isNearBy and canBeIntercepted and not lookAtMe and judge(24,1024,0xFFFFFF) and judge(167,963,0x5AA6FF)){
+		send {F6}
+		;援护。可被冲锋、不在看我、技能可用、防御姿态。
+	}else if(canBeIntercepted and not isNearBy and not judge(167,963,0xE0B185) and not chargeInCD and (interceptInCD or not judge(123,75,0xA20000))){
+		send {left}
+		;战斗姿态。可被冲锋、在远处、不在战斗姿态、冲锋无CD拦截CD或不满10怒气。
+	}else if(canBeIntercepted and not isNearBy and not judge(167,963,0xD6C7B5) and not interceptInCD and chargeInCD and judge(123,75,0xA20000)){
+		send {Right}
+		;狂暴姿态。可被冲锋、在远处、不在狂暴姿态、拦截无CD、冲锋CD、10怒气。
+	}else if(not isNearBy and judge(167,963,0xD6C7B5) and chargeInCD and interceptInCD){
+		send {Left}
+		;战斗姿态。在远处、狂暴姿态、冲锋CD、拦截CD。
+	}
+	
+	if(inProtectionStance and judge(118,1024,0xFFFFFF) and not judge(181,60,0x00C600)){
+		send {F8}
+		;盾墙。防御姿态、盾墙可用、半血以下。
+	}else if(inProtectionStance and lookAtMe and judge(304,1024,0xFFFFFF)){
+		send {Ins}
+		;盾牌格挡。防御姿态、看自己、技能可用。
+	}else if(not inProtectionStance and judge(304,1024,0xFFFFFF)){
+		send {Ins}
+		;乘胜追击。非防御姿态、技能可用。
+	}else if(judge(258,975,0xFFFFFF)){
+		send {\}
+		;致死打击。技能可用。
+	}else if(targetCanBeExecuted){
+		send {F10}
+		;斩杀。技能可用。
+	}else if(inFuryStance and isClose and judge(71,1024,0xFFFFFF) and judge(159,75,0xB30000)){
+		send {F7}
+		;旋风斩。狂暴姿态、贴近、技能可用、怒气35。
+	}else if(inArmStance and judge(71,1024,0xFFFFFF) and judge(130,75,0xAA0000)){
+		send {F7}
+		;压制。战斗姿态、技能可用、15怒气。
+	}else if(inProtectionStance and judge(71,1024,0xFFFFFF) and judge(130,75,0xAA0000)){
+		send {F7}
+		;复仇。防御姿态、技能可用、15怒气。
+	}else if(has20Rage and not judge(15,893,0xFFD100) and judge(957,1024,0xFFFFFF)){
+		send {z}
+		;战斗怒吼。20怒气、无战斗命令怒吼、技能可用。
+	}else if(not inFuryStance and has20Rage and not judge(121,893,0xFFD100) and judge(397,1024,0xFFFFFF)){
+		send {PGUP}
+		;撕裂。非狂暴姿态、20怒气、无该DEBUFF、技能可用。
+	}else if(not inFuryStance and isClose and not targetHasMana and not judge(157,893,0xFFD100) and judge(152,75,0xB30000) and judge(444,1024,0xFFFFFF)){
+		send {Del}
+		;雷霆一击。非狂暴姿态、贴近、目标无蓝、无该DEBUFF、30怒气、技能可用。
+	}else if(isClose and not targetHasMana and has20Rage and not judge(86,893,0xFFD100) and judge(1097,1024,0xFFFFFF)){
+		send {v}
+		;挫志怒吼。贴近、目标没蓝、20怒气、无该DEBUFF、技能可用。
+	}else if(judge(1330,1024,0xFFFFFF) and judge(152,75,0xB30000)){
+		send {0}
+		;盾牌猛击。技能可用、30怒气。
+	}else if(not inFuryStance and has20Rage and judge(491,1024,0xFFFFFF)){
+		send {End}
+		;惩戒痛击。非狂暴姿态、20怒气、技能可用。
+	}else if(has20Rage and not judge(15,893,0xFFD100) and judge(957,1024,0xFFFFFF)){
+		send {z}
+		;战斗怒吼。20怒气、无战斗命令怒吼、技能可用。
+	}else if(isClose and judge(195,75,0xC90000) and judge(1284,1024,0xFFFFFF)){
+		send {9}
+		;顺劈斩。近战、60怒气、技能可用。
+	}else if(){
+		
+	}
+}
+
+;===================================================
+;=                  状态计量函数                   =
+;===================================================
+GetUnitRaidHealth(SequenceNum){
+	local min_Num:=0
+	local max_Num:=Raid%SequenceNum%_count-1
+	while(max_Num-min_Num>1){
+		local mid_Num:=Round((min_Num+max_Num)/2)
+		if(GetColor(Raid%SequenceNum%_X_%mid_Num%,Raid%SequenceNum%_Y_%mid_Num%)=0x000000){	;反算黑点，不算绿灯。
+			max_Num:=mid_Num
+		}else{
+			min_Num:=mid_Num
+		}
+	}
+
+	Return Round(min_Num/(Raid%SequenceNum%_count-1)*100)
+}
+
+GetValue(valueName){
+	local min_Num:=0
+	local max_Num:=%valueName%_count-1
+	while(max_Num-min_Num>1){
+		local mid_Num:=Round((min_Num+max_Num)/2)
+;~ 		if(GetColor(%valueName%_X_%mid_Num%,%valueName%_Y_%mid_Num%)=%valueName%_value_%mid_Num%){
+;~ 			min_Num:=mid_Num
+;~ 		}else{
+;~ 			max_Num:=mid_Num
+;~ 		}
+		local micro_Color:=GetColor(%valueName%_X_%mid_Num%,%valueName%_Y_%mid_Num%)
+		if(valueName="PlayerHealth" or valueName="TargetHealth"){
+			StringLeft left4String,micro_Color,4
+			StringRight right2String,micro_Color,2
+			if(left4String="0x00" and right2String="00"){
+				min_Num:=mid_Num
+			}else{
+				max_Num:=mid_Num
+			}
+		}else if(valueName="PlayerMana"){
+			StringLeft left6String,micro_Color,6
+			if(left6String="0x0000"){
+				min_Num:=mid_Num
+			}else{
+				max_Num:=mid_Num
+			}
+		}else if(valueName="PlayerRage"){
+			StringRight right4String,micro_Color,4
+			if(right4String="0000"){
+				min_Num:=mid_Num
+			}else{
+				max_Num:=mid_Num
+			}
+		}else if(valueName="PlayerEnergy"){
+			StringRight right2String,micro_Color,2
+			if(right2String="00"){
+				min_Num:=mid_Num
+			}else{
+				max_Num:=mid_Num
+			}
+		}else if(valueName="PlayerRune"){
+			StringLeft left4String,micro_Color,4
+			if(left4String="0x00"){
+				min_Num:=mid_Num
+			}else{
+				max_Num:=mid_Num
+			}
+		}else{
+			max_Num:=mid_Num
+		}	
+	}
+
+	Return Round(min_Num/(%valueName%_count-1)*100)
+}
+
+FocusSinging(){
+	PixelGetColor get_color,698,712,RGB
+	return get_color=0x534D58 or get_color=0x546648 or get_color=0x8CA2F1 or get_color=0x67607A or get_color=0x3B2312 or get_color=0xE3C7A1 or get_color=0x91806E
+	;旋风、纠缠根须、寒冰箭、恐惧、变乌龟、变猪、变羊。
+
+}
+
+TargetSinging(){
+	PixelGetColor get_color,697,679,RGB
+	Return get_color=0x3E4936 or get_color=0x3E3A3B or get_color=0x00004A or get_color=0x4E9697 or get_color=0xC5A2DF or get_color=0xEAF6F4
+	;纠缠根须、旋风、闪电箭、闪电链、星火术、愤怒。
+}
+
+;===================================================
+;=               常用函数、工具                    =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+Eql2(a,b="",c="",d="",e="",f=""){
+	Return a=b or a=c or a=d or a=e or a=f
+}
+
+IsMoving(){
+	Return GetKeyState("w","p") or GetKeyState("a","p") or GetKeyState("s","p") or GetKeyState("d","p")
+}
+
+GetColorAndXy(x,y,binColor){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%x%,%y%,%gColor%
+	MsgBox %x%,%y%,%gColor%
+}
+
+GetColor(x,y){
+	PixelGetColor theColor,x,y,RGB
+	return theColor
+}
+
+^Numpad4::
+Clipboard = 0504aslan@163.com
+send ^{v}{Tab}
+sleep 128
+Clipboard = chao1986
+send ^{v}{enter}
+return
+
+;右Ctrl快速得到颜色。
+;~ ~RCtrl::
+;~     while(GetKeyState("RCtrl")){
+;~         MouseGetPos x,y
+;~ 		PixelGetColor mouse_color,x,y,RGB
+;~         ToolTip % x "," y "," mouse_color
+;~         Sleep 16
+;~     }
+;~     ToolTip
+;~ return
+
+;===================================================
+;=        Excel和SciTE针对judge()的修缮工具        =
+;===================================================
+;~ #IfWinActive ahk_group MyGroup
+;~ F1::
+;~ send ^{x}{Right}{BackSpace}
+;~ send ^{right 3}{,}^{v}
+;~ Return
+
+;~ F2::
+;~ send +^{Right 2}
+;~ send ^{x}{Right}{BackSpace}
+;~ send ^{right 3}{,}^{v}
+;~ Return
+
+;~ F3::
+;~ send +^{Right 4}
+;~ send ^{x}{Right}{BackSpace}
+;~ send ^{right 3}{,}^{v}
+;~ Return
+
+;~ F4::
+;~ send +^{Right 6}
+;~ send ^{x}{Right}{BackSpace}
+;~ send ^{right 3}{,}^{v}
+;~ Return
+
+;~ F5::
+;~ send +^{Right 8}
+;~ send ^{x}{Right}{BackSpace}
+;~ send ^{right 3}{,}^{v}
+;~ Return
+;===================================================
+;=           Warrior[Prot][T][电车痴汉]            =
+;===================================================

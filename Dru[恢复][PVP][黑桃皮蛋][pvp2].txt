@@ -1,0 +1,873 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed 0
+GroupAdd MyGroup,ahk_class XLMAIN
+GroupAdd MyGroup,ahk_class SciTEWindow
+PATIENT_NUM:=0
+PATIENT_TYPE:=0	;病患类型。1、MT。2、没想好。
+loop 30{
+	ButtonNum_%A_Index%:=0
+	AlarmScore_%A_Index%:=0
+	;声明全局。序列号相应按键号置零。
+}
+
+;===================================================
+;=              Grid_Health配置文件                =
+;===================================================
+LineCount:=0
+Loop, read, D:\Program Files\AutoHotkey\Wow_DataBase\Grid_Health.txt		;读取配置文件。
+{
+	LineCount++
+	Line%LineCount% := A_LoopReadLine	;行数、行内容。
+}
+
+Loop %LineCount%
+{
+	element:=Line%A_Index%		;中间变量
+	StringLeft Left4Words,element,4
+	if(Left4Words=="Raid" or Left4Words=="Play" or Left4Words=="Targ"){
+		variableName:=element
+		%variableName%_count:=0
+		num:=%variableName%_count
+		Continue
+	}
+
+	%variableName%_count++
+	num:=%variableName%_count
+	
+	StringSplit ARRAY,element,`,
+	%variableName%_X_%num%:=ARRAY1
+	%variableName%_Y_%num%:=ARRAY2
+	%variableName%_value_%num%:=ARRAY3
+}
+
+;===================================================
+;=                  截点工具包                     =
+;===================================================
+^Numpad8::
+GetColorAndXy(163,975,0xFFFFFF)
+return
+
+^Numpad9::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard = %mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+
+;===================================================
+;=                选取需要治疗的人                 =
+;===================================================
+#IfWinActive ahk_class GxWindowClassD3d
+SelectTarget(){
+	global PATIENT_NUM:=0,PATIENT_TYPE:=0,PATIENT_C4CLR
+	MaxAlarmScore:=0
+	MaxAlarmSequenceNum:=0
+	c2X:=0
+	c2Y:=0
+	
+	m:=0
+	n:=0
+
+	while(n<=4){
+		while(m<=4){
+			x := 14+m*39
+			y := 149+n*39
+			c1Clr:=GetColor(x,y)
+			c3Clr:=GetColor(x,y+26)
+			SequenceNum:=n*5+m+1	;序列号为5n+m+1。
+			
+			if(c1Clr=0xFF0000 or not c1Clr=0xFFFFFF and not c1Clr=0xFFFF00){
+				AlarmScore_%SequenceNum%:=0
+				;如果40码以外、离线、死掉或骑乘，则忽略该单位。
+			}else{
+				unitHealth:=GetUnitRaidHealth(SequenceNum)
+				AlarmScore_%SequenceNum%:=100-unitHealth	;X=100-H。补血评分的基础值为损失的血量。
+				c3Clr:=GetColor(x,y+26)
+				c4Clr:=GetColor(x+26,y+26)
+				
+				inCrisis:=c3Clr=0xFF00FF or c3Clr=0xFF0000	;若高仇恨、中致死、中透骨之寒，则危机值为true。
+				AlarmScore_%SequenceNum%*=inCrisis+1	;;第一仇恨2X。其他X。
+				AlarmScore_%SequenceNum%+=inCrisis	;;第一仇恨2X+1。其他X。
+				AlarmScore_%SequenceNum%-=5*(c3Clr=0x00FF00)	;被别人治疗。评分-5。
+;~ 				AlarmScore_%SequenceNum%-=5*(c3Clr=0xFFFFFF or c3Clr=0x0000FF or c4Clr=0xFFFFFF or c4Clr=0x00FF00 or c4Clr=0xFF00FF or c4Clr=0xFFFF00)	;开了防御、保命技能。
+				AlarmScore_%SequenceNum%-=5*(Eql2(c3Clr,0xFFFFFF,0x0000FF))	;开了保命技能可减少分值。
+				AlarmScore_%SequenceNum%+=10*(Eql2(c4Clr,0xFFFFFF,0x0000FF,0x00FF00,0xFF00FF,0xFFFF00))	;中了DEBUFF、增加分值。
+				PATIENT_NUM+=AlarmScore_%SequenceNum%>10	;若补血评分大于10，病患数+1。
+				
+				if(AlarmScore_%SequenceNum%>MaxAlarmScore){
+					MaxAlarmSequenceNum:=SequenceNum
+					MaxAlarmScore:=AlarmScore_%SequenceNum%
+					c2X:=x+26
+					c2Y:=y
+					PATIENT_TYPE:=inCrisis+0	;将病患类型定义为MT。
+					PATIENT_C4CLR:=c4Clr		;4号位传递下去。
+				}
+			}
+			m++
+		}
+		n++
+		m:=0
+	}
+	
+	if(MaxAlarmScore>0 and not judge(c2X,c2Y,0xFFFFFF)){
+		;最大危机值大于0、且危机点未被选中。
+		if(not ButtonNum_%MaxAlarmSequenceNum%=0){
+			;有快捷按钮。
+			loop 5{
+				PressButton(ButtonNum_%MaxAlarmSequenceNum%)
+				sleep 40
+				if(judge(c2X,c2Y,0xFFFFFF)){
+					Break
+				}
+			}
+		}
+		
+		if(not judge(c2X,c2Y,0xFFFFFF)){
+			;如果搞了半天还未选中目标，则进行补偿策略。
+			p:=25
+			while(p>0){
+				PressButton(p)
+				Sleep 60
+				if(judge(c2X,c2Y,0xFFFFFF)){
+					ButtonNum_%MaxAlarmSequenceNum%:=p
+					Break
+				}
+				p--
+			}
+		}
+	}
+}
+
+;~ RCtrl::
+;~ while(GetKeyState("RCtrl","p")){
+;~ 	unitHealth:=""
+;~ 	print:=""
+;~ 	loop 25{
+;~ 		unitHealth:=GetUnitRaidHealth(A_Index)
+;~ 		print:=RegExReplace(print , "$" , A_Index "::" unitHealth "`n")
+;~ 		unitHealth:=""
+;~ 	}
+;~ 	ToolTip %print%,840,0
+;~ 	sleep 100
+;~ }
+;~ ToolTip
+;~ Return
+
+;===================================================
+;=                  状态计量函数                   =
+;===================================================
+GetUnitRaidHealth(SequenceNum){
+	local min_Num:=0
+	local max_Num:=Raid%SequenceNum%_count-1
+	while(max_Num-min_Num>1){
+		local mid_Num:=Round((min_Num+max_Num)/2)
+		if(GetColor(Raid%SequenceNum%_X_%mid_Num%,Raid%SequenceNum%_Y_%mid_Num%)=0x000000){	;反算黑点，不算绿灯。
+			max_Num:=mid_Num
+		}else{
+			min_Num:=mid_Num
+		}
+	}
+
+	Return Round(min_Num/(Raid%SequenceNum%_count-1)*100)
+}
+
+GetValue(valueName){
+	local min_Num:=0
+	local max_Num:=%valueName%_count-1
+	while(max_Num-min_Num>1){
+		local mid_Num:=Round((min_Num+max_Num)/2)
+;~ 		if(GetColor(%valueName%_X_%mid_Num%,%valueName%_Y_%mid_Num%)=%valueName%_value_%mid_Num%){
+;~ 			min_Num:=mid_Num
+;~ 		}else{
+;~ 			max_Num:=mid_Num
+;~ 		}
+		local micro_Color:=GetColor(%valueName%_X_%mid_Num%,%valueName%_Y_%mid_Num%)
+		if(valueName="PlayerHealth" or valueName="TargetHealth"){
+			StringLeft left4String,micro_Color,4
+			StringRight right2String,micro_Color,2
+			if(left4String="0x00" and right2String="00"){
+				min_Num:=mid_Num
+			}else{
+				max_Num:=mid_Num
+			}
+		}else if(valueName="PlayerMana"){
+			StringLeft left6String,micro_Color,6
+			if(left6String="0x0000"){
+				min_Num:=mid_Num
+			}else{
+				max_Num:=mid_Num
+			}
+		}else if(valueName="PlayerRage"){
+			StringRight right4String,micro_Color,4
+			if(right4String="0000"){
+				min_Num:=mid_Num
+			}else{
+				max_Num:=mid_Num
+			}
+		}else if(valueName="PlayerEnergy"){
+			StringRight right2String,micro_Color,2
+			if(right2String="00"){
+				min_Num:=mid_Num
+			}else{
+				max_Num:=mid_Num
+			}
+		}else if(valueName="PlayerRune"){
+			StringLeft left4String,micro_Color,4
+			if(left4String="0x00"){
+				min_Num:=mid_Num
+			}else{
+				max_Num:=mid_Num
+			}
+		}else{
+			max_Num:=mid_Num
+		}	
+	}
+
+	Return Round(min_Num/(%valueName%_count-1)*100)
+}
+
+;===================================================
+;=                     初始化                      =
+;===================================================
+RaidMemberIni(){
+	iniX:=14
+	iniY:=149
+	
+	p:=1
+	while(p<=30){
+		PressButton(p)
+		Sleep 115
+		
+		m:=0
+		n:=0
+		while(n<=4){
+			while(m<=4){
+				x:=iniX+m*39
+				y:=iniY+n*39
+				SequenceNum:=n*5+m+1	;序列号为5n+m+1。
+				if(judge(x+26,y,0xFFFFFF)){
+					ButtonNum_%SequenceNum%:=p
+				}	
+				m++
+			}
+			n++
+			m:=0
+		}
+		p++
+	}
+
+	SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+	;叫唤一声表示初始化结束。
+}
+
+;===================================================
+;=                锚点映射按钮                     =
+;===================================================
+PressButton(num){
+	if(num=1){
+		send !+^{'}
+	}else if(num=2){
+		send !+{'}
+	}else if(num=3){
+		send +^{'}
+	}else if(num=4){
+		send +{'}
+	}else if(num=5){
+		send !{'}
+	}else if(num=6){
+		send {'}
+	}else if(num=7){
+		send !+^{;}
+	}else if(num=8){
+		send !+{;}
+	}else if(num=9){
+		send +^{;}
+	}else if(num=10){
+		send +{;}
+	}else if(num=11){
+		send !{;}
+	}else if(num=12){
+		send {;}
+	}else if(num=13){
+		send !+^{\}
+	}else if(num=14){
+		send !+{\}
+	}else if(num=15){
+		send +^{\}
+	}else if(num=16){
+		send +{\}
+	}else if(num=17){
+		send !{\}
+	}else if(num=18){
+		send {\}
+	}else if(num=19){
+		send !+^{]}
+	}else if(num=20){
+		send !+{]}
+	}else if(num=21){
+		send +^{]}
+	}else if(num=22){
+		send +{]}
+	}else if(num=23){
+		send !{]}
+	}else if(num=24){
+		send {]}
+	}else if(num=25){
+		send {Numpad0}
+	}else if(num=26){
+		send {F1}
+	}else if(num=27){
+		send {F2}
+	}else if(num=28){
+		send {F3}
+	}else if(num=29){
+		send {F4}
+	}else if(num=30){
+		send {F5}
+	}
+}
+
+
+;===================================================
+;=                   正文                          =
+;===================================================
+;~ #IfWinActive ahk_class GxWindowClassD3d
+SELECTION_MODE:=0	;1、猥琐模式。2、自动模式。3、随机模式。4、野兽模式。
+BIG_BLOCK:=False
+
+~1::
+BIG_BLOCK:=False
+SELECTION_MODE:=1
+MODE_NAME:="猥琐模式"
+ToolTip %MODE_NAME%,840,0
+SetTimer mainCircle,200
+Return
+
+~2::
+send {F1}
+BIG_BLOCK:=False
+SELECTION_MODE:=2
+MODE_NAME:="自动模式"
+ToolTip %MODE_NAME%,840,0
+SetTimer mainCircle,200
+Return
+
+~3::
+send {up}
+BIG_BLOCK:=False
+SELECTION_MODE:=3
+MODE_NAME:="随机模式"
+ToolTip %MODE_NAME%,840,0
+SetTimer mainCircle,200
+Return
+
+~4::
+BIG_BLOCK:=False
+SELECTION_MODE:=4
+MODE_NAME:="野兽模式"
+ToolTip %MODE_NAME%,840,0
+SetTimer mainCircle,200
+Return
+
+!1::
+RaidMemberIni()
+Return
+
+~Esc::
+BIG_BLOCK:=True
+Return
+
+mainCircle:
+	playerHP:=GetValue("PlayerHealth")
+	playerMP:=GetValue("PlayerMana")
+	targetHP:=GetValue("TargetHealth")
+	
+	targetCantBeAttacked:=judge(544,893,0xFFD100)
+	targetHasBeenCtrled:=judge(438,893,0xFFD100)
+	
+	whetherIsPve:=GetColor(526,28)
+	isPveTarget:=Eql2(whetherIsPve,0x808080,0xFF0000,0xFFFF00)
+	isPvpTarget:=not isPveTarget and not whetherIsPve=0x8080FF
+	
+	isMoving:=IsMoving()
+	
+	icon_sing:=GetColor(695,651)
+	
+	whetherIsHelp:=GetColor(567,1020)
+	isHelp:=whetherIsHelp=0x996DA3
+	isHarm:=whetherIsHelp=0x474991 and not targetCantBeAttacked and not targetHasBeenCtrled
+
+	isClose:=judge(5,815,0x780000)
+	isNearBy:=judge(5,835,0x9F0000)
+	
+	tgtClr:=GetColor(465,35)
+	underAttack:=judge(473,893,0xFFD100)
+	targetHasntMana:=not judge(317,75,0x000084,0x000083) or whetherIsPve=0xABD473
+	
+;~ 	ToolTip %MODE_NAME%`n%playerHP%`n%playerMP%`n%targetHP%,840,0
+	
+	if(BIG_BLOCK){
+		Ending()
+	}else if(judge(792,25,0xA20905)){
+		;载具战。
+		Knight()
+	}else if((targetHasBeenCtrled or targetCantBeAttacked) and Eql2(icon_sing,0x585458,0x3F3326)){
+		send {F12}
+		;停止施法。目标被控制、我在放纠缠根须或旋风。
+	}else if(isHelp and targetHP>95 and judge(709,634,0x080000)){
+		send {F12}
+		;停止施法。友好目标、满80血、对他吟唱。
+	}else if(isHelp and judge(261,893,0xFFD100) and icon_sing=0x100E09){
+		send {F12}
+		;停止施法。友好目标被愈合、还对他读愈合。
+	}else if(judge(709,634,0x080000)){
+		;什么也不做。玩家施法。
+	}else if(tgtClr=0x332F30){
+		PvpMode(True)
+		;PVP模式。目标精英。
+	}else if(tgtClr=0x5F5D5F){
+		PvpMode(False)
+		;PVP模式。目标普通。
+	}else{
+		Ending()
+	}
+Return
+
+Ending(){
+	global BIG_BLOCK:=False,SELECTION_MODE:=0		;1、猥琐模式。2、自动模式。3、随机模式。4、野兽模式。
+	SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+	SetTimer mainCircle,Off
+	ToolTip
+}
+
+Knight(){
+	if(judge(163,1025,0xFFFFFF)){
+		send {F9}
+	}else if(judge(116,1025,0xFFFFFF)){
+		send {F8}
+	}else if(judge(70,1025,0xFFFFFF)){
+		send {f7}
+	}else if(judge(23,1025,0xFFFFFF)){
+		send {f6}
+	}
+}
+
+pvpMode(isElite){
+	global playerHP,playerMP,targetHP,targetCantBeAttacked,targetHasBeenCtrled,whetherIsPve,isPveTarget,isPvpTarget,isMoving,icon_sing,whetherIsHelp,isHelp,isHarm,isClose,isNearBy,tgtClr,SELECTION_MODE,underAttack,targetHasntMana
+	
+	if(isHelp and SELECTION_MODE=2){
+		SelectTarget()
+	}
+	
+	if(SELECTION_MODE=3 and playerHP<targetHP){
+		send {F1}
+	}else if(SELECTION_MODE=3 and (isHelp and targetHP>75 or judge(5,815,0x000078) or not isPvpTarget)){
+		send {Up}
+	}
+
+	stanceColor:=GetColor(16,858)
+	isCat:=stanceColor=0x004A7C
+	isCatStealth:=stanceColor=0x1F0548
+	isBear:=stanceColor=0x19344F
+	if(SELECTION_MODE=4 and not (isCat or isCatStealth or isBear)){
+		if(underAttack or playerHP<75){
+			send {Left}	;变熊。
+		}else{
+			send {Right}	;变豹。
+		}
+	}
+	
+	if(isCat){
+		CatForm(False)		;猫形态。
+	}else if(isCatStealth){
+		CatForm(True)		;猫形态潜行中。
+	}else if(isBear){
+		BearForm()			;熊形态。
+	}else if(stanceColor=0x002F28){
+		HumForm(True)		;树形。
+	}else if(stanceColor=0x102532){
+		HumForm(false)		;旅游形态、当人形态处理。
+	}else{
+		HumForm(false)		;人形。
+	}
+}
+
+CatForm(inStealth){
+	global playerHP,targetHP,targetCantBeAttacked,targetHasBeenCtrled,whetherIsPve,isPveTarget,isPvpTarget,isMoving,icon_sing,whetherIsHelp,isHelp,isHarm,isClose,isNearBy,tgtClr,underAttack,targetHasntMana
+	
+	playerEnergy:=GetValue("PlayerEnergy")
+	triStar:=judge(548,45,0x953232)
+	oneStar:=triStar or judge(533,22,0xCA4646)
+;~ 	lookAtMe:=judge(465,114,0x433950,0x430000)
+
+;~ 	isDead:=judge(1513,975,0xFFFFFF)
+	outOfRange:=judge(5,815,0x000078)
+	inCombat:=judge(1513,975,0xFFFFFF)
+	geSuiInCD:=judge(71,1024,0xFFFF00)
+	
+	if(not inStealth and judge(163,1025,0xFFFFFF)){
+		send {F9}
+		;潜行。非潜行状态、技能可用。
+	}else if(underAttack and judge(1560,975,0xFFFFFF) and not judge(1420,975,0xFFFF00) and not judge(1373,975,0xFFFF00)){
+		send {Left}
+		;变熊。被PVP菜刀砍、技能可用、狂暴回复不CD、猛击不CD。
+	}else if(underAttack and judge(1607,975,0xFFFFFF)){
+		send +{Down}
+		;变树。被PVP菜刀砍、技能可用。
+	}else if(isElite and lookAtMe and judge(1560,975,0xFFFFFF)){
+		send {Left}
+		;变熊。精英怪看着我、技能可用。
+	}else if(isHarm and (judge(1233,975,0xFFFFFF) and not judge(530,108,0x009E00) or judge(709,666,0x080000)) and judge(70,1025,0xFFFFFF)){
+		send {F7}
+		;割碎。敌对、目标的目标存在且濒危或目标淫唱魔法、技能可用。
+	}else if(not inStealth and incombat and isHarm and isClose and judge(303,1025,0xFFFFFF)){
+		send {Ins}
+		;猛虎之怒。不在潜行、战斗中、敌对、近身、技能可用。
+	}
+
+	if(inStealth){
+		;潜行中。
+		if(isHarm and judge(210,1025,0xFFFFFF)){
+			send {F10}
+			;突袭。敌对、技能可用。
+		}else if(isHarm and not outOfRange and not isClose and judge(537,1025,0xFFFFFF)){
+			send {PGDN}
+			;疾跑。敌对、小于40码、非近战、技能可用。
+		}else if(){
+		
+		}
+	}else{
+		if(incombat and isHarm and not judge(296,893,0xFFD100) and judge(444,1025,0xFFFFFF)){
+			send {Del}
+			;精灵之火。战斗中、敌对、无该DEBUFF、技能可用。
+		}else if(isHarm and triStar and judge(116,1025,0xFFFFFF)){
+			send {F8}
+			;割裂。敌对、技能可用。
+		}else if(isHarm and triStar and judge(397,1025,0xFFFFFF) and not judge(84,893,0xFFD100)){
+			send {PGUP}
+			;野蛮咆哮。
+		}else if(isHarm and triStar and judge(23,1025,0xFFFFFF)){
+			send {F6}
+			;凶猛撕咬。敌对、三星、技能可用。
+		}else if(isHarm and not judge(261,893,0xFFD100) and judge(210,1025,0xFFFFFF)){
+			send {F10}
+			;斜掠。敌对、无该DEBUFF、技能可用。
+		}else if(isHarm and judge(258,1024,0xFFFFFF)){
+			send {F11}
+			;爪击。敌对、技能可用。
+		}else if(){
+			
+		}else if(){
+		
+		}else if(){
+		
+		}else if(){
+		
+		}else if(){
+		
+		}else if(){
+		
+		}
+	}
+}
+
+BearForm(){
+	global playerHP,targetHP,targetCantBeAttacked,targetHasBeenCtrled,whetherIsPve,isPveTarget,isPvpTarget,isMoving,icon_sing,whetherIsHelp,isHelp,isHarm,isClose,isNearBy,tgtClr,underAttack,targetHasntMana
+	
+	playerRage:=GetValue("PlayerRage")
+	lookAtMe:=judge(465,114,0x261013,0x260000)
+	isDead:=judge(1517,975,0xFFFFFF)
+	outOfRange:=judge(5,815,0x000078)
+	
+	if(isHarm and judge(444,1024,0xFFFFFF)){
+		send {Del}
+		;精灵之火。敌对、技能可用。
+	}else if(isHarm and not lookAtMe and judge(24,1024,0xFFFFFF)){
+		send {F6}
+		;低吼。敌对、不看我、技能可用。
+	}else if(not judge(231,60,0x00D600) and judge(304,1024,0xFFFFFF) and judge(152,75,0xB30000)){
+		send {Ins}
+		;狂暴恢复。不满85绿、技能可用、30怒气。
+	}else if(judge(258,1024,0xFFFFFF)){
+		send {F11}
+		;激怒。技能可用。
+	}else if(isHarm and judge(351,1024,0xFFFFFF)){
+		send {Home}
+		;猛击。敌对、技能可用。
+	}else if(isHelp and not targetHas85Health and judge(1607,975,0xFFFFFF)){
+		send +{Down}
+		;变树。友好、目标不满85血、技能可用。
+	}else if(isHarm and not inCombat and judge(1560,975,0xFFFFFF) and not judge(1326,975,0xFFFF00)){
+		send {Right}
+		;变猫。敌对、不再战斗、技能可用、潜行不在CD。
+	}else if(not judge(158,858,0x120502) and judge(1420,975,0xFFFF00) and judge(1373,975,0xFFFFFF) and not judge(158,858,0x120502)){
+		if(isHarm and not judge(402,893,0xFFD100) and judge(1330,1024,0xFFFFFF)){
+			send {0}
+			;月火术。敌对、无该DEBUFF、技能可用。
+		}else if(isHarm and not judge(296,893,0xFFD100) and judge(1423,1024,0xFFFFFF)){
+			send {y}
+			;精灵之火。敌对、无该DEBUFF、技能可用。
+		}else if(judge(1517,1024,0xFFFFFF)){
+			send {i}
+			;自然之握。PVP目标、无该BUFF、技能可用。
+		}
+	}
+	
+	if(isHarm and not targetHasMana and isClose and not judge(225,893,0xFFD100) and judge(164,1024,0xFFFFFF) and judge(137,75,0xAA0000)){
+		send {F9}
+		;挫志咆哮。敌对、目标无蓝、近战、无该DEBUFF、技能可用、20怒气。
+	}else if(isHarm and judge(71,1024,0xFFFFFF) and judge(144,75,0xB00000)){
+		send {f7}
+		;割伤。敌对、技能可用、25怒气。
+	}else if(){
+		
+	}
+}
+
+
+HumForm(isTree){
+	global playerHP,playerMP,targetHP,targetCantBeAttacked,targetHasBeenCtrled,whetherIsPve,isPveTarget,isPvpTarget,isMoving,icon_sing,whetherIsHelp,isHelp,isHarm,isClose,isNearBy,tgtClr,underAttack,targetHasntMana,PATIENT_NUM,SELECTION_MODE,PATIENT_TYPE,PATIENT_C4CLR
+	
+	lookAtMe:=judge(465,114,0xDAD0DD,0xDA0000,0x988D59,0x980000)
+	targetHasMana:=judge(317,75,0x000083)
+	trgHasnt20Mane:=not judge(345,75,0x0000AA)
+	isSinging:=judge(807,806,0xEBA400,0x4747EB)
+	barkSkinAvailable:=judge(70,975,0xFFFFFF)
+	inBarkSkin:=judge(158,858,0x43341B)
+	inCombat:=judge(1513,975,0xFFFFFF)
+	quickness_Clr:=GetColor(163,975)
+	quickness_avlb:=quickness_Clr=0xFFFFFF
+	quickness_act:=quickness_Clr=0x030B14
+	
+	trgRegrowing:=judge(331,893,0xFFD100)		;目标被回春。
+	trgLiftBlooming:=judge(367,893,0xFFD100)	;目标被生命绽放。
+	trgRejuvenating:=judge(261,893,0xFFD100)	;目标被愈合。
+	trgWildGrowth:=judge(296,893,0xFFD100)	;目标野性成长。
+	trgHotNum:=trgRegrowing+trgLiftBlooming+trgRejuvenating+trgWildGrowth
+	hotNeck:=targetHP<95 and trgHotNum<1 or targetHP<85 and trgHotNum<2 or targetHP<75 and trgHotNum<3 or targetHP<65 and trgHotNum<4
+	toWildGrow:=(SELECTION_MODE=2 and PATIENT_NUM>2 and targetHP<95 or judge(158,858,0x4E565F)) and isHelp	;节能施法。
+	
+	if(judge(579,893,0xFFD100) and judge(862,1025,0xFFFFFF)){
+		send {e}
+		;徽章。吃了控制DEBUFF、技能可用。
+	}else if((underAttack or playerHP<55) and judge(70,975,0xFFFFFF)){
+		send {-}
+		;树皮术。被菜刀砍或玩家血小于55、技能可用。
+	}else if(underAttack and not isTree and judge(1610,975,0xFFFFFF)){
+		send +{down}
+		;老树形态。被菜刀砍、不是老树、技能可用。
+	}else if(inCombat and playerMP<15 and judge(116,975,0xFFFFFF)){
+		send {=}
+		;激活。战斗中、蓝不满20、技能可用。
+	}else if(targetHP<45 and isHelp and quickness_avlb and inCombat and judge(163,1025,0xFFFFFF)){
+		send {[}{F9}
+		;迅捷。目标不满45、友好、技能可用、战斗中、治疗之触可用。
+	}else if(isHelp and quickness_act and inCombat and judge(163,1025,0xFFFFFF)){
+		send {F9}
+		;治疗之触。友好、迅捷被激活、战斗中、技能可用。
+	}Else if(judge(48,893,0xFFD100)){
+		if(isTree){
+			send +{Left}	;被减速了变豹解。
+		}else{
+			send +{down}	;被减速了变树解。
+		}
+	}else if(playerHP<25 and judge(581,975,0xFFFFFF)){
+		send {Numpad7}
+		;喝血瓶。玩家不满25血、技能可用。
+	}else if(isHelp and targetHP<65 and judge(444,975,0xFFFFFF)){
+		send {NumpadDot}
+		;饰品。友善目标血小于65、技能可用。
+	}
+
+	if(isHarm and not isMoving and judge(1237,1024,0xFFFFFF)){
+		send {8}
+		;旋风。敌对、未被控制、pvp目标、不在移动、技能可用。
+	}else if(isHarm and not isMoving and judge(1470,1024,0xFFFFFF)){
+		send {u}
+		;纠缠根须。敌对、未被控制、pvp目标、不在移动、技能可用。
+	}else if(inCombat and playerHP<55 and judge(537,1024,0xFFFFFF)){
+		send {PGDN}
+		;迅捷治愈（自己）。战斗中、自己不满50血、技能可用。
+	}else if(inCombat and isHelp and targetHP<55 and judge(258,1024,0xFFFFFF)){
+		send {F11}
+		;迅捷治愈。战斗中、友方、目标不满50血、技能可用。
+	}else if(isHelp and not isMoving and targetHP<80 and judge(190,893,0xFFD100) and not trgRejuvenating and judge(116,1025,0xFFFFFF)){
+		send {F8}
+		;愈合。友方目标、不在移动、目标血不满80、自然之赐、无该BUFF、技能可用。
+	}else if(isHelp and not isMoving and targetHP<75 and judge(303,1025,0xFFFFFF)){
+		send {Ins}
+		;滋养。友好、不在移动、目标小于70血、HOT数>1、技能可用。
+	}else if(toWildGrow and not trgWildGrowth and judge(351,1024,0xFFFFFF) and judge(1657,975,0xFFFFFF)){
+		send {Home}
+		;野性成长。需要野心成长、无该DEBUFF、技能可用、在一个小队或团队。
+	}else if(isHelp and not trgLiftBlooming and judge(211,1024,0xFFFFFF)){
+		send {F10}
+		;生命绽放。友军、满足HOT瓶颈（控制过量）或为MT、友方、无该BUFF、技能可用。
+	}else if(isHelp and not trgRegrowing and judge(24,1024,0xFFFFFF)){
+		send {F6}
+		;回春术。友军、满足HOT瓶颈（控制过量）或为MT、无该BUFF、技能可用。
+	}else if(isHelp and PATIENT_C4CLR=0x00FF00 and not judge(402,893,0xFFD100) and judge(444,1025,0xFFFFFF)){
+		send {Del}
+		;驱毒术。友好、目标中毒、无该BUFF、技能可用。
+	}else if(isHelp and PATIENT_C4CLR=0xFFFF00 and judge(490,1025,0xFFFFFF)){
+		send {End}
+		;解除诅咒。友好、目标中了诅咒、技能可用。
+	}else if(judge(225,893,0xFFD100) and not judge(228,858,0x3A4D1F) and judge(444,1025,0xFFFFFF)){
+		send +{Del}
+		;驱毒术。我中毒、无该BUFF、技能可用。
+	}else if(playerHP<95 and not judge(119,893,0xFFD100) and judge(210,1025,0xFFFFFF)){
+		send +{F10}
+		;生命绽放。战斗中、不满95血、无该BUFF、HOT数<1、技能可用。
+	}else if(playerHP<85 and not judge(84,893,0xFFD100) and judge(23,1025,0xFFFFFF)){
+		send +{F6}
+		;回春术。不满95血、无该BUFF、技能可用。
+	}else if(playerHP<65 and judge(351,1024,0xFFFFFF)){
+		send +{Home}
+		;野性成长。不满65血、技能可用。
+	}else if(){
+		
+	}else if(){
+		
+	}else if(){
+		
+	}
+
+	if(isHelp and not isTree and judge(1610,975,0xFFFFFF)){
+		send +{down}
+		;老树形态。友军、不是老树、技能可用。
+	}else if(isHarm and isPveTarget and not judge(331,893,0xFFD100) and judge(1330,1024,0xFFFFFF)){
+		send {0}
+		;月火术。敌对、无该DEBUFF、技能可用。
+	}else if(isHarm and not judge(296,893,0xFFD100) and judge(1423,1024,0xFFFFFF)){
+		send {y}
+		;精灵之火。敌对、无该DEBUFF、技能可用。
+	}else if(judge(1513,1025,0xFFFFFF)){
+		send {i}
+		;自然之握。PVP目标、无该BUFF、技能可用。
+;~ 	}else if(isHarm and not isTree and not isMoving and judge(1190,1024,0xFFFFFF)){
+;~ 		send {7}
+;~ 		;愤怒。敌方、不在移动、技能可用。
+;~ 	}else if(){
+		
+	}
+}
+
+;===================================================
+;=                钱教授的工具包                   =
+;===================================================
+^!Numpad1::
+SoundPlay %A_WinDir%\Media\tada.wav
+loop{
+	if(judge(0x002400,0x241900,724,843)){
+		;玩家施法什么也不做。
+	}else if(GetKeyState("esc","p")){
+		SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+		Break
+	}else{
+		DoForGlory()
+	}
+	sleep 256
+}
+return
+
+DoForGlory(){
+	;之前先把战斗的召唤任务给接了。
+	if(judge(0x9A6F00,0xFF9788,112,655)){
+		MouseClick left,112,655
+		;完成任务。
+	}else if(judge(0x8B0F01,0x200001,112,655)){
+		MouseClick left,112,655
+		;继续。
+	}else if(judge(0xFFDA10,0xEFC310,43,322)){
+		MouseClick left,43,322
+		;共同的努力。
+	}else{
+		MouseClick Right,832,530
+	}
+}
+
+;===================================================
+;=               常用函数、工具                    =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+Eql2(a,b="",c="",d="",e="",f=""){
+	Return a=b or a=c or a=d or a=e or a=f
+}
+
+IsMoving(){
+	Return GetKeyState("w","p") or GetKeyState("a","p") or GetKeyState("s","p") or GetKeyState("d","p")
+}
+
+GetColorAndXy(x,y,binColor){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%x%,%y%,%gColor%
+	MsgBox %x%,%y%,%gColor%
+}
+
+GetColor(x,y){
+	PixelGetColor theColor,x,y,RGB
+	return theColor
+}
+
+^Numpad4::
+Clipboard = 0504aslan@163.com
+send ^{v}{Tab}
+sleep 128
+Clipboard = chao1986
+send ^{v}{enter}
+return
+
+;右Ctrl快速得到颜色。
+;~ ~RCtrl::
+;~     while(GetKeyState("RCtrl")){
+;~         MouseGetPos x,y
+;~ 		PixelGetColor mouse_color,x,y,RGB
+;~         ToolTip % x "," y "," mouse_color
+;~         Sleep 16
+;~     }
+;~     ToolTip
+;~ return
+
+;===================================================
+;=        Excel和SciTE针对judge()的修缮工具        =
+;===================================================
+#IfWinActive ahk_group MyGroup
+F1::
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F2::
+send +^{Right 2}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F3::
+send +^{Right 4}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F4::
+send +^{Right 6}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F5::
+send +^{Right 8}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+;===================================================
+;=         Dru[恢复][PVP][黑桃皮蛋][pvp2]          =
+;===================================================

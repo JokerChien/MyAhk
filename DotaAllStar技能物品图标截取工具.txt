@@ -1,0 +1,155 @@
+;================================钱教授的工具宝
+^1::
+getColorAndXy(0x704329,646,973.4)
+return
+
+^2::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard =%c4%,%mx%,%my%
+MsgBox %c4%,%mx%,%my%
+return
+
+getColorAndXy(binColor,x,y){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%gColor%,%x%,%y%
+	MsgBox %gColor%,%x%,%y%
+}
+
+!0::
+send {enter}
+sleep 100
+SendInput -refresh
+sleep 100
+send {enter}
+Return
+
+!-::
+send {enter}
+sleep 100
+SendInput -lvlup 5
+sleep 100
+send {enter}
+Return
+
+!9::
+send {enter}
+sleep 100
+SendInput -noherolimit
+sleep 100
+send {enter}
+sleep 100
+
+send {enter}
+sleep 100
+SendInput -gold 99999
+sleep 100
+send {enter}
+sleep 100
+
+send {enter}
+sleep 100
+SendInput -ap
+sleep 100
+send {enter}
+sleep 100
+Return
+;写入数组:
+^3::
+;截取技能颜色。
+clipboard :=""
+sklClrX_1:=815
+sklClrX_2:=871
+sklClrX_3:=926
+sklClrX_4:=982
+sklClrX_5:=871
+sklClrX_6:=926
+
+sklClrY_1:=725
+sklClrY_2:=725
+sklClrY_3:=725
+sklClrY_4:=725
+sklClrY_5:=670
+sklClrY_6:=670
+
+loop 6{
+	
+	PixelGetColor sklClr_%A_Index%, sklClrX_%A_Index%,sklClrY_%A_Index%,RGB
+	x := sklClrX_%A_Index%
+	y := sklClrY_%A_Index%
+	c := sklClr_%A_Index%
+	if(c=0x000000){
+		Continue
+	}
+	clpboard2 := clipboard
+	clpboard3 := RegExReplace(clpboard2,"$", c "," x "," y "`n")
+	clipboard = %clpboard3%
+}
+msgbox "六技能图标截取完毕。"
+return
+
+^4::
+clipboard :=""
+sklClrX_1:=680
+sklClrX_2:=731
+sklClrX_3:=680
+sklClrX_4:=731
+sklClrX_5:=680
+sklClrX_6:=731
+
+sklClrY_1:=729
+sklClrY_2:=729
+sklClrY_3:=679
+sklClrY_4:=679
+sklClrY_5:=629
+sklClrY_6:=629
+
+loop 6{
+	
+	PixelGetColor sklClr_%A_Index%, sklClrX_%A_Index%,sklClrY_%A_Index%,RGB
+	x := sklClrX_%A_Index%
+	y := sklClrY_%A_Index%
+	c := sklClr_%A_Index%
+	if(c=0x000000){
+		Continue
+	}
+	clpboard2 := clipboard
+	clpboard3 := RegExReplace(clpboard2,"$", x "," y "," c "`n")
+	clipboard = %clpboard3%
+}
+msgbox "六物品图标截取完毕。"
+Return
+
+;~ ;钱老师超有用的小工具。
+
+~LCtrl::
+    while(GetKeyState("LCtrl")){
+        MouseGetPos x,y
+		PixelGetColor mouse_color,x,y,RGB
+        ToolTip % mouse_color "," x "," y
+        Sleep 10
+    }
+    ToolTip
+return
+
+
+^6::
+;扫描。
+clipboard:=""
+
+sklClrX:=5
+sklClrY:=90
+
+while(sklClrX<54){
+	x := sklClrX
+	y := sklClrY
+	PixelGetColor sklClr_%A_Index%,x,y,RGB
+	c := sklClr_%A_Index%
+	clpboard2 := clipboard
+	clpboard3 := RegExReplace(clpboard2,"$",  x "," y  "," c "`n")
+	clipboard = %clpboard3%
+	sklClrX+=6
+}
+msgbox "扫描完毕!"
+return

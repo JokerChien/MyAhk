@@ -1,0 +1,262 @@
+CoordMode Mouse,Screen
+;================================钱教授的工具宝
+^1::
+getColorAndXy(0xB70000,465,114)
+return
+
+^2::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard =%c4%,%mx%,%my%
+MsgBox %c4%,%mx%,%my%
+return
+
+getColorAndXy(binColor,x,y){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%gColor%,%x%,%y%
+	MsgBox %gColor%,%x%,%y%
+}
+
+;================================正文
+1::
+SoundPlay %A_WinDir%\Media\tada.wav
+n:=0
+loop{
+	PixelGetColor tarColor,567,1020,RGB
+	
+	if(GetKeyState("esc","p") or n>4){
+		SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+		Break
+	}else if(judge(0x080000,709,634)){
+		n:=0
+		;玩家施法什么也不做。
+	}else if(tarColor=0x9A7651){
+		AttackMode()
+		n:=0
+		;侵略模式。
+	}else if(tarColor=0xA88160){
+		RescueMode()
+		n:=0
+		;拯救模式。
+	}else if(n<=4){
+		send {2}
+		n++
+	}else{
+		SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+		Break
+	}	
+	sleep 128
+}
+return
+
+AttackMode(){
+	local isMoving:=IsMoving()
+	local targetIsSinging:=judge(0x080000,709,666)
+	local targetHasMana:=judge(0x000083,317,75)
+	local isClose:=judge(0x9F0000,5,835)
+	local inCombat:=judge(0xFFFFFF,1654,975)
+	local lookAtMe:=or4judge(0xB78418,0xB70000,0xB18018,0xB10000,465,114)
+	local isPveTarget:=or4judge(0x808080,0xFF0000,0xFFFF00,0x8080FF,527,28)
+	local inCombat:=judge(0xFFFFFF,1654,975)
+	local trial:=judge(0xFFD100,190,893)
+	local gcd:=judge(0xFFFFFF,1607,975)
+	local length_MyHealth:=MyHealthPower()
+	local timeToTaunt:=inCombat and not lookAtMe and gcd and length_MyHealth>20
+	
+	if(targetIsSinging and judge(0xFFFFFF,303,1025)){
+		send {Ins}
+		;制裁之锤。目标吟唱、目标有蓝、技能可用。
+	}else if(length_MyHealth<20 and judge(0xFFFFFF,350,975)){
+		send +{'}
+		;圣疗术。我不满20血、技能可用。
+	}else if(length_MyHealth<40 and judge(0xFFFFFF,210,975)){
+		send {]}
+		;圣盾术。我不满40血、技能可用。
+	}else if(not targetHasMana and length_MyHealth<40 and judge(0xFFFFFF,1654,1025)){
+		send +{j}
+		;保护之手。目标无蓝、我不满40血、技能可用。
+	}else if(length_MyHealth<60 and not isMoving and judge(0xFFD100,225,893) and judge(0xFFFFFF,444,975)){
+		send +{NumpadDot}
+		;圣光术。不满60血、不移动、有圣盾或保护、技能可用。
+	}else if(length_MyHealth<80 and not isMoving and judge(0xFFD100,225,893) and judge(0xFFFFFF,397,975)){
+		send +{Numpad0}
+		;圣光闪。不满80血、不移动、有圣盾或保护、技能可用。
+	}else if(gcd and length_MyHealth<60 and judge(0xFFFFFF,257,975) and judge(0xFFFF00,210,975)){
+		send {\}
+		;圣佑术。吃个公转、不满60血、技能可用、圣盾术CD。
+	}else if(){
+		
+	}
+	
+	if(judge(0xFFFFFF,163,1025)){
+		send {F9}
+		;愤怒之锤。技能可用。
+	}else if(not trial and isPveTarget and judge(0xFFFFFF,116,1025)){
+		send {F8}
+		;智慧审判。无审判效果、PVE目标、技能可用。
+	}else if(not trial and not isPveTarget and judge(0xFFFFFF,23,1025)){
+		send {F6}
+		;正义审判。无审判效果、非PVE目标、技能可用。
+	}else if(not trial and judge(0xFFFFFF,70,1025)){
+		send {f7}
+		;圣光审判。无审判效果、技能可用。
+	}else if(not judge(0xFFD100,13,893) and judge(0xFFFFFF,116,975)){
+		send +{=}
+		;庇护祝福。无该BUFF、技能可用。
+	}else if(not judge(0xFFD100,119,893) and judge(0xFFFFFF,537,1025)){
+		send {PGDN}
+		;神圣之盾。无该BUFF、技能可用。
+	}else if(timeToTaunt and judge(0xFFFFFF,490,1025)){
+		send {End}
+		;清算之手。嘲讽时刻、技能可用。
+	}else if(timeToTaunt and judge(0xFFFFFF,444,1025)){
+		send {Del}
+		;正义防御。嘲讽时刻、技能可用。
+	}else if(not judge(0xFFD100,48,893) and judge(0xFFFFFF,1233,1025)){
+		send {8}
+		;智慧圣印。无该BUFF、技能可用。
+	}else if(judge(0xFFFFFF,397,1025)){
+		send {PGUP}
+		;正义之锤。技能可用。
+	}else if(gcd and not judge(0x12091A,83,871)){
+		send {Down}
+		;惩戒光环。
+	}else if(isClose and judge(0xFFFFFF,210,1025)){
+		send {F10}
+		;奉献。近战、技能可用。
+	}else if(judge(0xFFFFFF,350,1025)){
+		send {Home}
+		;复仇者之盾。技能可用。
+	}else if(gcd and judge(0xFFFFFF,490,975)){
+		send {wheelup}
+		;六魔包。刻意卡个公转、技能可用。
+	}else if(judge(0xFFFFFF,257,1025)){
+		send {F11}
+		;驱邪术。技能可用。
+	}else if(not judge(0xFFD100,155,893) and judge(0xFFFFFF,1420,1025)){
+		send {y}
+		;正义之怒。无该BUFF、技能可用。
+	}else if(judge(0xCC0000,1271,238) and judge(0xFFFFFF,303,975)){
+		send +{;}
+		;驱散魔法。魔法搞我、技能可用。
+	}else if(){
+		
+	}
+}
+
+RescueMode(){
+	local isMoving:=IsMoving()
+	local n_Mode:=UMeHealthBalanceMode()
+	
+	if(not judge(0x006000,138,65) and judge(0xFFFFFF,350,975)){
+		send +{'}
+		;圣疗术。我不满20血、技能可用。
+	}else if(not judge(0x006000,345,65) and judge(0xFFFFFF,350,975)){
+		send {'}
+		;圣疗术。目标不满20血、技能可用。
+	}else if(not isMoving and n_Mode=1 and judge(0xFFFFFF,397,975)){
+		send +{Numpad0}
+		;圣光闪现。未移动、健康平衡系统倾向于我、技能可用。
+	}else if(not isMoving and n_Mode=2 and judge(0xFFFFFF,397,975)){
+		send {Numpad0}
+		;圣光闪现。未移动、健康平衡系统倾向于目标、技能可用。
+	}else if(){
+		
+	}
+}
+
+UMeHealthBalanceMode(){
+	local n_Mode:=0
+	if(not judge(0x006300,160,65)){
+		n_Mode:=1
+		;自身不满35血。
+	}else if(not judge(0x006300,366,65)){
+		n_Mode:=2
+		;目标不满35血。
+	}else if(not judge(0x006E00,195,65)){
+		n_Mode:=1
+		;自身不满60血。
+	}else if(not judge(0x006E00,402,65)){
+		n_Mode:=2
+		;目标不满60血。
+	}else if(not judge(0x007600,231,65)){
+		n_Mode:=1
+		;自身不满85血。
+	}else if(not judge(0x007600,437,65)){
+		n_Mode:=2
+		;目标不满85血。
+	}else if(){
+		
+	}
+
+	return n_Mode
+}
+
+MyHealthPower(){
+	local l_hlth:=100
+	if(not judge(0x006000,138,65)){
+		l_hlth:=19
+	}else if(not judge(0x006900,167,65)){
+		l_hlth:=39
+	}else if(not judge(0x006E00,195,65)){
+		l_hlth:=59
+	}else if(not judge(0x007600,224,65)){
+		l_hlth:=79
+	}else if(){
+		
+	}
+
+	return l_hlth
+}
+;================================钱教授的百宝盒
+judge(tar_color,x,y){
+	PixelGetColor get_color,x,y,RGB
+	Return tar_color=get_color
+}
+
+orjudge(tar_color1,tar_color2,x,y){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color
+}
+
+or3judge(tar_color1,tar_color2,tar_color3,x,y){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color
+}
+
+or4judge(tar_color1,tar_color2,tar_color3,tar_color4,x,y){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color
+}
+
+or5judge(tar_color1,tar_color2,tar_color3,tar_color4,tar_color5,x,y){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+;是否移动状态，即WASD是否被按下。
+IsMoving(){
+	Return GetKeyState("w","p") or GetKeyState("a","p") or GetKeyState("s","p") or GetKeyState("d","p")
+}
+
+!^Numpad2::
+Clipboard = 0504aslan@163.com
+send ^{v}
+send {Tab}
+clipboard = chao1986
+send ^{v}
+send {enter}
+return
+
+~LCtrl::
+    while GetKeyState("LCtrl"){
+        MouseGetPos x,y
+		PixelGetColor mouse_color,x,y,RGB
+        ToolTip % mouse_color "," x "," y
+        Sleep 10
+    }
+    ToolTip
+return
+
+;老娘和你玩防骑。

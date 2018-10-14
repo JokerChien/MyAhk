@@ -1,0 +1,325 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed 0
+GroupAdd MyGroup,ahk_class XLMAIN
+GroupAdd MyGroup,ahk_class SciTEWindow
+ActionButton_1:="{4}"
+ActionButton_2:="{5}"
+ActionButton_3:="{6}"
+ActionButton_4:="{7}"
+ActionButton_5:="{8}"
+ActionButton_6:="{9}"
+ActionButton_7:="{0}"
+ActionButton_8:="{-}"
+ActionButton_9:="{=}"
+ActionButton_10:="{y}"
+ActionButton_11:="{u}"
+ActionButton_12:="{i}"
+
+ActionButton_61:="{o}"
+ActionButton_62:="{p}"
+ActionButton_63:="{[}"
+ActionButton_64:="{]}"
+ActionButton_65:="{\}"
+ActionButton_66:="{h}"
+ActionButton_67:="{j}"
+ActionButton_68:="{k}"
+ActionButton_69:="{l}"
+ActionButton_70:="{;}"
+ActionButton_71:="{'}"
+ActionButton_72:="{n}"
+
+ActionButton_49:="{m}"
+ActionButton_50:="{,}"
+ActionButton_51:="{.}"
+ActionButton_52:="{/}"
+ActionButton_53:="{F5}"
+ActionButton_54:="{F6}"
+ActionButton_55:="{F7}"
+ActionButton_56:="{F8}"
+ActionButton_57:="{F9}"
+ActionButton_58:="{F10}"
+ActionButton_59:="{F11}"
+ActionButton_60:="{F12}"
+	
+ActionButton_1_x:=354
+ActionButton_2_x:=396
+ActionButton_3_x:=438
+ActionButton_4_x:=480
+ActionButton_5_x:=522
+ActionButton_6_x:=564
+ActionButton_7_x:=606
+ActionButton_8_x:=648
+ActionButton_9_x:=690
+ActionButton_10_x:=732
+ActionButton_11_x:=774
+ActionButton_12_x:=816
+ActionButton_49_x:=863
+ActionButton_50_x:=905
+ActionButton_51_x:=947
+ActionButton_52_x:=989
+ActionButton_53_x:=1031
+ActionButton_54_x:=1073
+ActionButton_55_x:=1115
+ActionButton_56_x:=1157
+ActionButton_57_x:=1199
+ActionButton_58_x:=1241
+ActionButton_59_x:=1283
+ActionButton_60_x:=1325
+ActionButton_61_x:=354
+ActionButton_62_x:=396
+ActionButton_63_x:=438
+ActionButton_64_x:=480
+ActionButton_65_x:=522
+ActionButton_66_x:=564
+ActionButton_67_x:=606
+ActionButton_68_x:=648
+ActionButton_69_x:=690
+ActionButton_70_x:=732
+ActionButton_71_x:=774
+ActionButton_72_x:=816
+
+ActionButton_1_y:=1028
+ActionButton_2_y:=1028
+ActionButton_3_y:=1028
+ActionButton_4_y:=1028
+ActionButton_5_y:=1028
+ActionButton_6_y:=1028
+ActionButton_7_y:=1028
+ActionButton_8_y:=1028
+ActionButton_9_y:=1028
+ActionButton_10_y:=1028
+ActionButton_11_y:=1028
+ActionButton_12_y:=1028
+ActionButton_49_y:=975
+ActionButton_50_y:=975
+ActionButton_51_y:=975
+ActionButton_52_y:=975
+ActionButton_53_y:=975
+ActionButton_54_y:=975
+ActionButton_55_y:=975
+ActionButton_56_y:=975
+ActionButton_57_y:=975
+ActionButton_58_y:=975
+ActionButton_59_y:=975
+ActionButton_60_y:=975
+ActionButton_61_y:=975
+ActionButton_62_y:=975
+ActionButton_63_y:=975
+ActionButton_64_y:=975
+ActionButton_65_y:=975
+ActionButton_66_y:=975
+ActionButton_67_y:=975
+ActionButton_68_y:=975
+ActionButton_69_y:=975
+ActionButton_70_y:=975
+ActionButton_71_y:=975
+ActionButton_72_y:=975
+;===================================================
+;=                  截点工具包                     =
+;===================================================
+^Numpad8::
+GetColorAndXy(696,219,0x670000)
+return
+
+^Numpad9::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard = %mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+
+;~ ^1::  ;这个方法是可行的。
+;~ inputing:="a"
+;~ send %inputing%
+;~ Return
+
+;~ ^Numpad7::
+;~ Loop 12{
+;~ 	cout:=cout . GetColor(333+21+42*(A_Index-1),975) . "`n"
+;~ }
+;~ MsgBox %cout%
+;~ Return
+;===================================================
+;=                   正文                          =
+;===================================================
+#IfWinActive ahk_class GxWindowClass
+~1::
+AOE_CD_INSIDE:=0
+AOE_SWITCH:=1
+n:="SOLO 模式"
+ToolTip %n%,840,0
+SetTimer ActionBar1,0
+;~ SetTimer ActionBar2,55
+Return
+
+~2::
+AOE_CD_INSIDE:=0
+AOE_SWITCH:=2
+n:="AOE 模式"
+ToolTip %n%,840,0
+SetTimer ActionBar1,0
+Return
+
+~Esc::
+AOE_SWITCH:=0
+SetTimer ActionBar1,Off
+SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+ToolTip
+Return
+
+ActionBar1:
+	if(not judge(1663,469,0x00FF00)){	;如果目标不存在则终止。
+		Ending()
+		Return
+	}
+	press_String:=""
+	press_String:=press_String . Press_Action_Button(0)
+	press_String:=press_String . Press_Action_Button(5)
+	press_String:=press_String . Press_Action_Button(4)
+	
+	send %press_String%
+Return
+
+;~ Press_Action_Button(Bar){
+;~ 	global AOE_SWITCH
+;~ 	
+;~ 	PartySelection()
+;~ 	loop 12{
+;~ 		n_count:=A_Index+Bar*12
+;~ 		ActionBar:=JDG_RGB(ActionButton_%n_count%_x,ActionButton_%n_count%_y,0x00FF00,0x0000FF,0xFF00FF)
+;~ 		if(AOE_SWITCH=2 and ActionBar=3){
+;~ 			press_Button:=ActionButton_%n_count%
+;~ 			send %press_Button%
+;~ 			Break
+;~ 		}else if(ActionBar=1){
+;~ 			press_Button:=ActionButton_%n_count%
+;~ 			send %press_Button%
+;~ 			Break
+;~ 		}else if(AOE_SWITCH=2 and ActionBar=2 and not GetKeyState("RButton","P")){
+;~ 			press_Button:=ActionButton_%n_count%
+;~ 			send %press_Button%
+;~ 			MouseGetPos posX,posY
+;~ 			Click 840,525,3
+;~ 			MouseMove posX,posY
+;~ 			Break
+;~ 		}
+;~ 	}	
+;~ }
+
+Press_Action_Button(Bar){
+	global AOE_SWITCH
+	
+	PartySelection()
+	
+	press_Button_String:=""
+	loop 12{
+		n_count:=A_Index+Bar*12
+		ActionBar:=JDG_RGB(ActionButton_%n_count%_x,ActionButton_%n_count%_y,0x00FF00,0x0000FF,0xFF00FF)
+		if(AOE_SWITCH=2 and ActionBar=3){
+			press_Button:=ActionButton_%n_count%
+;~ 			press_Button_String:=press_Button_String . press_Button
+			send %press_Button%
+			Break
+		}else if(ActionBar=1){
+			press_Button:=ActionButton_%n_count%
+;~ 			press_Button_String:=press_Button_String . press_Button
+			send %press_Button%
+			Break
+		}else if(AOE_SWITCH=2 and ActionBar=2 and not GetKeyState("RButton","P")){
+			press_Button:=ActionButton_%n_count%
+			send %press_Button%
+			MouseGetPos posX,posY
+			Click 840,525,3
+			MouseMove posX,posY
+			Break
+		}
+	}
+	
+;~ 	Return press_Button_String
+}
+
+PartySelection(){
+	colorID:=JDG_RGB(1663,513,0x0000FF,0x00FF00,0x00FFFF,0xFF0000,0xFF00FF)
+	
+	if(colorID=1){
+		send {Up}
+	}else if(colorID=2){
+		send +!{Up}
+	}else if(colorID=3){
+		send +^{Up}
+	}else if(colorID=4){
+		send +{Up}
+	}else if(colorID=5){
+		send !{Up}
+	}
+}
+
+Ending(){
+	global AOE_SWITCH
+	AOE_SWITCH:=0
+	SetTimer ActionBar1,Off
+	SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+	ToolTip
+}
+;===================================================
+;=               常用函数、工具                    =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+JDG_RGB(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	
+	if(get_color=tar_color1){
+		Return 1
+	}else if(get_color=tar_color2){
+		Return 2
+	}else if(get_color=tar_color3){
+		Return 3
+	}else if(get_color=tar_color4){
+		Return 4
+	}else if(get_color=tar_color5){
+		Return 5
+	}else{
+		Return 0
+	}	
+}
+
+Eql2(a,b="",c="",d="",e="",f=""){
+	Return a=b or a=c or a=d or a=e or a=f
+}
+
+IsMoving(){
+	Return GetKeyState("w","p") or GetKeyState("a","p") or GetKeyState("s","p") or GetKeyState("d","p") or (GetKeyState("LButton","p") and GetKeyState("RButton","p"))
+}
+
+GetColorAndXy(x,y,binColor){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%x%,%y%,%gColor%
+	MsgBox %x%,%y%,%gColor%
+}
+
+GetColor(x,y){
+	PixelGetColor theColor,x,y,RGB
+	return theColor
+}
+
+;右Ctrl快速得到颜色。
+~RCtrl::
+    while(GetKeyState("RCtrl")){
+        MouseGetPos x,y
+		PixelGetColor mouse_color,x,y,RGB
+        ToolTip % x "," y "," mouse_color
+        Sleep 16
+    }
+    ToolTip
+return
+;===================================================
+;=           DK[冰霜][DPS][斯巴柔船长]             =
+;===================================================

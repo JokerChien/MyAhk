@@ -1,0 +1,244 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed, 0
+;===================================================
+;=                   全局变量初始化                =
+;===================================================
+HERO_COUNT:=0
+Loop, read, F:\Program Files\AutoHotkey\我的游戏脚本\StarCraft II\配置文件.txt		;读取配置文件。
+{
+	HERO_COUNT++
+	Line%HERO_COUNT%:= A_LoopReadLine	;行数、行内容。
+}
+Loop %HERO_COUNT%{
+	element:=Line%A_Index%		;中间变量
+	StringSplit ARRAY,element,`,
+	ArmName_%A_Index%:=ARRAY1
+	ArmColor1st_%A_Index%:=ARRAY2
+	ArmColor2nd_%A_Index%:=ARRAY3
+	ArmFire_Count_%A_Index%:=ARRAY4
+	ArmTotle_Count_%A_Index%:=ARRAY5
+}
+
+#IfWinActive ahk_class StarCraft II
+;~==================================================
+;=                     抓点工具                    =
+;===================================================
+^Numpad9::
+Clipboard := getColorAndXy(1347,860,0x8E9898)
+return
+
+^Numpad8::
+PixelGetColor p_Clr_1,1344,992,RGB
+PixelGetColor p_Clr_2,1413,992,RGB
+Clipboard := p_Clr_1 . "," . p_Clr_2
+MsgBox "ok"
+return
+
+;~ ^Numpad8::
+;~ cout:=""
+;~ Loop 40{
+;~ 	PixelGetColor mouse_color,1221,858+A_Index,RGB
+;~ 	cout:=cout . mouse_color . "`n"
+;~ }
+;~ Clipboard := cout
+;~ MsgBox ok
+;~ Return
+
+^Numpad6::
+MouseGetPos mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard = %mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+;===================================================
+;=               判断是否聊天中                    =
+;===================================================
+~sc029::	;人族甩机枪。
+count_Number:=0
+count_MaxNumber:=7
+while(GetKeyState("sc029","p")){
+	MouseGetPos mouseX,mouseY
+;~ 	p_Clr_1:=GetColor(1344,992)
+	p_Clr_2:=GetColor(1413,992)
+	if(IsNotBattleArea(mouseX,mouseY)){	;是建筑物或在操作区之外则不起作用。
+		Continue
+	}
+	
+	Loop %HERO_COUNT%{
+		if(p_Clr_2=ArmColor2nd_%A_Index%){
+			
+			count_MaxNumber:=ArmTotle_Count_%A_Index%
+			if(count_Number<=ArmFire_Count_%A_Index%){
+				Send_A()
+			}else{
+				Click Right
+;~ 				sleep 10
+			}
+		}else{
+			Continue
+		}
+	}
+	
+	if(count_Number>=count_MaxNumber){
+		count_Number:=0
+	}else{
+		count_Number++
+	}
+}
+Send_A()
+Return
+
+~w::
+MouseGetPos mouse_X,mouse_Y
+SplitClick(0)
+MouseMove mouse_X,mouse_Y
+Return
+
+IsNotBattleArea(mouseX,mouseY){
+	Return mouseY>769 and (mouseX<355 or mouseX>1295) or mouseY>860
+}
+
+Send_A(){
+	loop 2{
+		send {p}
+		Click
+	}
+}
+
+;~ ~F4::
+;~ send {4}
+;~ while(GetKeyState("F4","p")){
+;~ 	send {d}{a}{}	
+;~ 	sleep 55
+;~ }
+;~ Return
+
+;~ $~1::
+;~ while(GetKeyState("1","p")){
+;~ 	unit_1st_Skill:=GetColor(1344,988)
+;~ 	if(unit_1st_Skill=0x252B27 or unit_1st_Skill=0xFCFBA0){
+;~ 		send {e}{Tab}
+;~ 	}
+;~ }
+;~ Return
+
+;~ ~F5::
+;~ send {5}
+;~ while(GetKeyState("F5","p")){
+;~ 	if(judge(737,994,0x9AFEBD) or judge(568,911,0x404040)){
+;~ 		send {s}
+;~ 	}
+;~ 	sleep 55
+;~ }
+;~ Return
+
+SplitClick(n){	;把队伍里的兵踢出去。
+	n_sequence:=0
+	while(n_sequence<4){
+		x:=579+56*n_sequence
+		if(not judge(x,890,0x000000)){
+			send {shift down}
+			Click %x%,890
+			send {shift up}
+			Break
+		}else{
+			n_sequence++
+		}
+	}
+	
+	send {shift down}
+	Click 579,890,%n%
+	send {shift up}
+}
+Return
+
+~LShift::	;造补给站1347,860,0xA9B9C5
+while(GetKeyState("LShift","p")){
+	if(judge(1347,860,0xA9B9C5,0x22201F)){	;若选择造补给站。
+		Click
+	}
+	Sleep 111	;经测算111是比较靠谱的值。
+}
+Return
+
+~5::
+while(GetKeyState("5","p")){
+	if(judge(737,994,0x9AFEBD) or judge(568,911,0x404040)){
+		send {s}
+	}
+	sleep 55
+}
+Return
+
+~F::
+send {f}
+while(GetKeyState("f","p")){
+	fac_Color:=GetColor(1347,860)
+	if(fac_Color=0x8E9898){
+		send {a}{d}
+	}else if(fac_Color=0x565B65){
+		send {e}{d}{s}{r}{t}
+	}else if(fac_Color=0x393934){
+		send {v}{d}
+	}
+	send {Tab}
+}
+Return
+
+~F3::
+MouseGetPos mouseX,mouseY
+loop 16{
+	spotX:=840-300 + mod(A_Index,3)*300
+	spotY:=420-300 + A_Index/3*150
+
+	if(judge(579+56,890,0x000000)){
+		Shifting(spotX,spotY)
+		Break
+	}
+	
+	Shifting(spotX,spotY)
+	SplitClick(0)
+}
+Return
+
+Shifting(x,y){
+	Click %x%,%y%,2,Right
+	send {Shift Down}
+	Sleep 20
+	send {e 3}
+	send {Shift Up}
+}
+;===================================================
+;=                钱教授的百宝盒                   =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+Max(a,b){
+	if(a>=b){
+		Return a
+	}else{
+		Return b
+	}	
+}
+
+getColorAndXy(x,y,binColor=""){
+	MouseMove x,y
+	PixelGetColor mouse_color,x,y,RGB
+	cout:=x . "," . y . "," . mouse_color
+	MsgBox %cout%
+	Return cout
+}
+
+GetColor(x,y){
+	PixelGetColor clr,x,y,RGB
+	Return clr
+}
+;===================================================
+;=             StarCraft II人类插件                =
+;===================================================

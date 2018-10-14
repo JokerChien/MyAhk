@@ -1,0 +1,369 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed, 0
+SetTitleMatchMode 2
+;===================================================
+;=              Grid_Health配置文件                =
+;===================================================
+;===================================================
+;=                   全局变量初始化                =
+;===================================================
+;~ #IfWinActive ahk_class TXIE_{D3032343-3684-4A18-82B5-3613A08FACE7}
+;~ ~t::
+;~ WinExist("A")
+;~ Return
+;===================================================
+;=                     抓点工具                    =
+;===================================================
+^Numpad9::
+Clipboard := getColorAndXy(832,426,0xDDB1FA)
+MsgBox %Clipboard%
+return
+
+^Numpad6::
+MouseGetPos mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard = %mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+
+^Numpad3::
+ITEM_OUTPUT:=GetColor(680,729) . "," . GetColor(731,729) . "," . GetColor(680,679) . "," . GetColor(731,679) . "," . GetColor(680,629) . "," . GetColor(731,629)
+Clipboard := ITEM_OUTPUT
+MsgBox "物品截取OK"
+Return
+
+^NumpadDot::
+SKILL_OUTPUT:=getColorAndXy(841,947) . "`n" . getColorAndXy(944,947) . "`n" . getColorAndXy(926,725) . "`n" . getColorAndXy(982,725)
+Clipboard := SKILL_OUTPUT
+MsgBox "技能截取OK"
+Return
+;===================================================
+;=                     正文                        =
+;===================================================
+F1::
+if(BattleMode=False){
+	BattleMode:=True
+	ToolTip,InBattle,840,16
+}else{
+	BattleMode:=False
+	ToolTip
+}
+Return
+
+~Space::
+~!Tab::
+if(not judge(88,827,0x181613)){
+	BattleMode:=False
+	ToolTip
+}
+Return
+
+~a::
+if(ignorance()){	;如果进拍卖行就退出。如果不是战斗姿态就退出
+	Return
+}
+MouseGetPos mx,my
+while(GetKeyState("a")){
+;~ 	if(judge(428,397,0x7D6250,0x765841)){
+		Click 428,397
+;~ 	}
+	Sleep 50
+}
+MouseMove mx,my
+Return
+
+~d::
+if(ignorance()){	;如果进拍卖行就退出。如果不是战斗姿态就退出
+	Return
+}
+MouseGetPos mx,my
+while(GetKeyState("d")){
+;~ 	if(judge(1238,399,0x9A7A60,0xA48B78,0x452D21,0x8F817A)){	;鸣金用的箩筐可用。
+		Click 1238,399
+;~ 	}
+	Sleep 50
+}
+MouseMove mx,my
+Return
+
+~s::
+if(ignorance()){	;如果进拍卖行就退出。如果不是战斗姿态就退出
+	Return
+}
+MouseGetPos mx,my
+while(GetKeyState("s")){
+;~ 	if(judge(832,426,0x4F392C,0xF3B673,0xF5C188)){	;陷阱取消.
+		Click 832,426
+;~ 	}else if(judge(988,298,0x623721,0x7A5542)){	;战斗取消.
+		Click 988,298
+;~ 	}
+	Sleep 50
+}
+MouseMove mx,my
+Return
+
+~w::
+if(ignorance()){	;如果进拍卖行就退出。如果不是战斗姿态就退出
+	Return
+}
+MouseGetPos mx,my
+while(GetKeyState("w")){
+;~ 	if(judge(726,654,0x111111)){	;选择手牌墓地卡时的确定
+		Click 726,654
+;~ 	}else if(judge(995,483,0x543829)){	;选择目标时的确定
+		click 995,411
+		click 995,483
+		Click 1101,587
+;~ 	}
+	Sleep 25
+}
+MouseMove mx,my
+Return
+
+ignorance(){
+	global BattleMode
+	Return judge(833,196,0x98814A,0x050303) or not BattleMode
+}
+;===================================================
+;=               鼠标右键的触发 		 		   =
+;===================================================
+;~ ~RButton::
+;~ KeyWait RButton
+;~ if(HERO_SN>=6 and HERO_SN<=13){	;隐身系的英雄该功能无效。
+;~ 	Return
+;~ }
+;~ initialization()
+;~ MouseGetPos xPos,yPos
+;~ if(yPos>600){
+;~ 	Return
+;~ }
+
+;~ NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0x725D7D,0x766482,0x9494AB,0x989AAF,0x9A8499,0x957F94)	;快使用相位靴。
+
+;~ Hvnt25Hlth:=judge(17,85,0x000000)
+;~ Hvnt75Hlth:=Hvnt25Hlth or judge(41,85,0x000000)
+;~ Hvnt75Mn:=judge(41,90,0x000000)
+;~ Hvnt88Mn:=Hvnt75Mn or judge(47,90,0x000000)
+
+;~ if(Hvnt25Hlth){
+;~ 	;血不满25的时候使用魔棒、魔杖、梅肯斯姆。
+;~ 	NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0x6D756D,0x667160,0xD3A262,0xEFA640,0xF2841B,0xF67B11)	;魔棒
+;~ 	NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0xF7F7EA,0xFFFEEF,0xF5EFE5,0xFDFAF3,0xDADFD1,0xEFF5E6)	;魔杖
+;~ 	NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0xA28134,0xA28031,0x8B8F81,0x939281,0x3D6D7D,0x3E7282)	;梅肯斯姆
+;~ 	NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0x000001,0x000001,0x000002,0x000002,0x000001,0x000001)	;敏捷假腿
+
+;~ 	Artificial_Leg_Adjustment(1)	;调整成力量假腿。
+;~ 	
+;~ }else if(Hvnt75Hlth){
+;~ 	Artificial_Leg_Adjustment(1)
+;~ }else if(Hvnt75Mn){
+;~ 	Artificial_Leg_Adjustment(3)
+;~ }else{
+;~ 	PixelGetColor styleClr,539,696,RGB
+;~ 	if(styleClr=0x373B3D){
+;~ 		;敏捷。
+;~ 		Artificial_Leg_Adjustment(2)
+;~ 	}else if(styleClr=0x8C6D0C){
+;~ 		;智慧。
+;~ 		Artificial_Leg_Adjustment(3)
+;~ 	}else{
+;~ 		Artificial_Leg_Adjustment(1)
+;~ 	}
+;~ }
+
+;~ if(Hvnt88Mn){
+;~ 	;蓝不满88,快使用秘法鞋。
+;~ 	NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0x2B81F3,0x3185F6,0x1464D6,0x1161D4,0x04388E,0x04388E)
+;~ }
+;~ return
+
+;~ NumpadAction(SCColor1,SCColor2,SCColor4,SCColor5,SCColor7,SCColor8,jdgClr1,jdgClr2,jdgClr4,jdgClr5,jdgClr7,jdgClr8){
+;~ 	if(SCColor1=jdgClr1){
+;~ 		send {Numpad1}
+;~ 		sleep 100
+;~ 	}else if(SCColor2=jdgClr2){
+;~ 		send {Numpad2}
+;~ 		sleep 100
+;~ 	}else if(SCColor4=jdgClr4){
+;~ 		send {Numpad4}
+;~ 		sleep 100
+;~ 	}else if(SCColor5=jdgClr5){
+;~ 		send {Numpad5}
+;~ 		sleep 100
+;~ 	}else if(SCColor7=jdgClr7){
+;~ 		send {Numpad7}
+;~ 		sleep 100
+;~ 	}else if(SCColor8=jdgClr8){
+;~ 		send {Numpad8}
+;~ 		sleep 100
+;~ 	}else{
+;~ 		return False
+;~ 	}
+;~ }
+
+;~ Artificial_Leg_Adjustment(stance){
+;~ 	global itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8
+;~ 	if(not stance=1){
+;~ 		NumpadAction(GetColor(678,745),GetColor(729,745),GetColor(678,695),GetColor(729,695),GetColor(678,645),GetColor(729,645),0x735B57,0x6A504C,0x5F2A25,0x4B2521,0x090A09,0x060707)
+;~ 	}
+
+;~ 	if(not stance=2){
+;~ 		NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0x000001,0x000001,0x000002,0x000002,0x000001,0x000001)
+;~ 	}
+
+;~ 	if(not stance=3){
+;~ 		NumpadAction(GetColor(678,745),GetColor(729,745),GetColor(678,695),GetColor(729,695),GetColor(678,645),GetColor(729,645),0x366E8F,0x2C6283,0x1E4097,0x153385,0x020707,0x000305)
+;~ 	}
+;~ }
+
+;===================================================
+;=              	   正文				   		   =
+;===================================================
+;~ sc029::
+;~ if(ISNOTCHAT){
+;~ 	send {Numpad7}
+;~ }
+;~ return
+
+;~ ~4::
+;~ if(ISNOTCHAT){
+;~ 	send {Numpad4}
+;~ }
+;~ return
+
+;~ ~5::
+;~ if(ISNOTCHAT){
+;~ 	send {Numpad5}	
+;~ }
+;~ return
+
+;~ F3::
+;~ 	;回家主义。
+;~ 	MouseGetPos Mox,Moy
+;~ 	while(GetKeyState("F3","p")){
+;~ 		if(ISSENTINEL){
+;~ 			MouseClick right,24,744
+;~ 		}else if(ISSCOURGE){
+;~ 			MouseClick right,173,600
+;~ 		}
+;~ 		Click 2,Right
+;~ 		sleep 64
+;~ 	}
+;~ 	MouseMove Mox,Moy
+;~ return
+
+;~ F4::
+;~ 	MouseGetPos Mox,Moy
+;~ 	send {shift down}
+;~ 	while(GetKeyState("F4","p")){
+;~ 		MouseClick right,113,626
+;~ 		MouseClick right,53,610
+;~ 		MouseClick right,73,669
+;~ 		R:=25
+;~ 		X_0:=73
+;~ 		Y_0:=650
+;~ 		XMax:=X_0+R
+;~ 		XMin:=X_0-R
+;~ 		Random areaX,%XMax%,%XMin%
+;~ 		delta:=Sqrt(R*R-(areaX-X_0)*(areaX-X_0))
+;~ 		YMax:=Round(Y_0-R+delta)
+;~ 		Ymin:=Round(Y_0-R-delta)
+;~ 		Random areaY,%YMax%,%Ymin%
+;~ 		MouseClick right,%areaX%,%areaY%
+;~ 		MouseClick right,%X_0%,%Y_0%
+;~ 	}
+;~ 	send {shift up}
+;~ 	MouseMove Mox,Moy
+;~ Return
+
+;~ F5::
+;~ 	MouseClick right,107,716
+;~ 	MouseClick right,146,688
+;~ 	MouseClick right,146,732
+;~ 	MouseGetPos Mox,Moy
+;~ 	send {shift down}
+;~ 	while(GetKeyState("F5","p")){
+;~ 		R:=25
+;~ 		X_0:=136
+;~ 		Y_0:=700
+;~ 		XMax:=X_0+R
+;~ 		XMin:=X_0-R
+;~ 		Random areaX,%XMax%,%XMin%
+;~ 		delta:=Sqrt(R*R-(areaX-X_0)*(areaX-X_0))
+;~ 		YMax:=Round(Y_0+R+delta)
+;~ 		Ymin:=Round(Y_0+R-delta)
+;~ 		Random areaY,%YMax%,%Ymin%
+;~ 		MouseClick right,%areaX%,%areaY%
+;~ 		MouseClick right,%X_0%,%Y_0%
+;~ 	}
+;~ 	send {shift up}
+;~ 	MouseMove Mox,Moy
+;~ Return
+
+;~ F6::
+;~ while(not GetKeyState("Esc","p")){
+;~ 	Click Right 800,200
+;~ 	Click Right 800,180
+;~ 	sleep 1000
+;~ }
+;~ Return
+;===================================================
+;=                钱教授的百宝盒                   =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+;~ Mouse_Color_X_y(x,y,binColor=""){
+;~ 	MouseMove x,y
+;~ 	while(GetKeyState("LCtrl")){
+;~ 		cout:=""
+;~ 		PixelGetColor mouse_color,x,y,RGB
+;~ 		cout:=x . "," . y . "," . mouse_color
+;~      ToolTip % cout
+;~         Sleep 10
+;~     }
+;~     ToolTip
+;~ 	Return cout
+;~ }
+
+getColorAndXy(x,y,binColor=""){
+	cout:=""
+	PixelGetColor mouse_color,x,y,RGB
+	cout:=x . "," . y . "," . mouse_color
+	MouseMove x,y
+	Return cout
+	
+}
+
+GetColor(x,y){
+	PixelGetColor clr,x,y,RGB
+	Return clr
+}
+
+SendingMsg(string){
+	global ISNOTCHAT
+	send {enter}
+	sleep 100
+	Clipboard:=string
+	send ^{v}{enter}
+	sleep 250	;回车之后判断聊天状态需要200秒。
+	ISNOTCHAT:=True
+}
+
+SendingShiftMsg(string){
+	global ISNOTCHAT
+	send +{enter}
+	sleep 100
+	Clipboard:=string
+	send ^{v}{enter}
+	sleep 250	;回车之后判断聊天状态需要200秒。
+	ISNOTCHAT:=True
+}
+;===================================================
+;=               乱战之快捷键                      =
+;===================================================

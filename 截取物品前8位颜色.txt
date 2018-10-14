@@ -1,0 +1,54 @@
+;================================钱教授的工具宝
+^1::
+getColorAndXy(0x704329,646,973)
+return
+
+^2::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard =%c4%,%mx%,%my%
+MsgBox %c4%,%mx%,%my%
+return
+
+getColorAndXy(binColor,x,y){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%gColor%,%x%,%y%
+	MsgBox %gColor%,%x%,%y%
+}
+
+;写入数组:
+^3::
+ArrayCount = 0
+clipboard=""
+Loop, Read, D:\List3.txt   ;此循环从文件中逐行获取内容。
+{
+    ArrayCount += 1  ;记录在数组中有多少个项目。
+    Array%ArrayCount% := A_LoopReadLine  ;将此行内容存入下一个数组元素中。
+}
+
+;~ ;从数组读取:
+Loop %ArrayCount%
+{
+    ;下面这行使用了 := 运算符来获取一个数组元素:
+    element := Array%A_Index%  ; A_Index 是一个内置变量。
+	StringLeft element,element,8
+    ;或者，你可以使用 "% " 前缀，从而让 MsgBox 或其他一些命令支持表达式:
+;~     MsgBox % "元素编号 " . A_Index . " 是 " . element
+	
+	Clipboard := RegExReplace(Clipboard,"$", element ",")
+}
+
+;~ loop %ArrayCount%{
+;~ 	StringLeft clr%ArrayCount%,string,9
+;~ }
+;~ clipboard:= clr%0%,clr%0%,clr%0%,clr%0%,clr%0%,clr%0%
+;~ msgbox ok
+;~ return
+
+;~ ^4::
+;~ newstring := RegExReplace("aaa","$","`naaa")
+;~ msgbox %newstring%
+;~ Return
+
+;钱老师超有用的小工具。

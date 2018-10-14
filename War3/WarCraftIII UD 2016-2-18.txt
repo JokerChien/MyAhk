@@ -1,0 +1,100 @@
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed, 0
+
+^Numpad9::
+Clipboard := GetColorAndXy(895,14,0xF8F8F8)
+return
+
+^Numpad6::
+MouseGetPos mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard = %mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+;===================================================
+;=                        Main                     =
+;===================================================
+#IfWinActive ahk_class Warcraft III
+$~q::
+SetTimer d_Mode,32
+KeyWait q
+SetTimer d_Mode,Off
+Return
+
+d_Mode:
+send {2}{p}{Numpad2}
+Click
+send {1}{a}{Numpad2}
+Click
+Return
+
+$~w::
+SetTimer t_Mode,32
+KeyWait w
+SetTimer t_Mode,Off
+Return
+
+t_Mode:
+send {1}{a}
+Click
+send {2}{a}
+Click
+send {F1}{c}{q}{Numpad2}
+Click
+send {f2}{n}{q}{Numpad2}
+Click
+send {f3}{e}{q}{Numpad2}
+Click
+Return
+
+$~x::
+SetTimer x_Mode,32
+KeyWait x
+SetTimer x_Mode,Off
+Return
+
+x_Mode:
+send {1}
+Click,Right
+send {2}
+Click,Right
+Return
+
+~F5::
+send {4}
+send {d}{l}{c}{b}{w}{f}{x}{o}
+send {tab}
+send {d}{l}{c}{b}{w}{f}{x}{o}
+send {tab}
+send {d}{l}{c}{b}{w}{f}{x}{o}
+send {tab}
+
+Return
+;===================================================
+;=                Ç®½ÌÊÚµÄ°Ù±¦ºÐ                   =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+GetColorAndXy(x,y,binColor=""){
+	MouseMove x,y
+	while(GetKeyState("LCtrl")){
+		cout:=""
+		PixelGetColor mouse_color,x,y,RGB
+		cout:=RegExReplace(cout,"$",x "," y "," mouse_color "`n")
+        ToolTip % cout
+        Sleep 10
+    }
+    ToolTip
+	Return cout
+}
+
+GetColor(x,y){
+	PixelGetColor theColor,x,y,RGB
+	Return theColor
+}
+;=========================================================================
+;=                   Warcraft III  2016-2-18 15:00:25                    =
+;=========================================================================

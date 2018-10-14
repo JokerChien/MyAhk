@@ -1,0 +1,315 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed 0
+#IfWinActive ahk_class GxWindowClassD3d
+;===================================================
+;=                钱教授的工具包                   =
+;===================================================
+^Numpad8::
+GetColorAndXy(16,858,0x000000)
+return
+
+^Numpad9::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard =%mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+
+	
+;===================================================
+;=                   正文                          =
+;===================================================
+;~ 1::
+;~ SoundPlay %A_WinDir%\Media\tada.wav
+;~ while(WinActive("ahk_class GxWindowClassD3d")){
+;~ 	tarKind:=GetColor(465,35)
+;~ 	
+;~ 	if(GetKeyState("esc","p")){
+;~ 		send !{z}{Down}
+;~ 		SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+;~ 		Break
+;~ 	}else if(judge(0x080000,709,634) or judge(0xC8CDD0,698,525)){
+;~ 		;玩家施法、假死。什么也不做。
+;~ 	}else if(tarKind=0x332F30){
+;~ 		MainMode(True)
+;~ 		;主函数。（精英）
+;~ 	}else if(tarKind=0x5F5D5F){
+;~ 		MainMode(False)
+;~ 		;拯救模式。（非精英）
+;~ 	}else{
+;~ 		send !{z}{Down}
+;~ 		SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+;~ 		Break
+;~ 	}
+;~ 	sleep 128
+;~ }
+;~ return
+
+1::
+SetTimer mainCircle,100
+Return
+
+mainCircle:
+	tarKind:=GetColor(465,35)
+	
+	if(GetKeyState("esc","p")){
+		send !{z}{Down}
+		SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+		SetTimer mainCircle,Off
+	}else if(judge(709,634,0x080000) or judge(698,525,0xC8CDD0)){
+		;玩家施法、假死。什么也不做。
+	}else if(tarKind=0x332F30){
+		MainMode(True)
+		;主函数。（精英）
+	}else if(tarKind=0x5F5D5F){
+		MainMode(False)
+		;拯救模式。（非精英）
+	}else{
+		send !{z}{Down}
+		SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+		SetTimer mainCircle,Off
+	}
+Return
+
+
+MainMode(isElite){
+	local isMoving:=IsMoving()
+	local lookAtMe:=judge(465,114,0x75708F,0x750000)
+	local lookAtPet:=judge(465,114,0x170B0A,0x170000)
+	local targetHasMana:=judge(317,75,0x000083)
+	local targetIsSinging:=judge(709,666,0x080000)
+	local focusIsSinging:=judge(709,698,0x080000)
+	local petExistsAndAlive:=judge(1654,975,0xFFFFFF)
+	local isClose:=judge(5,815,0x780000)
+	local targetIsStinged:=judge(13,893,0xFFD100)
+	local petIsHealthy:=judge(204,110,0x00B600)
+	local targetBeBuffed:=judge(440,893,0xFFD100) or judge(475,893,0xFFD100) or judge(510,893,0xFFD100)
+	local targetBeCtrled:=judge(652,893,0xFFD100) or judge(687,893,0xFFD100)
+	local isSlowDown:=judge(119,893,0xFFD100) or judge(225,893,0xFFD100) or judge(228,858,0x3900D6)
+	local cantBeAttacked:=judge(546,893,0xFFD100) or judge(581,893,0xFFD100)
+	local isharm:=judge(581,1025,0xFFFFFF) and not cantBeAttacked
+	local isPveTarget:=judge(526,28,0x808080,0xFF0000,0xFFFF00)
+	local isPvpTarget:=not isPveTarget and not judge(526,28,0x8080FF)
+	PixelGetColor stnClr,51,858,RGB
+	
+	;宠物技能。
+	if(petExistsAndAlive){
+		;宠物存在。
+		if(isharm and judge(350,975,0xFFFFFF)){
+			send {'}
+			;杀戮命令。敌对、技能可用。
+		}else if(judge(182,120,0x7E3E20) and judge(303,975,0xFFFFFF)){
+			send {;}
+			;爪击。60集中值、技能可用。
+		}else if(judge(5,815,0x000078) or not judge(174,109,0x007B00)){
+			send {Down}
+			;宠物跟随。离太远或宠物血少于50。
+		}else if(not lookAtPet and judge(1326,1025,0xFFFFFF)){
+			send {0}
+			;援护。没看宠物、技能可用。
+		}else if(not judge(342,930,0xFFFF00)){
+			send {Left}
+			;宠物攻击。嘲讽不在CD。
+		}else if(){
+			
+		}
+	}
+	
+	;不占GCD的技能。
+	if(isharm and judge(211,975,0xFFFFFF)){
+		send {]}
+		;拳刃的宽容。敌对、技能可用。
+	}else if(not stnClr=0x263AC2 and not judge(152,75,0x0000B3)){	
+		send {-}
+		;蝰蛇守护。不是蝰蛇守护、蓝低于30。
+	}else if(isharm and isClose and not stnClr=0x807126 and judge(167,75,0x0000BB)){
+		send {=}
+		;灵猴守护。敌对、近战、不是灵猴守护、蓝高于40。
+	}else if(isharm and not stnClr=0x11412C and judge(238,75,0x0000D6)){
+		send {k}
+		;雄鹰守护。敌对、非雄鹰守护、蓝多于90。
+	}else if(not stnClr=0x263AC2 and not stnClr=0x807126 and not stnClr=0x11412C){	
+		send {-}
+		;蝰蛇守护。不是蝰蛇、雄鹰、灵猴守护。
+	}else if(isharm and isClose and judge(1190,1024,0xFFFFFF)){
+		send {7}
+		;猛禽一击。敌对、近战、技能可用。
+	}else if(not judge(181,65,0x006E00) and judge(581,975,0xFFFFFF)){
+		send {Numpad7}
+		;喝血瓶。不满50血、物品可用。
+	}else if(targetIsSinging and judge(1280,1025,0xFFFFFF)){
+		send {9}
+		;沉默射击。目标吟唱、技能可用。
+	}else if(focusIsSinging and judge(1280,1025,0xFFFFFF) and judge(1560,975,0xFFFFFF)){
+		send ^{9}
+		;沉默射击。焦点吟唱、技能可用、焦点毒蛇钉刺可用。
+	}else if(){
+		
+	}else if(){
+		
+	}
+	
+	;焦点
+	if(judge(84,893,0xFFD100) and not judge(261,893,0xFFD100)){
+		send {z}
+		;设置焦点。目标上了印记、没焦点
+	}else if(not judge(261,893,0xFFD100)){
+		send +{z}
+		;清除焦点。无焦点。
+	}
+	
+	;玩家技能。
+	if((judge(37,148,0xFFFFFF) or judge(13,174,0xFF0000)) and judge(164,975,0xFFFFFF)){
+		send {[}
+		;威慑。被菜刀砍、技能可用。
+	}else if(not lookAtPet and judge(397,1024,0xFFFFFF)){
+		send {PGUP}
+		;冰霜陷阱。没看宠物、技能可用。
+	}else if(isharm and not isSlowDown and not targetBeCtrled and judge(537,1024,0xFFFFFF)){
+		send {PGDN}
+		;摔绊。敌对、未被减速、未被控制、技能可用。
+	}else if(isharm and judge(1237,1024,0xFFFFFF)){
+		send {8}
+		;猫釉撕咬。技能可用。
+	}else if(isharm and not targetBeCtrled and not isSlowDown and not lookAtPet and judge(304,1024,0xFFFFFF)){
+		send {Ins}
+		;震荡射击。敌对、未被控制、未被减速、不看宠物、技能可用。
+	}else if(isharm and not judge(86,893,0xFFD100) and judge(258,1024,0xFFFFFF) and not judge(261,893,0xFFD100)){
+		send {F11}
+		;猎人印记。敌对、目标无该DEBUFF、技能可用。
+	}else if(isharm and targetBeBuffed and judge(397,975,0xFFFFFF)){
+		send {Numpad0}
+		;宁神射击。敌对、目标有BUFF、技能可用。
+	}else if(isharm and not targetIsStinged and judge(526,28,0xC79C6E,0xFFF569) and judge(164,1024,0xFFFFFF)){
+		send {f9}
+		;毒蝎钉刺。敌对、未被钉刺、战士盗贼、技能可用。	
+	}else if(isharm and not targetIsStinged and targetHasMana and isPvpTarget and judge(211,1024,0xFFFFFF)){
+		send {F10}	
+		;蝰蛇钉刺。敌对、未被钉刺、目标有蓝、PVP目标、技能可用。
+	}else if(isharm and not targetIsStinged and judge(118,1024,0xFFFFFF)){
+		send {F8}
+		;毒蛇钉刺。未被钉刺、技能可用。
+	}else if(petExistsAndAlive and not judge(157,893,0xFFD100) and judge(1423,1024,0xFFFFFF)){
+		send {y}
+		;治疗宠物。宠物存在、无该BUFF、技能可用。
+	}else if(judge(1654,1025,0xFFFFFF)){
+		send {j}
+		;奇美拉射击。
+	}else if(judge(444,975,0xFFFFFF)){
+		send {NumpadDot}
+		;瞄准射击。
+	}else if(){
+		
+	}
+
+	if(petExistsAndAlive and not judge(170,110,0x00A100) and judge(1004,1024,0xFFFFFF)){
+		send +{x}
+		;纳鲁的赐福。宠物存在、濒危、技能可用。
+	}else if(not judge(166,60,0x00B800) and judge(1004,1024,0xFFFFFF)){
+		send !{x}
+		;纳鲁的赐福。玩家绿不满50、技能可用。
+	}else if(isharm and not targetHasMana and not isMoving and judge(526,28,0xFF7D0A) and judge(1610,1024,0xFFFFFF)){
+		send {h}
+		;恐吓野兽。敌对、技能可用、德鲁伊野兽态、不在移动。
+	}else if(isharm and not isMoving and judge(491,1024,0xFFFFFF)){
+		send {End}
+		;多重射击。敌对、不在移动、技能可用。
+	}else if(isharm and judge(24,1024,0xFFFFFF)){
+		send {F6}{Left}
+		;奥术射击。敌对、技能可用。
+	}else if(isharm and not isMoving and judge(71,1024,0xFFFFFF) and not judge(224,75,0x0000D6)){
+		send {F7}
+		;急速射击。敌对、技能可用、不在移动、不满80魔。
+	}else if(isharm and not isMoving and judge(258,975,0xFFFFFF)){
+		send {\}
+		;稳固射击。敌对、不在移动、技能可用。
+	}else if(){
+		
+	}
+}
+
+
+;===================================================
+;=               钱老师的百宝盒                    =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+;===================================================
+;=               检验前后左右被按下                =
+;===================================================
+IsMoving(){
+	Return GetKeyState("w","p") or GetKeyState("a","p") or GetKeyState("s","p") or GetKeyState("d","p")
+}
+
+GetColorAndXy(binColor,x,y){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%x%,%y%,%gColor%
+	MsgBox %x%,%y%,%gColor%
+}
+
+GetColor(x,y){
+	PixelGetColor theColor,x,y,RGB
+	return theColor
+}
+
+^Numpad4::
+Clipboard = 0504aslan@163.com
+send ^{v}{Tab}
+sleep 100
+Clipboard = chao1986
+send ^{v}{enter}
+return
+
+;===================================================
+;=                 修缮小工具                      =
+;===================================================
+;~ ~LCtrl::
+;~     while(GetKeyState("LCtrl")){
+;~         MouseGetPos x,y
+;~ 		PixelGetColor mouse_color,x,y,RGB
+;~         ToolTip % mouse_color "," x "," y
+;~         Sleep 10
+;~     }
+;~     ToolTip
+;~ return
+
+;~ #IfWinActive
+;~ F1::
+;~ send ^{x}{Right}{BackSpace}
+;~ send ^{right 3}{,}^{v}
+;~ Return
+
+;~ F2::
+;~ send +^{Right 2}
+;~ send ^{x}{Right}{BackSpace}
+;~ send ^{right 3}{,}^{v}
+;~ Return
+
+;~ F3::
+;~ send +^{Right 4}
+;~ send ^{x}{Right}{BackSpace}
+;~ send ^{right 3}{,}^{v}
+;~ Return
+
+;~ F4::
+;~ send +^{Right 6}
+;~ send ^{x}{Right}{BackSpace}
+;~ send ^{right 3}{,}^{v}
+;~ Return
+
+;~ F5::
+;~ send +^{Right 8}
+;~ send ^{x}{Right}{BackSpace}
+;~ send ^{right 3}{,}^{v}
+;~ Return
+
+;===================================================
+;=               超一流的猎人世界                  =
+;===================================================

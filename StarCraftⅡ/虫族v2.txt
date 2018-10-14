@@ -1,0 +1,304 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed, 0
+;===================================================
+;=              Grid_Health配置文件                =
+;===================================================
+HERO_COUNT:=0
+Loop, read, e:\Program Files\AutoHotkey\Wow_DataBase\Hero_List.txt		;读取配置文件。
+{
+	HERO_COUNT++
+	Line%HERO_COUNT%:= A_LoopReadLine	;行数、行内容。
+}
+
+Loop %HERO_COUNT%
+{
+	element:=Line%A_Index%		;中间变量
+	
+	StringSplit ARRAY,element,`,
+	Hero_Color_%A_Index%:=ARRAY1
+	Hero_SN_%A_Index%:=ARRAY2
+	Hero_Name_%A_Index%:=ARRAY3
+}
+
+;~ MsgBox %Line1%
+
+;===================================================
+;=                   全局变量初始化                =
+;===================================================
+#IfWinActive ahk_class StarCraft II
+minimap_Spot:=1
+minimap_X:=19
+minimap_Y:=786
+;===================================================
+;=                     抓点工具                    =
+;===================================================
+^Numpad9::
+Clipboard := getColorAndXy(680,729,0xDDB1FA)
+return
+
+^Numpad6::
+MouseGetPos mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard = %mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+
+^Numpad3::
+ITEM_OUTPUT:=GetColor(680,729) . "," . GetColor(731,729) . "," . GetColor(680,679) . "," . GetColor(731,679) . "," . GetColor(680,629) . "," . GetColor(731,629)
+Clipboard := ITEM_OUTPUT
+MsgBox "物品截取OK"
+Return
+
+^NumpadDot::
+SKILL_OUTPUT:=GetColor(815,725) . "`t" . GetColor(871,725) . "`t" . GetColor(926,725) . "`t" . GetColor(982,725)
+Clipboard := SKILL_OUTPUT
+MsgBox "技能截取OK"
+Return
+
+^Numpad8::
+;提取地图上基地的坐标。需要建造好基地并且选中（高亮）。
+OutPutList:=""
+x:=	285
+y:=1037 
+while(y>=787){
+	while(x>=28){
+		percentage:=floor(((y-787)*(285-28)-(285-x))/((1037-787)*(285-28))*100) . "%"
+		ToolTip %percentage%,840,0
+		if(GetColor(x,y)=0x00FF00){
+			OutPutList:=OutPutList . x . "," . y . "," . "0x00FF00" . "`n"
+		}
+		x:=x-8
+	}
+	y:=y-8
+	x:=285
+}
+ToolTip
+Clipboard:=OutPutList
+MsgBox ok
+Return
+;===================================================
+;=               判断是否聊天中                    =
+;===================================================
+;~ ~sc01C::
+;~ 	IsNotChat()	;键盘的回车。
+;~ Return
+;~ ~sc11C::
+;~ 	IsNotChat()	;小键盘的回车。
+;~ Return
+;~ ~Esc::
+;~ 	ISNOTCHAT=True
+;~ Return
+$~LShift::
+while(GetKeyState("LShift","p") and judge(1352,858,0xBBCB5B,0x3B1F21)){	;铺菌毯。
+	Click
+	sleep 55
+}
+Return
+
+Home:: ;	解析地图上的矿和绿点
+x:=786
+y:=1041
+Home_Spot_Cout:=""
+Mine_Spot_Cout:=0
+h:=20
+xInterval:=Floor((290-19)/h)			;X的间隔。
+yInterval:=Floor((1041-786)/h)		;Y的间隔。
+while(y>290){
+	while(x>19){
+		cout:="Searching..." . x . "," . y . "`n" . Home_Spot_Cout . "`n" . Enemy_Spot_Cout . "`n" . "Mine_Num:" . Mine_Spot_Cout
+		ToolTip %cout%,820,55
+		
+		getColor:=GetColor(x,y)
+		if(getColor=0x00FF00 or getColor=0x00BB00){	;找到了老家小绿点。
+			xhome:=x
+			yhome:=y
+			Home_Spot_Cout:="Home Spot:" . xhome . "," . yhome
+		}
+		
+		if(getColor=0xFF0000 or getColor=0xBB0000){	;找到了对家的小绿点。
+			xEnemy:=x
+			yEnemy:=y
+			Enemy_Spot_Cout:="Home Spot:" . xEnemy . "," . yEnemy
+		}
+		
+		if(getColor=0x7EBFF1){	;找到了灰色矿点。
+			xMine:=x
+			yMine:=y
+			Mine_Spot_Cout++		;矿的记号+1。
+		}
+		x-=xInterval
+	}
+	y-=yInterval
+	x:=786
+}
+Return
+
+
+End::	;玩家在小地图中按END确定敌方位置。
+MouseGetPos mx,my
+if(mx>=19 and mx<=290 and my>=786 and my<=1041){
+	ToolTip
+	minimap_X:=mx
+	minimap_Y:=my
+	if(minimap_X<155){
+		if(minimap_Y<914){
+			minimap_Spot:=1
+		}else{
+			minimap_Spot:=3
+		}
+	}else{
+		if(minimap_Y<914){
+			minimap_Spot:=2
+		}else{
+			minimap_Spot:=4
+		}
+	}
+	cout:=minimap_Spot . "/" . minimap_X . "/" . minimap_Y
+	ToolTip %cout%,840,0	;将所在区域打印在墙上
+}
+Return
+
+$f4::	;找兵去侦查
+step:=1
+while(GetKeyState("f4","p")){
+	ToolTip
+	cout:=minimap_Spot . "/" . minimap_X . "/" . minimap_Y . "`n" . step
+	ToolTip %cout%,840,0	;将所在区域打印在墙上
+	Show_Color:=GetColor(1333,840)
+	if(Show_Color=0xFBCA00 and step=1){	;选中单位状态
+		send {a}
+		step:=2
+	}else if(Show_Color=0xFBCA00 and step=2){	;选中单位状态
+		send {shift down}
+		Click 580,885
+		send {shift Up}
+		step:=1
+	}else if(Show_Color=0xF7F7F7){	;A被按下
+		MiniMap_RandonClick()
+	}else if(Show_Color=0xB4B4B4){	;p被按下;
+		MiniMap_RandonClick()
+	}
+;~ 	sleep 1111
+}
+Return
+
+MiniMap_RandonClick(){
+	global minimap_Spot,minimap_X,minimap_Y
+	Random x,19,290
+	y:=Cal_Y(x,minimap_Spot,minimap_X,minimap_Y)
+	Click %x%,%y%
+}
+
+$~sc029::
+send {shift down}
+while(GetKeyState("``","p")){
+	if(judge(1347,856,0x2D2418)){	;;判断第1格是选中卵虫。
+		send {s}
+	}else if(judge(1347,856,0xD89778)){	;判断第1格是造农民。
+		TrainingZergs()
+	}else{
+		send {4}
+		send {backspace}
+		send {v}
+		Click 840,420
+	}
+}
+send {shift up}{Esc}
+return
+
+TrainingZergs(){
+if(judge(1413,990,0x3C2F24)){
+	send {u}
+}
+if(judge(1483,924,0xC1C0D1)){
+	send {c}
+}
+if(judge(1413,925,0x241910)){
+	send {t}
+}
+if(judge(1548,917,0x7B6446)){
+	send {f}
+}
+if(judge(1347,922,0x7A7169)){
+	send {h}
+}
+if(judge(1549,860,0xBB9F6D)){
+	send {r}
+}
+if(judge(1481,863,0x40466D)){
+	send {z}
+}
+}
+Return
+
+Cal_Y(x,minimap_Spot,minimap_X,minimap_Y){
+	if(minimap_Spot=1){
+		R2:=Cal_R2(19,786,minimap_X,minimap_Y)
+		if(x<19+Sqrt(R2)){
+			ymin:=786+Sqrt(R2-(x-19)**2)
+		}else{
+			ymin:=786
+		}	
+		Random y,ymin,1041
+		Return y
+	}else if(minimap_Spot=2){
+		R2:=Cal_R2(290,786,minimap_X,minimap_Y)
+		if(x>290-Sqrt(R2)){
+			ymin:=786+Sqrt(R2-(x-290)**2)
+		}else{
+			ymin:=786
+		}	
+		Random y,ymin,1041
+		Return y
+	}else if(minimap_Spot=3){
+		R2:=Cal_R2(19,1041,minimap_X,minimap_Y)
+		if(x<19+Sqrt(R2)){
+			ymax:=1041-Sqrt(R2-(x-19)**2)
+		}else{
+			ymax:=1041
+		}	
+		Random y,786,ymax
+		Return y
+	}else if(minimap_Spot=4){
+		R2:=Cal_R2(290,1041,minimap_X,minimap_Y)
+		if(x>290-Sqrt(R2)){
+			ymax:=1041-Sqrt(R2-(x-290)**2)
+		}else{
+			ymax:=1041
+		}	
+		Random y,786,ymax
+		Return y
+	}
+}
+
+Cal_R2(x0,y0,x1,y1){
+	Return (x1-x0)**2+(y1-y0)**2
+}	
+
+
+;===================================================
+;=                钱教授的百宝盒                   =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+getColorAndXy(x,y,binColor=""){
+	MouseMove x,y
+	PixelGetColor mouse_color,x,y,RGB
+	cout:=x . "," . y . "," . mouse_color
+	MsgBox %cout%
+	Return cout
+}
+
+GetColor(x,y){
+	PixelGetColor clr,x,y,RGB
+	Return clr
+}
+;===================================================
+;=             StarCraft II插件                    =
+;===================================================

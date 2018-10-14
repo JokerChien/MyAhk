@@ -1,0 +1,577 @@
+;================================钱教授的工具宝
+^1::
+getColorAndXy(0x704329,646,973)
+return
+
+^2::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard =%c4%,%mx%,%my%
+MsgBox %c4%,%mx%,%my%
+return
+
+!^+Left::  MouseMove,-1,0,,R
+!^+Up::    MouseMove,0,-1,,R
+!^+Right:: MouseMove,1,0,,R
+!^+Down::  MouseMove,0,1,,R
+
+^Numpad1::
+getColorAndXy(0x6B3D25,646,1016)
+return
+^Numpad2::
+getColorAndXy(0x71442A,689,1016)
+return
+^Numpad3::
+getColorAndXy(0x75492D,732,1016)
+return
+^Numpad4::
+getColorAndXy(0x531602,776,1016)
+return
+^Numpad5::
+getColorAndXy(0x4D1101,819,1016)
+return
+^Numpad6::
+getColorAndXy(0x460D01,862,1016)
+return
+
+;================================正文
+1::
+loop{
+	if(orjudge(0xA97600,0x3333A9,652,847)){
+		;玩家施法什么也不做。
+	}else if(orjudge(0x001431,0xD5AFED,28,958)){
+		pvpMode()
+		;PVP模式
+	}else{
+		SoundPlay %A_WinDir%\Media\ding.wav
+		Break
+	}
+	sleep 256
+}
+return
+
+pvpMode(){
+	allStance()
+	PixelGetColor stanceColor,168,862,RGB
+	If(stanceColor=0xCD946C){
+		Arms()
+	}else if(stanceColor=0x001431){
+		Protection()
+	}else{
+		Fury()
+	}
+}
+
+allStance(){
+	local lookAtMe:=orjudge(0x830000,0x83857F,466,119)
+	local hasMana:=judge(0x000083,317,75)
+	local equippedShield:=judge(0x4A626B,215,862)
+	local singMagic:=orjudge(0x3232A4,0xA47300,652,811)
+	local has15Rage:=judge(0xA50000,125,75)
+	local isNearby:=judge(0x670000,958,949)
+	local isClose:=judge(0x660000,958,927)
+	local isPhysicalDpser:=or3judge(0x92536F,0x98913F,0x775D42,737,925) ;骑士盗贼或战士。
+	
+	if((judge(0x746756,1034,1016) or judge(0x807DE5,732,1016)) and judge(0xB29E3A,308,958)){
+		send {e}
+		;徽章。被致盲或寒冰指、技能可用。
+	}else if((orjudge(0x272623,0x3401D2,646,973) or not isNearby and judge(0xFFFF00,28,862)) and judge(0x8F4B4B,121,958)){
+		send {3}
+		;英勇之怒。被冰环或缠绕 或拦截CD、技能可用。
+	}else if(judge(0x746756,1034,1016) or judge(0x807DE5,732,1016)){
+		send {e}
+		;徽章。被致盲或寒冰指。
+	}else if(judge(0xDE0400,308,910) and not judge(0x00A900,345,60) and judge(0x00B800,166,60)){
+		send {y}
+		;血性狂暴。技能可用、目标不满20绿、自己则大于40绿。
+	}else if(or3judge(0xFF0000,0xE5C035,0x420018,28,1006) and not cantIntercept()){	
+		send {F6}
+		;拦截援护冲锋。技能可用、可被拦截。
+	}else if(not judge(0xFFFF00,28,862) and not isNearby){
+		send {[}
+		;狂暴姿态。拦截冲锋无CD、目标在远处。
+	}else if(judge(0x5A3B5A,1034,1016) and judge(0xF7EFBD,495,910)){
+		send {h}
+		;石像形态。中了减速药膏、技能可用。
+	}else if(lookAtMe and not equippedShield and (isPhysicalDpser or hasMana and not isNearby and has15Rage and not judge(0xFFFF00,121,862))){
+		send {]}
+		;上盾牌。看自己、没拿盾牌、战贼骑或有15怒气但法术反射无CD的远处法系部队。
+	}else if((not lookAtMe or not isPhysicalDpser and isNearby) and equippedShield){
+		send {]}
+		;卸下盾牌。目标没看自己或离法系距离很近、拿着盾牌。
+	}else if(singMagic and orjudge(0xBC9D6A,0xFFBE7B,261,1006)){
+		send {F11}
+		;拳击or盾击。淫唱魔法、技能可用。
+	}else if(singMagic and judge(0xDCC2E9,121,910)){
+		send {8}
+		;破但怒吼。淫唱魔法、技能可用。
+	}else if(singMagic or  and lookAtMe and judge(0xBDCCDF,121,862)){
+		send {=}
+		;法术反射。
+	}else if(isClose and judge(0x051D03,355,910) and judge(0xBB0000,166,75)){
+		send {u}
+		;用饰品。近战、饰品可用、40 rage。
+	}else if(judge(0x860C0C,308,862) and judge(0x00D600,231,60)){
+		send {;}
+		;死亡之愿。技能可用、player has 80 health
+	}else if(judge(0x53432D,215,910)){
+		send {0}
+		;盾牌猛击。技能可用。
+	}
+}
+
+Fury(){
+	local isPhysicalDpser:=or3judge(0x92536F,0x98913F,0x775D42,737,925) ;骑士盗贼或战士。
+	local hasMana:=judge(0x000083,317,75)
+	local has20Rage:=judge(0xAA0000,137,75)
+	local has25Rage:=judge(0xB00000,144,75)
+	local isSlowedDown:=IsSlowDown()
+	local isNearby:=judge(0x670000,958,949)
+	local isClose:=judge(0x660000,958,927)
+	if(not isSlowedDown and judge(0x080808,168,1006)){
+		send {F9}
+		;断筋。目标未被减速、技能可用。
+	}else if(not isSlowedDown and isNearby and judge(0xDEDFCE,74,958)){
+		send {2}
+		;刺耳怒吼。目标未被减速、在附近、技能可用。
+	}else if(isPhysicalDpser and not has25Rage and not judge(0xFFFF00,74,862) and judge(0xA50000,125,75)){
+		send {Down}
+		;防御姿态。目标靠武器吃饭、缴械不在CD、怒气满15。
+	}else if(isPhysicalDpser and not has25Rage and judge(0xFFFF00,74,862)){
+		send {Left}
+		;战斗姿态。目标贼战骑、怒气不满25、缴械CD。
+	}else if(has25Rage and judge(0x312808,732,973) and judge(0x787B88,74,910)){
+		send {7}
+		;猛击。25怒气、猛击瞬发BUFF、技能可用。
+	}else if(judge(0x890702,308,1006)){
+		send {Ins}
+		;乘胜追击。技能可用。
+	}else if(judge(0xB09A95,215,1006)){
+		send {F10}
+		;斩杀。技能可用。
+	}else if(judge(0xC39F32,261,862) and judge(0xBB0000,166,75)){
+		send {\}
+		;嗜血。技能可用、40怒气。
+	}else if(isClose and judge(0xF7BE6B,74,1006) and judge(0xB30000,159,75)){
+		send {F7}
+		;旋风斩。贴近、技能可用、怒气35。
+	}else if(not hasMana and has20Rage and isClose and not judge(0x064903,732,1016) and judge(0x287214,542,958)){
+		send {v}
+		;挫志怒吼。目标没蓝、20怒气、贴近、无该DEBUFF、技能可用。
+	}else if(has20Rage and not orjudge(0x200F3D,0x4C2003,646,1016) and judge(0x120926,402,958)){
+		send {z}
+		;战斗怒吼。20 rage、无战斗命令怒吼、技能可用。
+	}else if(has25Rage and not judge(0x020102,862,1016) and judge(0x020102,402,910)){
+		send {i}
+		;破甲攻击。25怒气、无该DEBUFF、技能可用。
+	}
+}
+
+Arms(){
+	local isPhysicalDpser:=or3judge(0x92536F,0x98913F,0x775D42,737,925) ;骑士盗贼或战士。
+	local hasMana:=judge(0x000083,317,75)
+	local has20Rage:=judge(0xAA0000,137,75)
+	local has25Rage:=judge(0xB00000,144,75)
+	local isSlowedDown:=IsSlowDown()
+	local isNearby:=judge(0x670000,958,949)
+	local isClose:=judge(0x660000,958,927)
+	
+	if(not isSlowedDown and judge(0x080808,168,1006)){
+		send {F9}
+		;断筋。目标未被减速、技能可用。
+	}else if(not isSlowedDown and isNearby and judge(0xDEDFCE,74,958)){
+		send {2}
+		;刺耳怒吼。目标未被减速、在附近、技能可用。
+	}else if(isPhysicalDpser and not has25Rage and not judge(0xFFFF00,74,862) and judge(0xA50000,125,75)){
+		send {Down}
+		;防御姿态。目标靠武器吃饭、缴械不在CD、怒气满15。
+	}else if(hasMana and not has25Rage){
+		send {Right}
+		;狂暴姿态。目标有蓝、怒气不满25。
+	}else if(has25Rage and judge(0x312808,732,973) and judge(0x787B88,74,910)){
+		send {7}
+		;猛击。25怒气、猛击瞬发BUFF、技能可用。
+	}else if(judge(0x890702,308,1006)){
+		send {Ins}
+		;乘胜追击。技能可用。
+	}else if(judge(0x312116,74,1006) and judge(0xAA0000,130,75)){
+		send {F7}
+		;压制。技能可用、15怒气。
+	}else if(judge(0xB09A95,215,1006)){
+		send {F10}
+		;斩杀。技能可用。
+	}else if(judge(0xC39F32,261,862) and judge(0xBB0000,166,75)){
+		send {\}
+		;嗜血。技能可用、40怒气。
+	}else if(has20Rage and not judge(0xA40203,776,1016) and judge(0x730300,402,1006)){
+		send {PGUP}
+		;撕裂。20怒气、无该DEBUFF、技能可用。
+	}else if(has20Rage and judge(0xFFE8A5,495,1006)){
+		send {End}
+		;惩戒痛击。20怒气、技能可用。
+	}else if(isClose and not hasMana and not judge(0x4296C9,819,1016) and judge(0xB30000,152,75) and judge(0x09263F,448,1006)){
+		send {Del}
+		;雷霆一击。贴近、目标无蓝、无该DEBUFF、30怒气、技能可用。
+	}else if(not hasMana and has20Rage and isClose and not judge(0x064903,732,1016) and judge(0x287214,542,958)){
+		send {v}
+		;挫志怒吼。目标没蓝、20怒气、贴近、无该DEBUFF、技能可用。
+	}else if(has20Rage and not orjudge(0x200F3D,0x4C2003,646,1016) and judge(0x120926,402,958)){
+		send {z}
+		;战斗怒吼。20 rage、无战斗命令怒吼、技能可用。
+	}else if(has25Rage and not judge(0x020102,862,1016) and judge(0x020102,402,910)){
+		send {i}
+		;破甲攻击。25怒气、无该DEBUFF、技能可用。
+	}
+}
+
+Protection(){
+	local isPhysicalDpser:=or3judge(0x92536F,0x98913F,0x775D42,737,925) ;骑士盗贼或战士。
+	local hasMana:=judge(0x000083,317,75)
+	local has20Rage:=judge(0xAA0000,137,75)
+	local has25Rage:=judge(0xB00000,144,75)
+	local isSlowedDown:=IsSlowDown()
+	local isNearby:=judge(0x670000,958,949)
+	local isClose:=judge(0x660000,958,927)
+	
+	if(not isSlowedDown and isNearby and judge(0xDEDFCE,74,958)){
+		send {2}
+		;刺耳怒吼。目标未被减速、在附近、技能可用。
+	}else if(isPhysicalDpser and judge(0x82563F,215,1006)){
+		send {F10}
+		;缴械。目标靠武器吃饭、技能可用。
+	}else if(judge(0x9C9596,121,1006) and not judge(0x00B800,166,60)){
+		send {F8}
+		;盾墙。盾墙可用、40血以下。
+	}else if(judge(0x4F7893,308,1006) and orjudge(0x830000,0x83857F,466,119)){
+		send {Ins}
+		;盾牌格挡。技能可用、目标目标为自己。
+	}else if(judge(0x312116,74,1006) and judge(0xAA0000,130,75)){
+		send {F7}
+		;复仇。技能可用、15怒气。
+	}else if(has25Rage and judge(0x312808,732,973) and judge(0x787B88,74,910)){
+		send {7}
+		;猛击。25怒气、猛击瞬发BUFF、技能可用。
+	}else if(isPhysicalDpser and not has25Rage and judge(0xFFFF00,74,862)){
+		send {Left}
+		;战斗姿态。目标贼战骑、怒气不满25、缴械CD。
+	}else if(hasMana and not has25Rage and judge(0xFFFF00,74,862)){
+		send {Right}
+		;狂暴姿态。目标有蓝、怒气不满25、缴械CD。
+	}else if(judge(0xC39F32,261,862) and judge(0xBB0000,166,75)){
+		send {\}
+		;嗜血。技能可用、40怒气。
+	}else if(has20Rage and not judge(0xA40203,776,1016) and judge(0x730300,402,1006)){
+		send {PGUP}
+		;撕裂。20怒气、无该DEBUFF、技能可用。
+	}else if(has20Rage and judge(0xFFE8A5,495,1006)){
+		send {End}
+		;惩戒痛击。20怒气、技能可用。
+	}else if(isClose and not hasMana and not judge(0x4296C9,819,1016) and judge(0xB30000,152,75) and judge(0x09263F,448,1006)){
+		send {Del}
+		;雷霆一击。贴近、目标无蓝、无该DEBUFF、30怒气、技能可用。
+	}else if(not hasMana and has20Rage and isClose and not judge(0x064903,732,1016) and judge(0x287214,542,958)){
+		send {v}
+		;挫志怒吼。目标没蓝、20怒气、贴近、无该DEBUFF、技能可用。
+	}else if(has20Rage and not orjudge(0x200F3D,0x4C2003,646,1016) and judge(0x120926,402,958)){
+		send {z}
+		;战斗怒吼。20 rage、无战斗命令怒吼、技能可用。
+	}else if(has25Rage and not judge(0x020102,862,1016) and judge(0x020102,402,910)){
+		send {i}
+		;破甲攻击。25怒气、无该DEBUFF、技能可用。
+	}
+}
+
+NeedToBeDispersed(){
+	return or4judge(0x420000,0x4D4455,0x100818,0xFEF2CD,948,1016) or judge(0x2CACA7,732,1016) or or3judge(0xBD4994,0xF7B77D,0x181018,991,1016)
+	;自由之手、保护之手、闪电之盾、真言术盾。寒冰护体。野性赐福、力量祝福、王者祝福。
+}
+
+IsSlowDown(){
+	return or4judge(0x757065,0x080808,0xB13708,0x5A3B5A,689,1016) or or4judge(0xDD979F,0x420000,0x4D4455,0xFFFBE7,948,1016) or or5judge(0x3401D1,0x938AE0,0xDEFFFF,0xE7F5FE,0x3401D1,991,1016)
+	;断筋、刺耳怒吼、减速、减速药膏。野兽之心、自由之手、保护之手、圣盾术。冰霜陷阱光环、寒冰箭、冰霜震击、冰锥术、冰霜新星。
+}
+
+cantIntercept(){
+	return judge(0x7ED0F8,732,1016) or judge(0xFFFBE7,948,1016) or judge(0x8F8B9C,689,973)
+	;寒冰屏障、圣盾术、利刃风暴。
+}
+
+Roaring(){
+	local hasMana:=judge(0x000083,317,75)
+	local singMagic:=orjudge(0x3232A4,0xA47300,652,811)
+	local has20Rage:=judge(0xAA0000,134,75)
+	if(singMagic and judge(0xDCC2E9,121,910)){
+		send {8}
+		;破胆怒吼。目标施法、破胆可用。
+	}else if(singMagic and lookAtMe and judge(0xBDCCDF,121,862)){
+		send {=}
+		;法术反射。
+	}else if(not IsSlowDown()){
+		send {2}
+		;刺耳怒吼。	
+	}else if(not hasMana and has20Rage and not judge(0x064903,732,1016)){
+		send {v}
+		;挫志怒吼。目标没蓝、20怒气、无该DEBUFF。
+	}else if(not orjudge(0x200F3D,0x4C2003,646,1016) and has20Rage){
+		send {z}
+		;战斗怒吼。玩家无该BUFF、20怒气。
+	}
+}
+
+longDistance(){
+	local lookAtMe:=orjudge(0x830000,0x83857F,466,119)
+	local singMagic:=orjudge(0x3232A4,0xA47300,652,811)
+	local isHunter:=judge(0x667E45,737,925)
+	local cantIntercept:=cantIntercept()
+;~ 	local IsDruidMageWarlockShaman:=or4judge(0x984A06,0x3F798F,0x584D78,0x153598,737,925)
+	if(orjudge(0x3401D2,0x272623,646,973)){
+		SpellReflection()
+		;被冰环或树根缠绕。
+	}else if(orjudge(0x170008,0x090003,28,862) and not judge(0x3F798F,737,925)){
+		send {3}
+		;英勇之怒。如果拦截CD不是法师。
+	}else if(or3judge(0x420018,0xE5C035,0xFF0000,28,1006) and not cantIntercept){
+		send {F6}
+		;冲锋拦截援助。
+		if(judge(0xAC0000,143,75)){
+			send {6}
+			;英勇打击。25点怒气。
+		}
+	}else if(orjudge(0x190009,0x660000,28,862) and not cantIntercept){
+		send {[}
+		;切换姿态。拦截无CD。
+	}else if(lookAtMe and singMagic){
+		SpellReflection()
+		;目标看着你施法或目标有蓝且不是猎人
+	}else if(lookAtMe and isHunter){
+		if(judge(0x4F7893,308,1006)){
+			send {Ins}
+			;盾牌格挡。
+		}else if(not judge(0x4A626B,215,862)){
+			send {]}
+			;装备盾牌。
+		}else if(not judge(0x001431,168,862) and not judge(0xAC0000,143,75)){
+			send {Down}
+			;防御姿态。非防御姿态、不满25怒气。
+		}
+	}
+}
+
+SpellReflection(){
+	local furyStance:=judge(0xFCE8FD,168,862)
+	local equippedShield:=judge(0x4A626B,215,862)
+	local has15Rage:=judge(0xA50000,125,75)
+	local hasSpellReflection:=judge(0x4C5259,121,862)
+	if(judge(0xBDCCDF,121,862)){
+		send {=}
+		;法术反射。可用。
+	}else if(not furyStance and has15Rage and hasSpellReflection and not equippedShield){
+		send {]}
+		;上盾牌。不在狂暴姿态、15怒、无CD、手上没盾牌。
+	}else if(furyStance and has15Rage and hasSpellReflection){
+		send {Down}
+		;防御姿态。狂暴姿态、15怒气、法术反射可用。
+	}
+}
+
+almaMode(num){
+	local isPhysicalDpser:=or3judge(0x667E45,0x98913F,0x775D42,737,925)
+	local hasMana:=judge(0x000083,317,75)
+	local has20Rage:=judge(0xAA0000,134,75)
+	local has25Rage:=judge(0xAC0000,143,75)
+	local amFocused:=orjudge(0x83857F,0x830000,466,119)
+	local singMagic:=orjudge(0x3232A4,0xA47300,652,811)
+	local equippedShield:=judge(0x4A626B,215,862)
+	if(or3judge(0x420018,0xE5C035,0xFF0000,28,1006)){
+		send {F6}
+		;冲锋拦截援助。
+	}else if(orjudge(0x190009,0x660000,28,862)){
+		send {[}
+		;切换姿态。拦截无CD。
+	}else if(not equippedShield and num!=1 or equippedShield and num=1){
+		send {]}
+		;装备盾牌。没有盾牌。
+	}else if(not judge(0x001431,168,862) and num!=1){
+		send {Down}
+		;防御姿态。
+	}else if(not judge(0xFCE8FD,168,862) and num=1){
+		send {Right}
+		;狂暴姿态。
+	}else if(not amFocused and judge(0xF46900,168,1006)){
+		send {F9}
+		;嘲讽。没被注视、嘲讽可用。
+	}else if(singMagic and orjudge(0xBC9D6A,0xFFBE7B,261,1006)){
+		send {F11}
+		;拳击or盾击。
+	}else if(judge(0x312808,732,973) and has25Rage){
+		send {7}
+		;猛击。技能可用、25怒气
+	}else if(judge(0x9F0A0D,355,1006)){
+		send {0}
+		;盾牌猛击。技能可用、30怒气。
+	}else if(judge(0xC60000,185,75) and num!=2){
+		send {6}
+		;英勇打击。56怒气。
+	}else if(judge(0xC60000,185,75) and num=2){
+		send {9}
+		;顺劈斩。56怒气。
+	}
+	if(judge(0x660000,958,927)){
+		if(judge(0x890702,308,1006)){
+			send {Ins}
+			;乘胜追击。
+		}else if(not amFocused and judge(0x561A0A,495,958)){
+			send {c}
+			;挑战怒吼。
+		}else if(judge(0x6B2021,121,1006) and judge(0xBB0000,163,75)){
+			send {F8}
+			;鲁莽。鲁莽可用、40怒气。
+		}else if(judge(0xB09A95,215,1006) or judge(0xD6DBE7,732,973) and not judge(0x001431,168,862)){
+			send {F10}
+			;斩杀。技能可用or不在防御姿态的猝死。
+		}else if(judge(0x9C9596,121,1006) and not judge(0x00A900,134,60)){
+			send {F8}
+			;盾墙。盾墙可用、20血以下。
+		}else if(judge(0x4F7893,308,1006) and orjudge(0x830000,0x83857F,466,119)){
+			send {Ins}
+			;盾牌格挡。技能可用、目标目标为自己。
+		}else if(judge(0x312116,74,1006) and judge(0xA50000,125,75)){
+			send {F7}
+			;复仇。技能可用、15怒气。
+		}else if(judge(0x051D03,355,910) and judge(0xBB0000,163,75)){
+			send {u}
+			;用饰品。饰品可用、40怒气。
+		}else if(judge(0x98621F,168,958) and judge(0xBB0000,163,75)){
+			send {4}
+			;嗜血。技能可用、40怒气。
+		}else if(judge(0xF7BE6B,74,1006) and judge(0xB30000,156,75)){
+			send {F7}
+			;旋风斩。旋风斩可用,怒气35。
+		}else if(not judge(0xA40203,776,1016) and has20Rage and num=0){
+			send {PGUP}
+			;撕裂。无该DEBUFF、20怒气。
+		}else if(judge(0xFFE8A5,495,1006) and has20Rage){
+			send {End}
+			;惩戒痛击。技能可用、20怒气。
+		}else if(not hasMana and not judge(0x4296C9,819,1016) and judge(0xB30000,147,75) and num!=1){
+			send {Del}
+			;雷霆一击。目标无蓝、无该DEBUFF、30怒气。
+		}else if(not hasMana and has20Rage and not judge(0x064903,732,1016)){
+			send {v}
+			;挫志怒吼。目标没蓝、20怒气、无该DEBUFF。
+		}else if(not orjudge(0x200F3D,0x4C2003,646,1016) and has20Rage){
+			send {z}
+			;战斗怒吼。玩家无该BUFF、20怒气。
+		}else if(not judge(0x020102,862,1016) and has25Rage){
+			send {i}
+			;破甲攻击
+		}
+	}
+}
+
+;================================钱教授的百宝盒
+judge(tar_color,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color=get_color){
+		return true
+	}else{
+		return false
+	}
+}
+
+orjudge(tar_color1,tar_color2,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+
+or3judge(tar_color1,tar_color2,tar_color3,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color or tar_color3=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+
+or4judge(tar_color1,tar_color2,tar_color3,tar_color4,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+
+or5judge(tar_color1,tar_color2,tar_color3,tar_color4,tar_color5,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+;Tab键和鼠标右键是不是被按下。
+TabIsDown(){
+	GetKeyState state,Tab,p
+	if state=D
+		return true
+	Else
+		return RButtonIsDown()
+}
+
+RButtonIsDown(){
+	GetKeyState state,RButton,p
+	if state=D
+		return true
+	Else
+		return False
+}
+
+;是否移动状态，即WASD是否被按下。
+IsMoving(){
+	GetKeyState state,w,p
+	if state=D
+	;这里state=D不能加括号，确实非常之奇怪。
+		return true
+	Else
+		return AIsDown()
+}
+
+AIsDown(){
+	GetKeyState state,a,p
+	if state=D
+		return true
+	Else
+		return SIsDown()
+}
+
+SIsDown(){
+	GetKeyState state,s,p
+	if state=D
+		return true
+	Else
+		return DIsDown()
+}
+
+DIsDown(){
+	GetKeyState state,d,p
+	if state=D
+		return true
+	Else
+		return false
+}
+
+interinterceptionIsReady(){
+	return orjudge(0xBC9D6A,0xFFBE7B,261,1006) or judge(0xBE8C4F,74,958) or judge(0x899798,168,958)
+}
+
+getColorAndXy(binColor,x,y){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%gColor%,%x%,%y%
+	MsgBox %gColor%,%x%,%y%
+}

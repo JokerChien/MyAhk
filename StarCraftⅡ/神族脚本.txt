@@ -1,0 +1,150 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed, 0
+;===================================================
+;=              Grid_Health配置文件                =
+;===================================================
+HERO_COUNT:=0
+Loop, read, e:\Program Files\AutoHotkey\Wow_DataBase\Hero_List.txt		;读取配置文件。
+{
+	HERO_COUNT++
+	Line%HERO_COUNT%:= A_LoopReadLine	;行数、行内容。
+}
+
+Loop %HERO_COUNT%
+{
+	element:=Line%A_Index%		;中间变量
+
+	StringSplit ARRAY,element,`,
+	Hero_Color_%A_Index%:=ARRAY1
+	Hero_SN_%A_Index%:=ARRAY2
+	Hero_Name_%A_Index%:=ARRAY3
+}
+
+;~ MsgBox %Line1%
+
+;===================================================
+;=                   全局变量初始化                =
+;===================================================
+#IfWinActive ahk_class StarCraft II
+;===================================================
+;=                     抓点工具                    =
+;===================================================
+^Numpad9::
+Clipboard := getColorAndXy(680,729,0xDDB1FA)
+return
+
+^Numpad6::
+MouseGetPos mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard = %mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+
+^Numpad3::
+ITEM_OUTPUT:=GetColor(680,729) . "," . GetColor(731,729) . "," . GetColor(680,679) . "," . GetColor(731,679) . "," . GetColor(680,629) . "," . GetColor(731,629)
+Clipboard := ITEM_OUTPUT
+MsgBox "物品截取OK"
+Return
+
+^NumpadDot::
+SKILL_OUTPUT:=GetColor(815,725) . "`t" . GetColor(871,725) . "`t" . GetColor(926,725) . "`t" . GetColor(982,725)
+Clipboard := SKILL_OUTPUT
+MsgBox "技能截取OK"
+Return
+;===================================================
+;=               判断是否聊天中                    =
+;===================================================
+
+~t::	;右键移动。
+settimer TButton,22
+KeyWait t
+settimer TButton,Off
+Return
+
+TButton:
+send {rbutton}
+Return
+
+~d::	;右键移动。
+settimer DButton,22
+KeyWait d
+settimer DButton,Off
+Return
+
+DButton:
+send {d}
+Return
+
+Home::
+;~ ToolTip Searching...,840,0
+MouseGetPos mx,my
+x:=mx+10
+y:=my+10
+while(y>my-10){
+	x:=mx+10
+	while(x>mx-10){
+		cout:="Searching..." . x . "," . y
+		ToolTip %cout%,840,0
+		if(judge(x,y,0x00FF00,0x00BB00)){
+;~ 			MsgBox aaa
+			xhome:=x
+			yhome:=y
+			cout:="Home:" . x . "," . y
+			ToolTip %cout%,840,0
+			Return
+		}
+		x--
+	}
+	y--
+}
+Return
+
+end::
+MouseMove 20,20,,r
+Return
+
+~sc029::
+send {shift down}
+settimer AutoLB,22
+KeyWait ``
+settimer AutoLB,Off
+send {shift Up}
+return
+
+AutoLB:
+send {lbutton}
+Return
+;===================================================
+;=              	   正文				   		   =
+;===================================================
+;~ sc029::
+;~ if(ISNOTCHAT){
+;~ 	send {Numpad7}
+;~ }
+;~ return
+;===================================================
+;=                钱教授的百宝盒                   =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+getColorAndXy(x,y,binColor=""){
+	MouseMove x,y
+	PixelGetColor mouse_color,x,y,RGB
+	cout:=x . "," . y . "," . mouse_color
+	MsgBox %cout%
+	Return cout
+}
+
+GetColor(x,y){
+	PixelGetColor clr,x,y,RGB
+	Return clr
+}
+;===================================================
+;=             StarCraft II插件                    =
+;===================================================

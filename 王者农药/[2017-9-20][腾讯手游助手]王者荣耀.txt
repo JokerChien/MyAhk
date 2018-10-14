@@ -1,0 +1,494 @@
+;===================================================
+;=               环境配置                          =
+;===================================================
+CoordMode Mouse,Relative	;坐标相对于激活的窗口。
+SetDefaultMouseSpeed, 0	;鼠标瞬间移动
+;===================================================
+;=                   GUI                           =
+;===================================================
+gui,font,s18 bold,Center
+gui,	Add,	Text,	cBlue	vText_Hero	x20	y15	w200	h30	,	未选定
+gui,font
+Gui,	Add,	Text,	vText_Status	x20	y55	w600	h35	,	未指定
+Gui,	Add,	Text,		x20	y550	w600	h100	,	热键:`n1..只以英雄为目标:T、G。`n2..玩家攻击移动点击：O。★★`n3..打开商店：V。`n4..打开数据面板★★
+
+Gui,	Add,	Button,	x20	y95	w100	h25	,	Q按钮
+Gui,	Add,	Button,	x120	y95	w100	h25	,	W按钮
+Gui,	Add,	Button,	x220	y95	w100	h25	,	E按钮
+Gui,	Add,	Button,	x320	y95	w100	h25	,	R按钮
+Gui,	Add,	Button,	x20	y125	w100	h25	,	D按钮
+Gui,	Add,	Button,	x120	y125	w100	h25	,	右键
+Gui,	Add,	Button,	x220	y125	w100	h25	,	Shift右键
+Gui,	Add,	Button,	x20	y155	w100	h25	,	Shift3按钮
+Gui,	Add,	Button,	x120	y155	w100	h25	,	Shift6按钮
+Gui,	Add,	Button,	x220	y155	w100	h25	,	Shift7按钮
+Gui,	Add,	Button,	x320	y155	w100	h25	,	清空
+Gui,	Add,	Button,	x320	y125	w100	h25	,	自我施法
+
+Gui,	Add,	Radio,cblue	vRadio_Hero	gRadio_Hero	x20		y200	w100	h20	,	芈月
+Gui,	Add,	Radio,cblue	gRadio_Hero	x120	y200	w100	h20	,	孙尚香
+Gui,	Add,	Radio,cblue	gRadio_Hero	x220	y200	w100	h20	,	妲己
+Gui,	Add,	Radio,cblue	gRadio_Hero	x320	y200	w100	h20	,	狄仁杰
+Gui,	Add,	Radio,cblue	gRadio_Hero	x20	y230	w100	h20	,	蔡文姬
+Gui,	Add,	Radio,cblue	gRadio_Hero	x120	y230	w100	h20	,	李元芳
+Gui,	Add,	Radio,cblue	gRadio_Hero	x220	y230	w100	h20	,	不知火舞
+Gui,	Add,	Radio,cblue	gRadio_Hero	x320	y230	w100	h20	,	橘右京
+Gui,	Add,	Radio,cblue	gRadio_Hero	x20	y260	w100	h20	,	吕布
+
+Hero_Name_1:="芈月"
+W_Send_1:="{w}{w}"
+E_Send_1:="{e}{e}{RButton}"
+
+Hero_Name_2:="孙尚香"
+A_Send_2:="{w}"
+
+Hero_Name_3:="妲己"
+W_Send_3:="{Space}{q}{w}{e}{RButton}"
+
+Hero_Name_4:="狄仁杰"
+A_Send_4:="{q}"
+
+Hero_Name_5:="蔡文姬"
+Q_Send_5:="{q}{q}{RButton}"
+W_Send_5:="{w}{w}"
+E_Send_5:="{e}{e}{RButton}"
+
+Hero_Name_6:="李元芳"
+Q_Send_6:="{q}{q}"
+G_Send_6:="{Space}{Space}{RButton}"
+W_Send_6:="{w}{w}{RButton}"
+
+Hero_Name_7:="不知火舞"
+A_Send_7:="{w}"
+
+Hero_Name_8:="橘右京"
+A_Send_8:="{q}"
+	
+Hero_Name_9:="吕布"
+G_Send_9:="{w 3},{e 3},{RButton Down}"
+StringSplit gSend_9_,G_Send_9,`,
+R_Send_9:="{w 3},{RButton Down}"
+StringSplit rSend_9_,R_Send_9,`,
+;===================================================
+;=               公共变量                          =
+;===================================================
+START_LINE:=1
+TIME_HLTH:=NowatimeStamp()
+TIME_ATT:=NowatimeStamp()
+TIME_NOW:=NowatimeStamp()
+Last_Spell_Time:=NowatimeStamp()
+Last_Spell_Name:=""
+ATT_FREQ:=1.00
+PRINTING:=""
+HERO_INDEX:=0
+AutoMode_Switch:=0
+i:=1
+
+Gui, Show, x200 y200 h666 w440, 四个六撸啊撸配音助手 版本：#20170919#215214
+
+Radio_Hero:			;gRadio_Hero的触发更新。
+Gui, Submit ,NoHide	;保存每个与控件相关联的变量。
+HERO_NAME:=Hero_Name_%Radio_Hero%
+;~ Q_Sending:=Q_Send_%Radio_Hero%
+;~ W_Sending:=W_Send_%Radio_Hero%
+;~ E_Sending:=E_Send_%Radio_Hero%
+;~ A_Sending:=A_Send_%Radio_Hero%
+;~ G_Sending:=G_Send_%Radio_Hero%
+;~ R_Sending:=R_Send_%Radio_Hero%
+StringSplit gSend_%Radio_Hero%_,G_Send_%Radio_Hero%,`,
+StringSplit rSend_%Radio_Hero%_,R_Send_%Radio_Hero%,`,
+GuiControl ,,Text_Hero,%HERO_NAME%
+Return
+
+^9::
+getColorAndXy(645,944,0x774F71)
+return
+
+^0::
+MouseGetPos mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard = %mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+
+~b::
+~Esc::
+~Space::
+EndSwitch:=False
+Return
+
+;~ ================================游戏窗口================================
+#IfWinActive ahk_class TXGuiFoundation
+^7::
+getColorAndXy(645,944,0x774F71)
+return
+
+^8::
+MouseGetPos mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard = %mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+
+f2::
+Click 840,525,Right
+Return
+
+~$t::
+send {RButton down}
+SetTimer Move_Mode,128
+KeyWait t,up
+SetTimer Move_Mode,Off
+send {RButton Up}
+Return
+
+Move_Mode:
+send {rbutton down}
+Return
+
+~$r::
+send {RButton down}
+SetTimer R_Mode,88
+KeyWait r,up
+SetTimer R_Mode,Off
+send {RButton Up}
+ToolTip
+Return
+
+R_Mode:
+if(rSend_%Radio_Hero%_0>0){
+	++i
+;~ 	ToolTip ,%i%`n%rSending%`n%rSend_9_0%,840,111
+	rSending:="{r}" . rSend_%Radio_Hero%_%i%
+	send %rSending%
+	
+	
+	i:=Mod(i,rSend_%Radio_Hero%_0)
+	Return
+}
+send {r}{RButton down}
+Return
+
+~$q::
+SetTimer q_Mode,128
+KeyWait q,up
+SetTimer q_Mode,Off
+Return
+
+q_Mode:
+Q_Sending:=Q_Send_%Radio_Hero%
+send %Q_Sending%
+Return
+
+~$w::
+SetTimer w_Mode,128
+KeyWait w,up
+SetTimer w_Mode,Off
+Return
+
+w_Mode:
+send %W_Sending%
+Return
+
+~$e::
+SetTimer e_Mode,128
+KeyWait e,up
+SetTimer e_Mode,Off
+Return
+
+e_Mode:
+E_Sending:=E_Send_%Radio_Hero%
+send %E_Sending%
+Return
+
+~$g::
+send {RButton Down}{space Down}
+SetTimer HiEnRn_Mode,88
+KeyWait g,up
+SetTimer HiEnRn_Mode,Off
+send {RButton Up}{space Up}
+;~ ToolTip
+Return
+
+HiEnRn_Mode:
+send {space Up}
+if(gSend_%Radio_Hero%_0>0){
+	++i
+	gSending:=gSend_%Radio_Hero%_%i% . "{Space Down}"
+	send %gSending%
+		
+;~ 	ToolTip ,%i%`n%gSending%`n%gSend_9_0%,840,111
+	i:=Mod(i,gSend_%Radio_Hero%_0)
+	Return
+}
+send {RButton Down}
+send {space Down}
+Return
+
+$~l::
+SetTimer assembleMode,128
+KeyWait l,up
+SetTimer assembleMode,Off
+Return
+
+assembleMode:
+send {k}
+Return
+
+$~u::
+SetTimer awayMode,128
+KeyWait u,up
+SetTimer awayMode,Off
+Return
+
+awayMode:
+send {i}{o}{j}
+Return
+
+$~a::
+MouseGetPos MoX,MoY
+TgX:=2*840-MoX
+TgY:=2*580-MoY
+MouseMove TgX,TgY
+A_Sending:=A_Send_%Radio_Hero%
+send %A_Sending%
+MouseMove MoX,MoY
+Return
+
+^end::
+EndSwitch:=True
+while(EndSwitch){
+	if(judge(1452,156,0x37C8E8)){	;蓝色的叉掉
+		Click 1452,156
+	}else if(judge(1451,154,0x2BB0C2)){	;暗蓝色的叉掉
+		Click 1451,154
+	}else if(judge(52,33,0xFCFCFC,0xFBFBFB)){	;如果左上角是头像框“一所”，则进入“对战模式”
+		Click 518,471
+	}else if(judge(443,44,0xD2DFE9,0xF8FAFC)){	;如果“对战模式”点击人机	384,48,0xFFFFFF
+		Click 1089,430
+	}if(judge(384,48,0xFFFFFF)){	;如果“人机练习”点击人机	384,48,0xFFFFFF
+;~ 		Click 322,371	;王者峡谷
+		click 673,367 ;,0xFFFFFF  深渊大乱斗
+	}else if(judge(808,822,0xD28829,0xD2882A)){	;橙色按钮“开始匹配”
+		Click 808,822
+	}else if(judge(720,761,0xD48825)){	;橙色按钮“进入游戏”
+		Click 720,761
+	}else if(judge(1428,972,0xDD9429,0xDD9529)){	;橙色按钮“锁定英雄”172,39,0x128EB7
+		Click 1428,972
+	}else if(judge(172,39,0x128EB7)){	;选择英雄界面随便选个英雄
+		Click 128,445
+	}else if(judge(749,952,0x3982C3)){	;连胜。继续
+		Click 749,952
+	}Else if(judge(1024,956,0x3B86C8,0x3984C6) or judge(822,950,0x3B91C9)){	;蓝色按钮“继续”
+		Click 1024,956
+		Click 822,950
+	}else if(judge(865,972,0x45A0D9,0x44A2D8)){	;蓝色按钮“再来一局”
+		Click 865,972
+	}else if(judge(829,942,0xEBF0F4)){	;点击屏幕继续
+		Click 829,942
+	}else if(judge(1652,49,0x3FA2CB,0x3EA1CA)){	;游戏中
+;~ 		send {RButton Down}	
+		send {Space up}
+;~ 		MouseMove 226,832
+		send {RButton}
+;~ 		MouseMove 402,615
+;~ 		send {w up}{d up}
+		
+		if(judge(1624,777,0x2F86BE,0x466088,0x416893)){
+			Random RanX,666,1333
+			Random RanY,111,666
+			MouseMove RanX,RanY
+		}else{
+			MouseMove 634,697
+		}	
+		
+;~ 		send {w down}{d Down}
+			
+		RanSkl()
+		send {Space Down}
+		
+		
+	}	
+	;1451,154,0x2BB0C2 52,33,0xFCFCFC	1548,55,0x3180C7	497,534,0xD58D2C 502,532,0xD8932D
+	;749,952,0x3982C3  连胜 继续
+	;720,761,0xD48825
+	;1428,972,0xDD9429
+	;健康血色  927,387,0x72E027
+;~ 	继续 1024,956,0x3B86C8 再来一局 865,972,0x45A0D9
+	Sleep 88
+}
+send {rbutton up}
+Return
+
+RanSkl(){
+	local a
+	a:=Mod(A_MSec,10)
+	if(a=1){
+		send {q 2}
+	}else if(a=2){
+		send {w 2}
+	}else if(a=3){
+		send {e 2}
+	}else if(a=4){
+		send {1}
+	}else if(a=5){
+		send {2}
+	}else if(a=6){
+		send {3}
+	}else if(a=7){
+		send {4}
+	}else if(a=8){
+		send {f}
+	}else if(a=0){
+		send {d}
+	}else {
+		send {RButton}
+	}
+}
+
+
+IfThenElseSend(condition,thenStr,elseStr){
+	if(condition){
+		send %thenStr%
+	}else{
+		send %elseStr%
+	}
+}
+
+CaseWhenElseSend(condition1,thenStr1,condition2=False,thenStr2="",condition3=False,thenStr3="",condition4=False,thenStr4="",elseStr=""){
+	if(condition1){
+		send %thenStr1%
+	}else if(condition2){
+		send %thenStr2%
+	}else if(condition3){
+		send %thenStr3%
+	}else if(condition4){
+		send %thenStr4%
+	}else{
+		send %elseStr%
+	}
+}
+
+
+IfThenDo(Text_Status,n1,String1,n2="",String2=""){
+	if(Text_Status=n1){
+		Return String1
+	}else if(Text_Status=n2){
+		Return String2
+	}
+}
+
+NowatimeStamp(){
+	StringMid cal_Mssn_Hour,a_now,9,2
+	StringMid cal_Mssn_Min,a_now,11,2
+	StringMid cal_Mssn_Sec,a_now,13,2
+	Return cal_Mssn_Hour*3600+cal_Mssn_Min*60+cal_Mssn_Sec+A_MSec/1000
+}
+
+
+;~ ~c::
+;~ TIME_NOW:=NowatimeStamp()
+;~ SetTimer Move_Mode,20
+;~ KeyWait c,up
+;~ SetTimer Move_Mode,Off
+;~ send +{RButton}
+;~ Rate:=2.2*(NowatimeStamp()-TIME_NOW)
+;~ Return
+
+LButton_Mode:
+send {LButton}
+Return
+;===================================================
+;=                   公共函数                      =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+GetColorAndXy(x,y,binColor){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%x%,%y%,%gColor%
+	MsgBox %x%,%y%,%gColor%
+}
+
+GetColor(x,y){
+	PixelGetColor clr,x,y,RGB
+	Return clr
+}
+
+GetCxy(x,y){
+	PixelGetColor clr,x,y,RGB
+	cxy:=x . "," . y . "," . clr
+	Return cxy
+}
+
+Max(a,b){
+	if(a>b){
+		Return a
+	}else{
+		Return b
+	}
+}
+
+ButtonQ按钮:
+Button_Plus("{Q}")
+Return
+
+ButtonW按钮:
+Button_Plus("{W}")
+Return
+
+ButtonE按钮:
+Button_Plus("{E}")
+Return
+
+ButtonR按钮:
+Button_Plus("{R}")
+Return
+
+Button清空:
+Button_Plus()
+Return
+
+Button自我施法:
+Button_Plus("!")
+Return
+
+ButtonD按钮:
+Button_Plus("{D}")
+Return
+
+Button右键:
+Button_Plus("{RButton}")
+Return
+
+ButtonShift右键:
+Button_Plus("+{RButton}")
+Return
+
+ButtonShift3按钮:
+Button_Plus("+{3}")
+Return
+
+ButtonShift6按钮:
+Button_Plus("+{6}")
+Return
+
+ButtonShift7按钮:
+Button_Plus("+{7}")
+Return
+
+Button_Plus(pString=""){
+	global Sending_G_Str,Text_Status,Sending_V_Str
+	if(pString=""){
+		Sending_G_Str := "+{3}+{6}+{7}"
+	}else{
+		Sending_G_Str := Sending_G_Str . pString
+	}
+	GuiControl ,,Text_Status, G式: %Sending_G_Str%`nV式: %Sending_V_Str%
+}
+;======================================================================
+;     四个六撸啊撸配音助手	版本：#20170919#215214
+;======================================================================

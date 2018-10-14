@@ -1,0 +1,289 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed, 0
+;===================================================
+;=              Grid_Health配置文件                =
+;===================================================
+LINES_COUNT:=0
+Loop, read, F:\Program Files\AutoHotkey\我的游戏脚本\LOL\LOL配置文件.txt		;读取配置文件。
+{
+	LINES_COUNT++
+	Line%LINES_COUNT%:= A_LoopReadLine	;行数、行内容。
+}
+
+Loop %LINES_COUNT%
+{
+	element:=Line%A_Index%		;中间变量
+	
+	StringSplit ARRAY,element,`,
+	
+	Spl_%A_Index%_1:=ARRAY1
+	Spl_%A_Index%_2:=ARRAY2
+	Spl_%A_Index%_3:=ARRAY3
+	Spl_%A_Index%_4:=ARRAY4
+	Spl_%A_Index%_5:=ARRAY5
+
+}
+
+;~ MsgBox %Line1%
+PrsSplBtn_1:="{q Down}{q Up}"
+PrsSplBtn_2:="{w Down}{w Up}"
+PrsSplBtn_3:="{e Down}{e Up}"
+PrsSplBtn_4:="{r Down}{r Up}"
+PrsItmBtn_2:="{2 Down}{2 Up}"
+PrsItmBtn_3:="{3 Down}{3 Up}"
+PrsItmBtn_6:="{6 Down}{6 Up}"
+PrsItmBtn_7:="{7 Down}{7 Up}"
+;===================================================
+;=                   全局变量初始化                =
+;===================================================
+#IfWinActive ahk_class RiotWindowClass
+START_LINE:=1
+;===================================================
+;=                     抓点工具                    =
+;===================================================
+^Numpad9::
+getColorAndXy(714,934,0x446138)
+return
+
+^Numpad6::
+MouseGetPos mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard = %mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+
+^Numpad3::
+ITEM_OUTPUT:=GetColor(680,729) . "," . GetColor(731,729) . "," . GetColor(680,679) . "," . GetColor(731,679) . "," . GetColor(680,629) . "," . GetColor(731,629)
+Clipboard := ITEM_OUTPUT
+MsgBox "物品截取OK"
+Return
+
+^NumpadDot::
+SKILL_OUTPUT:=getCxy(714,934) . "`n" . getCxy(772,934) . "`n" . getCxy(831,934) . "`n" . getCxy(890,934) . "`n" . getCxy(55,978)
+Clipboard := SKILL_OUTPUT
+MsgBox "技能截取+头像OK"
+Return
+;===================================================
+;=                     正文                        =
+;===================================================
+$~sc029::
+SEND_BUTTON:=""
+while(GetKeyState("sc029","p")){
+;~ 	SpellBigBang()
+;~ 	Send_Button:=Send_Button . "{Shift Down}"
+;~ 	
+;~ 	PixelGetColor Q_Color,714,934,RGB
+;~ 	PixelGetColor W_Color,772,934,RGB
+;~ 	PixelGetColor E_Color,831,934,RGB
+;~ 	PixelGetColor R_Color,890,934,RGB
+;~ 	
+;~ 	Loop %n_Q%{
+;~ 		if(Q_Color=Spell_Q_%A_Index%){
+;~ 			Send_Button:=Send_Button . Press_Spell_Button_1
+;~ 			Break
+;~ 		}
+;~ 	}
+;~ 	
+;~ 	Loop %n_W%{
+;~ 		if(W_Color=Spell_W_%A_Index%){
+;~ 			Send_Button:=Send_Button . Press_Spell_Button_2
+;~ 			Break
+;~ 		}
+;~ 	}
+;~ 	
+;~ 	Loop %n_E%{
+;~ 		if(E_Color=Spell_E_%A_Index%){
+;~ 			Send_Button:=Send_Button . Press_Spell_Button_3
+;~ 			Break
+;~ 		}
+;~ 	}
+
+;~ 	Loop %n_R%{
+;~ 		if(R_Color=Spell_R_%A_Index%){
+;~ 			Send_Button:=Send_Button . Press_Spell_Button_4
+;~ 			Break
+;~ 		}
+;~ 	}
+
+;~ 	Send_Button:=Send_Button . Press_Item_Button_2 . Press_Item_Button_6 . Press_Item_Button_7 . "{Shift Up}"
+;~ 	Send_Button:=Send_Button . "{Alt Down}"
+;~ 	Send_Button:=Send_Button . Press_Item_Button_3 . "{Alt Up}"
+	
+;~ 	Send_Button:=Send_Button . "{Shift Down}"
+;~ 	Send_Button:=Send_Button . "{q Down}{q Up}"
+;~ 	Send_Button:=Send_Button . "{w Down}{w Up}"
+;~ 	Send_Button:=Send_Button . "{e Down}{e Up}"
+;~ 	Send_Button:=Send_Button . "{r Down}{r Up}"
+;~ 	Send_Button:=Send_Button . "{2 Down}{2 Up}"
+;~ 	Send_Button:=Send_Button . "{6 Down}{6 Up}"
+;~ 	Send_Button:=Send_Button . "{7 Down}{7 Up}"
+;~ 	Send_Button:=Send_Button . "{Shift Up}"
+;~ 	Send_Button:=Send_Button . "{Alt Down}"
+;~ 	Send_Button:=Send_Button . "{3 Down}{3 Up}"
+;~ 	Send_Button:=Send_Button . "{Alt Up}"
+	
+;~ 	send %Send_Button%
+}
+
+Return
+
+;~ SpellBigBang(){
+;~ 	global SEND_BUTTON,LINES_COUNT,START_LINE
+;~ 	 
+;~ 	
+;~ }
+
+~g::
+while(GetKeyState("g","p")){
+	send {l Down}{l Up}	;在快捷键设置的时候设定L为快捷攻击。
+	Sleep 20
+}
+Return
+
+
+
+~u::
+while(not GetKeyState("Esc","p")){
+	Click 800,525,Right
+	Sleep 1000
+	Click 900,525,Right
+	Sleep 1000
+}
+Return
+
+
+~t::
+while(GetKeyState("t","p")){
+	SEND_BUTTON:=""
+;~ 	send {k Down}{k Up}	;在快捷键设置的时候设定K为快捷攻击。
+;~ 	Loop %LINES_COUNT%{
+;~ 		global Spl_%A_Index%_1
+;~ 		Spl_%A_Index%_3
+;~ 	}
+	
+	PixelGetColor Q_Color,714,934,RGB
+	PixelGetColor W_Color,772,934,RGB
+	PixelGetColor E_Color,831,934,RGB
+	PixelGetColor R_Color,890,934,RGB
+	
+	SEND_BUTTON .=  "{j Down}{j Up}{Shift Down}"
+	
+	n:=START_LINE
+	while(n<=LINES_COUNT){
+		if(Spl_%n%_1=714 and Spl_%n%_3=Q_Color){
+			SEND_BUTTON:=SEND_BUTTON . "{q Down}{q Up}"
+			START_LINE:=Max(n-5,1)
+			n++
+			Continue
+		}Else if(Spl_%n%_1=772 and Spl_%n%_3=W_Color){
+			SEND_BUTTON:=SEND_BUTTON . "{w Down}{w Up}"
+			START_LINE:=Max(n-5,1)
+			n++
+			Continue
+		}Else if(Spl_%n%_1=831 and Spl_%n%_3=E_Color){
+			SEND_BUTTON:=SEND_BUTTON . "{e Down}{e Up}"
+			START_LINE:=Max(n-5,1)
+			n++
+			Continue
+		}Else if(Spl_%n%_1=890 and Spl_%n%_3=R_Color){
+			SEND_BUTTON:=SEND_BUTTON . "{r Down}{r Up}"
+			START_LINE:=Max(n-5,1)
+			n++
+			Continue
+		}Else{
+			n++
+		}	
+	}
+	
+	n:=1
+	while(n<=START_LINE){
+		if(Spl_%n%_1=714 and Spl_%n%_3=Q_Color){
+			SEND_BUTTON:=SEND_BUTTON . "{q Down}{q Up}"
+			START_LINE:=Max(n-5,1)
+			n++
+			Continue
+		}Else if(Spl_%n%_1=772 and Spl_%n%_3=W_Color){
+			SEND_BUTTON:=SEND_BUTTON . "{w Down}{w Up}"
+			START_LINE:=Max(n-5,1)
+			n++
+			Continue
+		}Else if(Spl_%n%_1=831 and Spl_%n%_3=E_Color){
+			SEND_BUTTON:=SEND_BUTTON . "{e Down}{e Up}"
+			START_LINE:=Max(n-5,1)
+			n++
+			Continue
+		}Else if(Spl_%n%_1=890 and Spl_%n%_3=R_Color){
+			SEND_BUTTON:=SEND_BUTTON . "{r Down}{r Up}"
+			START_LINE:=Max(n-5,1)
+			n++
+			Continue
+		}Else{
+			n++
+		}	
+	}
+
+	SEND_BUTTON:=SEND_BUTTON . "{2 Down}{2 Up}{6 Down}{6 Up}{7 Down}{7 Up}{Shift Up}"
+	SEND_BUTTON:=SEND_BUTTON . "{Alt Down}{3 Down}{3 Up}{Alt Up}"
+	
+	Send %SEND_BUTTON%
+}
+Return
+;===================================================
+;=                钱教授的百宝盒                   =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+GetColorAndXy(x,y,binColor){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%x%,%y%,%gColor%
+	MsgBox %x%,%y%,%gColor%
+}
+
+GetColor(x,y){
+	PixelGetColor clr,x,y,RGB
+	Return clr
+}
+
+GetCxy(x,y){
+	PixelGetColor clr,x,y,RGB
+	cxy:=x . "," . y . "," . clr
+	Return cxy
+}
+
+SendingMsg(string){
+	global ISNOTCHAT
+	send {enter}
+	sleep 100
+	Clipboard:=string
+	send ^{v}{enter}
+	sleep 250	;回车之后判断聊天状态需要200秒。
+	ISNOTCHAT:=True
+}
+
+SendingShiftMsg(string){
+	global ISNOTCHAT
+	send +{enter}
+	sleep 100
+	Clipboard:=string
+	send ^{v}{enter}
+	sleep 250	;回车之后判断聊天状态需要200秒。
+	ISNOTCHAT:=True
+}
+
+Max(a,b){
+	if(a>b){
+		Return a
+	}else{
+		Return b
+	}	
+}
+;===================================================
+;=                   LOL插件                       =
+;===================================================

@@ -1,0 +1,79 @@
++Left::  MouseMove,-1,0,,R
++Up::    MouseMove,0,-1,,R
++Right:: MouseMove,1,0,,R
++Down::  MouseMove,0,1,,R
+
+^1::
+x:=797
+y:=770
+PixelGetColor c,x,y,RGB
+mousemove x,y
+clipboard =%c%`t%x%`t%y%
+MsgBox %c%`t%x%`t%y%
+return
+
+^2::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard =%c4%`t%mx%`t%my%
+MsgBox %c4%`t%mx%`t%my%
+return
+
+^3::
+x1:=692
+x2:=727
+x3:=762
+x4:=797
+x5:=831
+y:=770
+PixelGetColor c1,x1,y,RGB
+PixelGetColor c2,x2,y,RGB
+PixelGetColor c3,x3,y,RGB
+PixelGetColor c4,x4,y,RGB
+PixelGetColor c5,x5,y,RGB
+mousemove x1,y
+clipboard =%c1%
+MsgBox %c1% %c2% %c3% %c4% %c5% 
+return
+
+!^+p::run,D:\Program Files\RealMedia Editor\data
+!^+o::run,D:\Program Files\AutoHotKey
+#1::run,http://mail.163.com
+!^+i::run,\\Pc-200808121657\Downloads
+!^+u::
+run,http://blog.sina.com.cn/twocold
+run,http://www.wowmovies.cn/
+run,http://www.ngacn.cc/
+run,http://wow.gamespot.com.cn/2008/0623/80767.shtml
+run,http://www.sk-gaming.com/arena/player
+run,http://cn.worldofming.com/
+return
+
+^4::
+s=1
+a=500
+loop {
+if (s=0)
+break
+mousemove 638,353
+sleep a
+send {RButton}
+keywait,RButton
+sleep a
+mousemove 147,244
+sleep a
+send {LButton}
+keywait,LButton
+sleep a
+mousemove 118,455
+sleep a
+send {LButton}
+keywait,LButton
+sleep a
+send {LButton}
+keywait,LButton
+sleep a
+}
+return
+
+^5::s=0

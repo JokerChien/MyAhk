@@ -1,0 +1,8 @@
+## Interface:  30300 
+## Title: Hey There! 
+## Notes: 提供用来和其他玩家打招呼的斜杠命令
+## Secure: 1
+## DefaultState: Enabled
+
+HeyThere.lua
+HeyThere.xml

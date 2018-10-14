@@ -1,0 +1,423 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed 0
+GroupAdd MyGroup,ahk_class XLMAIN
+GroupAdd MyGroup,ahk_class SciTEWindow
+;===================================================
+;=              Grid_Health配置文件                =
+;===================================================
+LineCount:=0
+Loop, read, D:\Program Files\AutoHotkey\Wow_DataBase\Tw_Wow_Ini.txt		;读取配置文件。
+{
+	LineCount++
+	Line%LineCount% := A_LoopReadLine	;行数、行内容。
+}
+
+Loop %LineCount%
+{
+	element:=Line%A_Index%		;中间变量
+	StringLeft Left4Words,element,4
+	if(Left4Words=="Raid" or Left4Words=="Play" or Left4Words=="Targ"){
+		variableName:=element
+		%variableName%_count:=0
+		num:=%variableName%_count
+		Continue
+	}
+
+	%variableName%_count++
+	num:=%variableName%_count
+	
+	StringSplit ARRAY,element,`,
+	%variableName%_X_%num%:=ARRAY1
+	%variableName%_Y_%num%:=ARRAY2
+	%variableName%_value_%num%:=ARRAY3
+}
+
+;===================================================
+;=                  截点工具包                     =
+;===================================================
+^Numpad8::
+GetColorAndXy(8,873,0x294647)
+return
+
+^Numpad9::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard = %mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+
+;~ Numpad4::
+;~ SKILL_OUTPUT:=""
+;~ loop 3{
+;~ 	SKILL_OUTPUT:=SKILL_OUTPUT . "`n" . 280 . "," . 129+(A_Index-1)*12 . ",". GetColor(280,129+(A_Index-1)*12)
+;~ }
+;~ Clipboard:=SKILL_OUTPUT
+;~ ToolTip
+;~ ToolTip %n%`n"ok",840,0
+;~ sleep 200
+;~ ToolTip
+;~ Return
+
+;~ Numpad4::
+;~ SKILL_OUTPUT:=""
+;~ loop 12{
+;~ 	SKILL_OUTPUT:=SKILL_OUTPUT . "`n" . 353+(A_Index-1)*42 . "," . 1020 . ",". GetColor(353+(A_Index-1)*42,1020)
+;~ }
+;~ Clipboard:=SKILL_OUTPUT
+;~ MsgBox "技能截取OK"
+;~ Return
+
+;~ Numpad4::
+;~ SKILL_OUTPUT:=""
+;~ loop 12{
+;~ 	SKILL_OUTPUT:=SKILL_OUTPUT . "`n" . 353+(A_Index-1)*42 . "," . 968 . ",". GetColor(353+(A_Index-1)*42,968)
+;~ }
+;~ Clipboard:=SKILL_OUTPUT
+;~ MsgBox "技能2截取OK"
+;~ Return
+
+;~ Numpad4::
+;~ SKILL_OUTPUT:=""
+;~ loop 12{
+;~ 	SKILL_OUTPUT:=SKILL_OUTPUT . "`n" . 863+(A_Index-1)*42 . "," . 968 . ",". GetColor(863+(A_Index-1)*42,968)
+;~ }
+;~ Clipboard:=SKILL_OUTPUT
+;~ MsgBox "技能3截取OK"
+;~ Return
+
+;~ Numpad4::
+;~ SKILL_OUTPUT:=""
+;~ loop 53{
+;~ 	SKILL_OUTPUT:=SKILL_OUTPUT . "`n" . 86+A_Index*5 . "," . 62 . ",". GetColor(86+A_Index*5,62)
+;~ }
+;~ Clipboard:=SKILL_OUTPUT
+;~ MsgBox "血量截取OK"
+;~ Return
+
+;~ Numpad4::
+;~ SKILL_OUTPUT:=""
+;~ loop 20{
+;~ 	SKILL_OUTPUT:=SKILL_OUTPUT . "`n" . 789+(A_Index-1)*25 . "," . 630 . ",". GetColor(789+(A_Index-1)*25,630)
+;~ }
+;~ Clipboard:=SKILL_OUTPUT
+;~ MsgBox "增益OK"
+;~ Return
+
+;===================================================
+;=                   正文                          =
+;===================================================
+#IfWinActive ahk_class GxWindowClass
+AOE_SWITCH:=0
+AOE_CD_INSIDE:=0
+Interrupt_CD:=0
+bigSwitch:=False
+
+~1::
+bigSwitch:=False
+AOE_SWITCH:=1
+AOE_CD_INSIDE:=0
+Interrupt_CD:=0
+;~ DCCD:=0
+n:="SOLO 模式"
+ToolTip %n%,840,0
+SetTimer mainCircle,200
+Return
+
+~2::
+bigSwitch:=False
+AOE_SWITCH:=2
+AOE_CD_INSIDE:=0
+Interrupt_CD:=0
+n:="AOE 模式"
+ToolTip %n%,840,0
+SetTimer mainCircle,200
+Return
+
+~Esc::
+bigSwitch:=True
+Return
+
+mainCircle:
+	tarKind:=GetColor(353,1020,0xA51DE1)
+	
+	if(bigSwitch){
+		Ending()
+	}else if(judge(964,971,0xFFF4A5)){
+		MouseGetPos sx,sy
+		Click 840,520
+		MouseMove sx,sy
+		Return
+	}else if(tarKind=0xA51DE1){
+		MainMode()
+		;主函数。
+	}else{
+		Ending()
+	}
+Return
+
+;~ Knight(){
+;~ 	;载具战。
+;~ 	if(judge(163,1025,0xFFFFFF)){
+;~ 		send {F9}
+;~ 	}else if(judge(116,1025,0xFFFFFF)){
+;~ 		send {F8}
+;~ 	}else if(judge(70,1025,0xFFFFFF)){
+;~ 		send {f7}
+;~ 	}else if(judge(23,1025,0xFFFFFF)){
+;~ 		send {f6}
+;~ 	}
+;~ }
+
+Ending(){
+	global AOE_SWITCH,AOE_CD_INSIDE
+	SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+	SetTimer mainCircle,Off
+	ToolTip
+	AOE_SWITCH:=0
+	AOE_CD_INSIDE:=0
+	Interrupt_CD:=0
+}
+
+MainMode(){
+	global AOE_SWITCH,AOE_CD_INSIDE,DCCD,n,Interrupt_CD
+	PlayerHealth:=GetValue("PlayerHealth")
+	TargetHealth:=GetValue("TargetHealth")
+	PlayerRune:=GetValue("PlayerRune")
+	In5Yards:=ATT_RANGE(5)
+	Tar_Casing:=judge(734,641,0x000409)
+	
+;~ 	ToolTip
+;~ 	ToolTip %n%`n%AOE_SWITCH%`n%AOE_CD_INSIDE%,840,0
+	
+	if(PlayerHealth<65 and judge(773,1020,0x86AED6)){
+		send {-} ;冰固坚韧。
+	}else if(not judge(905,968,0x671B11)){
+		;死亡契约。
+	}else if(judge(70,85,0x39888E)){
+		send {y} ;死亡契约。
+	}else if(PlayerHealth<25 and judge(563,1020,0xC2D6CB)){
+		send {6} ;亡者复生。
+	}
+	
+	if(judge(839,630,0x948E84) and judge(395,1020,0x4D562D)){
+		send {z} ;死亡缠绕。巫妖之躯开启、技能可用。
+	}else if(judge(839,630,0x948E84) and judge(815,968,0x930000)){
+		send {F12} ;血族之裔。巫妖之躯、技能可用。
+	}else if(PlayerHealth<45 and judge(815,1020,0x787A70)){
+		send {=} ;巫妖之躯。
+	}else if(PlayerHealth<25 and judge(989,968,0xBF706C)){
+		send {i} ;符文转化。
+	}
+	
+	if(not Tar_Casing or Interrupt_CD>0){
+		;没有施法则什么事也不做。
+	}else if(judge(731,1020,0xCDB4CF)){
+		send {0} ;心智冰封。
+		Interrupt_CD++
+	}else if(judge(1241,968,0x67DC3B)){
+		send {]} ;绞杀。
+		Interrupt_CD++
+	}else if(judge(1157,968,0x379D43)){
+		send {k} ;反魔法护罩。
+		Interrupt_CD++
+	}
+
+	if(AOE_SWITCH=2 and In5Yards and judge(947,968,0xF3C59F)){
+		send {u} ;死亡凋零。
+	}else if(judge(773,968,0x020D28)){
+		send {F11} ;符文武器幻舞。
+	}else if(PlayerRune>=50 and not judge(839,630,0x948E84) and judge(1073,968,0xCFEBE3)){
+		send {h} ;符文打击。没开巫妖之躯、技能可用。
+	}else if(not judge(789,630,0x18BEF7) and judge(437,1020,0xBCE0ED)){
+		send {x} ;冰结之触。
+	}else if(not judge(814,630,0x080421) and judge(521,1020,0x788021)){
+		send {v} ;瘟疫打击。
+	}else if(In5Yards and AOE_SWITCH=2 and judge(647,1020,0x630810)){
+		send {8} ;沸血术。5码范围内、AOE模式开启、技能可用。
+	}else if(judge(689,1020,0x9D9356)){
+		send {9} ;死亡打击。
+	}else if(judge(479,1020,0xA83D40)){
+		send {c} ;碎心打击。
+	}else if(judge(1199,968,0x99909B)){
+		send {[} ;寒冬号角。
+	}else if(not judge(1294,988,0x30090D,0x0D0203,0x060102,0x888888,0xEEEEEE)){
+		send {\} ;血魄转化。
+	}else if(judge(731,968,0x8DCA42)){
+		send {F10} ;骸骨之盾。
+	}else if(judge(1325,968,0x64ADD6)){
+		send {;} ;海洋之力。
+	}else if(){
+		
+	}
+	
+	if(Interrupt_CD>10){
+		;8秒的内置CD。
+		Interrupt_CD:=0
+	}else if(Interrupt_CD>0){
+		Interrupt_CD++
+	}
+
+}
+
+ATT_RANGE(dis){
+	if(dis<=5){
+		Return judge(820,865,0xE6E6E6)
+	}else if(dis<=8){
+		judge(820,865,0xE6E6E6) or judge(818,867,0x0EDFD2)
+	}else if(dis<=10){
+		Return judge(820,865,0xE6E6E6) or judge(818,867,0x0EDFD2) or judge(815,868,0x13C4C1)
+	}
+}
+
+;~ TAR_CASTING(){
+;~ 	Return judge(280,129,0x006A00,0x5C4000) or judge(280,151,0x006A00,0x5C4000) or judge(280,163,0x006A00,0x5C4000)
+;~ }
+
+;~ Blood_Rune(){	;计算剩余血符文数。
+;~ 	Return 2-judge(114,100,0xFFFF00)-judge(139,100,0xFFFF00)
+;~ }
+
+;~ Frost_Rune(){	;计算剩余冰符文数。
+;~ 	Return 2-judge(165,100,0xFFFF00)-judge(191,100,0xFFFF00)
+;~ }
+
+;~ Evil_Rune(){	;计算剩余邪符文数。
+;~ 	Return 2-judge(217,100,0xFFFF00)-judge(243,100,0xFFFF00)
+;~ }
+
+;~ IsPvpTarget(tarClr){
+;~ 	Return tarClr=0xC41F3B or tarClr=0x9482C9 or tarClr=0xF58CBA or tarClr=0xFFFFFF or tarClr=0xC79C6E or tarClr=0x69CCF0 or tarClr=0xFF7D0A or tarClr=0x0070DE or tarClr=0xFFF569 or tarClr=0xABD473
+;~ }
+
+;~ RuneCost(skillCost,player_RP,player_HP,petExists){
+;~ 	gargoyle_Avlb:=not judge(397,1025,0xFFFF00)	;召唤石像鬼不在CD
+;~ 	disasterContract_Avlb:=player_HP<75 and petExists and not judge(70,975,0xFFFF00)	;玩家血量不满75、宠物存在、天灾契约不在CD。
+;~ 	
+;~ 	mindFreeze_Avlb:=not judge(257,1025,0xFFFF00)	;心灵冰冻不在CD。
+;~ 	iceboundFortitude_Avlb:=player_HP<80 and not judge(1467,1025,0xFFFF00)	;玩家血不满80、冰封之韧不在CD。
+;~ 	antiMagicShield_Avlb:=judge(163,975,0xFFFF00)	;反魔法护罩不在CD。
+;~ 	globalRPLeft:=mindFreeze_Avlb or iceboundFortitude_Avlb or antiMagicShield_Avlb
+;~ 	
+;~ 	
+;~ 	
+;~ 	Return player_RP>=(skillCost+gargoyle_Avlb*60+globalRPLeft*20+disasterContract_Avlb*40)/1.3
+;~ }
+
+;===================================================
+;=                  状态计量函数                   =
+;===================================================
+GetUnitRaidHealth(SequenceNum){
+	local min_Num:=0
+	local max_Num:=Raid%SequenceNum%_count-1
+	while(max_Num-min_Num>1){
+		local mid_Num:=Round((min_Num+max_Num)/2)
+		if(GetColor(Raid%SequenceNum%_X_%mid_Num%,Raid%SequenceNum%_Y_%mid_Num%)=Raid%SequenceNum%_value_%mid_Num%){
+			min_Num:=mid_Num
+		}else{
+			max_Num:=mid_Num
+		}
+	}
+
+	Return Round(min_Num/(Raid%SequenceNum%_count-1)*100)
+}
+
+GetValue(valueName){
+	local min_Num:=0
+	local max_Num:=%valueName%_count-1
+	while(max_Num-min_Num>1){
+		local mid_Num:=Round((min_Num+max_Num)/2)
+		if(GetColor(%valueName%_X_%mid_Num%,%valueName%_Y_%mid_Num%)=%valueName%_value_%mid_Num%){
+			min_Num:=mid_Num
+		}else{
+			max_Num:=mid_Num
+		}
+	}
+
+	Return Round(min_Num/(%valueName%_count-1)*100)
+}
+
+;===================================================
+;=               常用函数、工具                    =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+Eql2(a,b="",c="",d="",e="",f=""){
+	Return a=b or a=c or a=d or a=e or a=f
+}
+
+IsMoving(){
+	Return GetKeyState("w","p") or GetKeyState("a","p") or GetKeyState("s","p") or GetKeyState("d","p")
+}
+
+GetColorAndXy(x,y,binColor=""){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%x%,%y%,%gColor%
+	MsgBox %x%,%y%,%gColor%
+}
+
+GetColor(x,y,binColor=""){
+	PixelGetColor theColor,x,y,RGB
+	return theColor
+}
+
+^Numpad4::
+Clipboard = 0504aslan@163.com
+send ^{v}{Tab}
+sleep 128
+Clipboard = chao1986
+send ^{v}{enter}
+return
+
+;右Ctrl快速得到颜色。
+~RCtrl::
+    while(GetKeyState("RCtrl")){
+        MouseGetPos x,y
+		PixelGetColor mouse_color,x,y,RGB
+        ToolTip % x "," y "," mouse_color
+        Sleep 16
+    }
+    ToolTip
+return
+
+;===================================================
+;=        Excel和SciTE针对judge()的修缮工具        =
+;===================================================
+#IfWinActive ahk_group MyGroup
+F1::
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F2::
+send +^{Right 2}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F3::
+send +^{Right 4}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F4::
+send +^{Right 6}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F5::
+send +^{Right 8}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+;===================================================
+;=            [DK][PVE][笛中闻折柳]                =
+;===================================================

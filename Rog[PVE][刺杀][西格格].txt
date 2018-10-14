@@ -1,0 +1,380 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed 0
+GroupAdd MyGroup,ahk_class XLMAIN
+GroupAdd MyGroup,ahk_class SciTEWindow
+;===================================================
+;=              Grid_Health配置文件                =
+;===================================================
+LineCount:=0
+Loop, read, D:\Program Files\AutoHotkey\Wow_DataBase\Grid_Health.txt		;读取配置文件。
+{
+	LineCount++
+	Line%LineCount% := A_LoopReadLine	;行数、行内容。
+}
+
+Loop %LineCount%
+{
+	element:=Line%A_Index%		;中间变量
+	StringLeft Left4Words,element,4
+	if(Left4Words=="Raid" or Left4Words=="Play" or Left4Words=="Targ" or Left4Words="Comb"){
+		variableName:=element
+		%variableName%_count:=0
+		num:=%variableName%_count
+		Continue
+	}
+
+	%variableName%_count++
+	num:=%variableName%_count
+	
+	StringSplit ARRAY,element,`,
+	%variableName%_X_%num%:=ARRAY1
+	%variableName%_Y_%num%:=ARRAY2
+	%variableName%_value_%num%:=ARRAY3
+}
+
+;===================================================
+;=                  截点工具包                     =
+;===================================================
+^Numpad8::
+GetColorAndXy(8,873,0x294647)
+return
+
+^Numpad9::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard = %mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+
+;===================================================
+;=                   正文                          =
+;===================================================
+#IfWinActive ahk_class GxWindowClassD3d
+~1::
+AOE_SWITCH:=1
+n:="正面模式"
+ToolTip %n%,840,0
+SetTimer mainCircle,200
+Return
+
+~2::
+AOE_SWITCH:=2
+n:="找背模式"
+ToolTip %n%,840,0
+SetTimer mainCircle,200
+Return
+
+~Esc::
+AOE_SWITCH:=0
+Return
+
+mainCircle:
+	tarKind:=GetColor(465,35)
+	
+	if(AOE_SWITCH=0){
+		Ending()
+	}else if(judge(792,25,0x880700)){
+		;载具战。
+		Knight()
+	}else if(judge(709,634,0x080000)){
+		;玩家施法。什么也不做。
+	}else if(tarKind=0x332F30){
+		MainMode(True)
+		;主函数。（精英）
+	}else if(tarKind=0x5F5D5F){
+		MainMode(False)
+		;拯救模式。（非精英）
+	}else{
+		Ending()
+	}
+Return
+
+Knight(){
+	;载具战。
+	if(judge(163,1025,0xFFFFFF)){
+		send {F9}
+	}else if(judge(116,1025,0xFFFFFF)){
+		send {F8}
+	}else if(judge(70,1025,0xFFFFFF)){
+		send {f7}
+	}else if(judge(23,1025,0xFFFFFF)){
+		send {f6}
+	}
+}
+
+Ending(){
+	SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+	SetTimer mainCircle,Off
+	ToolTip
+}
+
+MainMode(isElite){
+	global AOE_SWITCH
+	;===目标职业===
+	tarPrf:=GetColor(527,28)
+	isPvpTarget:=IsPvpTarget(tarPrf)	;PVP目标:10大职业。
+	isPveTarget:=Eql2(tarPrf,0x8080FF,0xFF0000,0xFFFF00,0x808080,0x00FF00)
+	
+	trgMana_Color:=GetColor(317,75)
+	StringLeft lft6Words,trgMana_Color,6
+	trgHasMana:=lft6Words="0x0000"
+	
+	player_HP:=GetValue("PlayerHealth")
+	player_EP:=GetValue("PlayerEnergy")
+	target_HP:=GetValue("TargetHealth")
+	combo_Stars:=GetComboStars()
+;~ 	combo_Stars:=GetValue("ComboStars")
+	
+	
+;~ 	ToolTip %n%`n%combo_Stars%`n%player_HP%`n%player_EP%`n%target_HP%,840,0
+	
+	stealth:=judge(87,858,0x080400)
+	targetIsSinging:=judge(709,666,0x080000)
+	
+;~ 	kickInCd:=judge(303,1025,0xFFFF00)
+;~ 	interceptInCd:=judge(116,1025,0xFFFF00)
+	
+	if(not stealth and judge(1233,1025,0xFFFFFF)){
+		send {left}
+		;潜行。不在潜行。
+	}else if(stealth and isPvpTarget and judge(70,1025,0xFFFFFF)){
+		send {f7}
+		;闷棍。潜行中、PVP目标、技能可用。
+	}else if(player_HP<30 and judge(581,975,0xFFFFFF)){
+		send {Numpad7}		;血瓶。不满15血、有血瓶。
+	}else if(){
+		
+	}else if(){
+		
+	}
+	
+	if(AOE_SWITCH=2 and stealth and judge(163,1025,0xFFFFFF)){
+		send {F6}{F9}
+		;偷钱伏击。找背模式、潜行技能可用。	
+	}else if(stealth and judge(116,1025,0xFFFFFF)){
+		send {F6}{F10}	
+		;偷钱偷袭。	
+	}else if(targetIsSinging and judge(303,1025,0xFFFFFF)){
+		send {Ins}
+		;脚踢。目标施法、技能可用。	
+	}else if(combo_Stars>0 and targetIsSinging and judge(490,1025,0xFFFFFF)){
+		send {End}
+		;肾击。	
+	}else if(targetIsSinging and judge(116,1025,0xFFFFFF)){
+		send {F8}
+		;凿击。目标施法、技能可用。
+	}else if(combo_Stars<5 and judge(444,1025,0xFFFFFF) and EpCost(10,player_EP,player_HP,combo_Stars)){
+		send {Del}
+		;还击。不满5星、技能可用、10ep。
+	}else if(judge(70,1025,0xFFFFFF) and EpCost(35,player_EP,player_HP,combo_Stars) and CmbCost(combo_Stars,target_HP)){
+		send {F7}
+		;刺骨。技能可用、35EP。
+	}else if(judge(397,1025,0xFFFFFF) and EpCost(35,player_EP,player_HP,combo_Stars) and CmbCost(combo_Stars,target_HP) and not judge(119,893,0xFFD100)){
+		send {PGUP}
+		;割裂。技能可用、35EP、无该DEBUFF。
+	}else if(target_HP>=60 and combo_Stars>0 and not judge(13,893,0xFFD100) and judge(23,1025,0xFFFFFF) and EpCost(25,player_EP,player_HP,combo_Stars)){
+		send {F6}
+		;切割。COMBO大于0、无该BUFF、技能可用、耗能合理。
+	}else if(target_HP>=60 and combo_Stars>0 and not judge(48,893,0xFFD100) and judge(350,1025,0xFFFFFF) and EpCost(35,player_EP,player_HP,combo_Stars)){
+		send {Home}
+		;破甲。COMBO大于0、无该BUFF、技能可用、耗能合理。
+	}else if(combo_Stars<5 and (AOE_SWITCH<>2 or player_EP>85) and judge(163,1025,0xFFFFFF) and EpCost(45,player_EP,player_HP,combo_Stars)){
+		send {F9}
+		;影袭。不满5星、技能可用、45EP。	
+	}else if(combo_Stars<5 and AOE_SWITCH=2 and judge(210,1025,0xFFFFFF) and EpCost(60,player_EP,player_HP,combo_Stars)){
+		send {F10}
+		;背刺。星不满、找背模式、技能可用、60EP。
+	}else if(){
+		
+	}
+}
+
+EpCost(skillCost,player_EP,player_HP,combo_Stars){
+	kick_Avlb:=not judge(303,1025,0xFFFF00)
+	kidneyShot_Avlb:=not judge(490,1025,0xFFFF00) and combo_Stars>0 and not kick_Avlb		;只有在脚踢CD的时候才起效果。
+	gouge_Avlb:=not judge(116,1025,0xFFFF00) and not kick_Avlb							;只有在肾击CD的时候才起效果。
+	
+	Return player_EP>=(skillCost+kick_Avlb*25+gouge_Avlb*45+kidneyShot_Avlb*25)/1.1
+}
+
+CmbCost(combo_Stars,target_HP){
+	Return Floor(target_HP/10)<=combo_Stars or combo_Stars>3
+}
+
+IsPvpTarget(tarClr){
+	Return tarClr=0xC41F3B or tarClr=0x9482C9 or tarClr=0xF58CBA or tarClr=0xFFFFFF or tarClr=0xC79C6E or tarClr=0x69CCF0 or tarClr=0xFF7D0A or tarClr=0x0070DE or tarClr=0xFFF569 or tarClr=0xABD473
+}
+
+;===================================================
+;=                  状态计量函数                   =
+;===================================================
+GetUnitRaidHealth(SequenceNum){
+	local min_Num:=0
+	local max_Num:=Raid%SequenceNum%_count-1
+	while(max_Num-min_Num>1){
+		local mid_Num:=Round((min_Num+max_Num)/2)
+		if(GetColor(Raid%SequenceNum%_X_%mid_Num%,Raid%SequenceNum%_Y_%mid_Num%)=0x000000){	;反算黑点，不算绿灯。
+			max_Num:=mid_Num
+		}else{
+			min_Num:=mid_Num
+		}
+	}
+
+	Return Round(min_Num/(Raid%SequenceNum%_count-1)*100)
+}
+
+GetValue(valueName){
+	local min_Num:=0
+	local max_Num:=%valueName%_count-1
+	while(max_Num-min_Num>1){
+		local mid_Num:=Round((min_Num+max_Num)/2)
+;~ 		if(GetColor(%valueName%_X_%mid_Num%,%valueName%_Y_%mid_Num%)=%valueName%_value_%mid_Num%){
+;~ 			min_Num:=mid_Num
+;~ 		}else{
+;~ 			max_Num:=mid_Num
+;~ 		}
+		local micro_Color:=GetColor(%valueName%_X_%mid_Num%,%valueName%_Y_%mid_Num%)
+		if(valueName="PlayerHealth" or valueName="TargetHealth"){
+			StringLeft left4String,micro_Color,4
+			StringRight right2String,micro_Color,2
+			if(left4String="0x00" and right2String="00"){
+				min_Num:=mid_Num
+			}else{
+				max_Num:=mid_Num
+			}
+		}else if(valueName="PlayerMana"){
+			StringLeft left6String,micro_Color,6
+			if(left6String="0x0000"){
+				min_Num:=mid_Num
+			}else{
+				max_Num:=mid_Num
+			}
+		}else if(valueName="PlayerRage"){
+			StringRight right4String,micro_Color,4
+			if(right4String="0000"){
+				min_Num:=mid_Num
+			}else{
+				max_Num:=mid_Num
+			}
+		}else if(valueName="PlayerEnergy"){
+			StringRight right2String,micro_Color,2
+			if(right2String="00"){
+				min_Num:=mid_Num
+			}else{
+				max_Num:=mid_Num
+			}
+		}else if(valueName="PlayerRune"){
+			StringLeft left4String,micro_Color,4
+			if(left4String="0x00"){
+				min_Num:=mid_Num
+			}else{
+				max_Num:=mid_Num
+			}
+		}else{
+			max_Num:=mid_Num
+		}	
+	}
+
+	Return Round(min_Num/(%valueName%_count-1)*100)
+}
+
+
+GetComboStars(){
+	local min_Num:=0
+	local max_Num:=5
+	while(max_Num-min_Num>1){
+		local mid_Num:=Round((min_Num+max_Num)/2)
+		if(GetColor(ComboStars_X_%mid_Num%,ComboStars_Y_%mid_Num%)=ComboStars_value_%mid_Num%){
+			min_Num:=mid_Num
+		}else{
+			max_Num:=mid_Num
+		}
+	}
+
+	Return min_Num
+}
+;===================================================
+;=               常用函数、工具                    =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+Eql2(a,b="",c="",d="",e="",f=""){
+	Return a=b or a=c or a=d or a=e or a=f
+}
+
+IsMoving(){
+	Return GetKeyState("w","p") or GetKeyState("a","p") or GetKeyState("s","p") or GetKeyState("d","p")
+}
+
+GetColorAndXy(x,y,binColor){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%x%,%y%,%gColor%
+	MsgBox %x%,%y%,%gColor%
+}
+
+GetColor(x,y){
+	PixelGetColor theColor,x,y,RGB
+	return theColor
+}
+
+^Numpad4::
+Clipboard = 0504aslan@163.com
+send ^{v}{Tab}
+sleep 128
+Clipboard = chao1986
+send ^{v}{enter}
+return
+
+;右Ctrl快速得到颜色。
+~RCtrl::
+    while(GetKeyState("RCtrl")){
+        MouseGetPos x,y
+		PixelGetColor mouse_color,x,y,RGB
+        ToolTip % x "," y "," mouse_color
+        Sleep 16
+    }
+    ToolTip
+return
+
+;===================================================
+;=        Excel和SciTE针对judge()的修缮工具        =
+;===================================================
+#IfWinActive ahk_group MyGroup
+F1::
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F2::
+send +^{Right 2}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F3::
+send +^{Right 4}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F4::
+send +^{Right 6}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F5::
+send +^{Right 8}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+;===================================================
+;=          Rog[PVE][刺杀][西格格]                 =
+;===================================================

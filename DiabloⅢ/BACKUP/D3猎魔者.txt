@@ -1,0 +1,261 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed, 0
+;===================================================
+;=              Grid_Health配置文件                =
+;===================================================
+;~ HERO_COUNT:=0
+;~ Loop, read, D:\Program Files\AutoHotkey\Wow_DataBase\Hero_List.txt		;读取配置文件。
+;~ {
+;~ 	HERO_COUNT++
+;~ 	Line%HERO_COUNT%:= A_LoopReadLine	;行数、行内容。
+;~ }
+
+;~ Loop %HERO_COUNT%
+;~ {
+;~ 	element:=Line%A_Index%		;中间变量
+;~ 	
+;~ 	StringSplit ARRAY,element,`,
+;~ 	Hero_Color_%A_Index%:=ARRAY1
+;~ 	Hero_SN_%A_Index%:=ARRAY2
+;~ 	Hero_Name_%A_Index%:=ARRAY3
+;~ }
+
+;~ MsgBox %Line1%
+;~ f2::
+;~ MouseGetPos mx,my
+;~ PixelGetColor c4,mx,my,RGB
+;~ clipboard = %mx%,%my%,%c4%
+;~ MsgBox %mx%,%my%,%c4%
+;~ return
+;===================================================
+;=                   全局变量初始化                =
+;===================================================
+#IfWinActive ahk_class D3 Main Window Class
+CoreDist:=150
+CancelCmd:=False
+;===================================================
+;=                     抓点工具                    =
+;===================================================
+^Numpad9::
+Clipboard := getColorAndXy(872,976,0xDDB1FA)
+return
+
+^Numpad6::
+MouseGetPos mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard = %mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+
+^Numpad3::
+ITEM_OUTPUT:=GetColor(872,974) . "," . GetColor(808,974) . "," . GetColor(546,974) . "," . GetColor(611,974) . "," . GetColor(676,974) . "," . GetColor(741,974)
+Clipboard := ITEM_OUTPUT
+MsgBox "物品截取OK"
+Return
+
+^NumpadDot::
+SKILL_OUTPUT:=GetColor(815,725) . "`t" . GetColor(871,725) . "`t" . GetColor(926,725) . "`t" . GetColor(982,725)
+Clipboard := SKILL_OUTPUT
+MsgBox "技能截取OK"
+Return
+;===================================================
+;=              	   正文				   		   =
+;===================================================
+F1::
+if(CHATMODE){
+	CHATMODE:=False
+	ToolTip
+}else{
+	CHATMODE:=True
+	ToolTip,Chat Mode,840,300
+}
+Return
+
+~Esc::
+~Space::
+CancelCmd:=True
+Return
+
+~e::
+CancelCmd:=False
+if(CHATMODE){
+	Return
+}
+;~ delayTime:=500
+while(CancelCmd=False){
+	Shooting(A_Index)
+	
+	MouseGetPos mx,my
+;~ 	tooltip,⊕,%mx%,%my%
+	tx:=-Sin_(mx,my)*CoreDist+840
+	ty:=Cos_(mx,my)*CoreDist+493
+	MouseMove tx,ty
+	send {n}	;用N移动不至于误捡物品。
+	MouseMove mx,my
+	Loop 5{
+		if(CancelCmd){
+			Return
+		}
+		sleep 100
+	}
+	Shooting(A_Index)
+	tx:=Sin_(mx,my)*CoreDist+840
+	ty:=-Cos_(mx,my)*CoreDist+493
+	MouseMove tx,ty
+	send {n}	;用N移动不至于误捡物品。
+	
+	MouseMove mx,my
+	
+;~ 	ToolTip
+	Loop 5{
+		if(CancelCmd){
+			Return
+		}
+		sleep 100
+	}
+}
+Return
+
+~s::
+CancelCmd:=True
+if(CHATMODE){
+	Return
+}
+while(GetKeyState("s","p")){
+	Shooting(A_Index)
+
+;~ 	sleep judge(872,1001,0xA16E4E)*50	;只有机关枪的时候延迟一下。
+	MouseGetPos mx,my
+	tooltip,⊕,%mx%,%my%
+	tx:=-Cos_(mx,my)*CoreDist+840
+	ty:=-Sin_(mx,my)*CoreDist+493
+	MouseMove tx,ty
+	send {n}	;用N移动不至于误捡物品。
+	
+	MouseMove mx,my
+	ToolTip
+;~ 	sleep judge(872,974,0x1B1B14)*100	;只有机关枪的时候延迟一下。
+}
+send {shift up}
+Return
+
+~d::
+CancelCmd:=True
+if(CHATMODE){
+	Return
+}
+while(GetKeyState("d","p")){
+	Shooting(A_Index)
+;~ 	sleep judge(872,1001,0xA16E4E)*50	;只有机关枪的时候延迟一下。
+	
+	MouseGetPos mx,my
+	tooltip,⊕,%mx%,%my%
+	tx:=-Sin_(mx,my)*CoreDist+840
+	ty:=Cos_(mx,my)*CoreDist+450
+	MouseMove tx,ty
+	send {n}	;用N移动不至于误捡物品。
+
+	MouseMove mx,my
+;~ 	sleep judge(872,974,0x1B1B14)*100	;只有机关枪的时候延迟一下。
+	ToolTip
+}
+send {shift up}
+Return
+
+~a::
+CancelCmd:=True
+if(CHATMODE){
+	Return
+}
+while(GetKeyState("a","p")){
+	Shooting(A_Index)
+;~ 	sleep judge(872,1001,0xA16E4E)*50	;只有机关枪的时候延迟一下。
+	
+	MouseGetPos mx,my
+	tooltip,⊕,%mx%,%my%
+	tx:=Sin_(mx,my)*CoreDist+840
+	ty:=-Cos_(mx,my)*CoreDist+450
+	MouseMove tx,ty
+	send {n}	;用N移动不至于误捡物品。
+	
+	MouseMove mx,my
+;~ 	sleep judge(872,1001,0xA16E4E)*50	;只有机关枪的时候延迟一下。
+	ToolTip
+}
+send {shift up}
+Return
+
+Shooting(index=""){
+	if(judge(872,974,0x1B1B14) and mod(index,5)<3){
+		send +{RButton}
+	}else if(judge(741,974,0x4F4F41) and judge(927,71,0x2B0F0D)){
+		send {4}
+		;技能可用、目标存在。
+	}else{
+		send +{lButton}
+	}
+}
+
+Sin_(x,y){
+	return (y-493)/Sqrt(Square(x-840)+Square(y-493))
+}
+
+Cos_(x,y){
+	return (x-840)/Sqrt(Square(x-840)+Square(y-493))
+}
+
+Square(x){
+	return x*x
+}
+;===================================================
+;=                钱教授的百宝盒                   =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+getColorAndXy(x,y,binColor=""){
+	MouseMove x,y
+	while(GetKeyState("LCtrl")){
+		cout:=""
+		PixelGetColor mouse_color,x,y,RGB
+;~ 		cout:=RegExReplace(cout,"$",x "," y "," mouse_color "`n")
+		cout:=x . "," . y . "," . mouse_color
+        ToolTip % cout
+        Sleep 10
+    }
+    ToolTip
+	Return cout
+}
+
+GetColor(x,y){
+	PixelGetColor clr,x,y,RGB
+	Return clr
+}
+
+SendingMsg(string){
+	global ISNOTCHAT
+	send {enter}
+	sleep 100
+	Clipboard:=string
+	send ^{v}{enter}
+	sleep 250	;回车之后判断聊天状态需要200秒。
+	ISNOTCHAT:=True
+}
+
+SendingShiftMsg(string){
+	global ISNOTCHAT
+	send +{enter}
+	sleep 100
+	Clipboard:=string
+	send ^{v}{enter}
+	sleep 250	;回车之后判断聊天状态需要200秒。
+	ISNOTCHAT:=True
+}
+;===================================================
+;=                  D3猎魔者                       =
+;===================================================

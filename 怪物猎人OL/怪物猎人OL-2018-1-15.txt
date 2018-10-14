@@ -1,0 +1,137 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed, 0
+;===================================================
+;=                   全局变量初始化                =
+;===================================================
+#IfWinActive ahk_class CryENGINE
+;~ ~r::
+;~ if(AUTO_RUM=0){
+;~ 	send {w down}
+;~ }else{
+;~ 	send {w Up}
+;~ }
+;~ Return
+
+;~ ~d::
+;~ ~a::
+;~ ~s::
+;~ ~Esc::
+;~ ~q::
+;~ SetTimer AUTOWORK,Off
+;~ AUTOWORK_STATE:=0
+;~ Return
+
+~w::
+SetTimer AUTOWORK,Off
+AUTOWORK_STATE:=0
+send {lshift down}
+KeyWait w,u
+send {lshift Up}
+Return
+
+$~LButton::
+SetTimer Lb_Auto
+KeyWait LButton,u
+SetTimer Lb_Auto,Off
+Return
+
+Lb_Auto:
+send {lbutton Down}{lbutton Up}
+Return
+
+$~RButton::
+SetTimer Rb_Auto
+KeyWait RButton,u
+SetTimer Rb_Auto,Off
+Return
+
+Rb_Auto:
+send {RButton Down}{RButton Up}
+Return
+
+
+;~ ~r::
+;~ Goto AutoAtt
+;~ send {e}
+;~ SetTimer AutoAtt
+;~ KeyWait r,u
+;~ SetTimer AutoAtt,Off
+;~ Return
+
+;~ AutoAtt:
+;~ send {LButton}
+;~ send {LButton Down}
+;~ 	Sleep 22
+;~ send {LButton Up}
+;~ Return
+
+Sheild_Switch:=False
+~e::
+;~ Goto Sheild_Mode
+if(not Sheild_Switch){
+	SetTimer Sheild_Mode
+	Sheild_Switch:=True
+}else{
+	SetTimer Sheild_Mode,Off
+	Sheild_Switch:=False
+	send {e up}{w up}
+}
+Return
+
+Sheild_Mode:
+send {e down}{w Down}
+Return
+
+;~ ~q::
+;~ Sheild_Switch:=False
+;~ Return
+
+~x::
+Goto Auto_B_Plan
+;~ send {e}
+SetTimer Auto_B_Plan
+KeyWait x
+SetTimer Auto_B_Plan,Off
+Return
+
+Auto_B_Plan:
+;~ send {LButton}
+send {RButton Down}{RButton Up}
+Return
+
+~z::
+if (A_PriorHotkey <> "~z" or A_TimeSincePriorHotkey > 400)
+{
+    ; 在按键之间间隔太久，所以这不是一个两次按键。
+    KeyWait, z
+    return
+}
+if(NOT AUTOWORK_STATE=1){
+	SetTimer AUTOWORK,32
+	AUTOWORK_STATE:=1
+}
+Return
+
+AUTOWORK:
+IfEqual AUTOWORK_STATE,0,Return
+if(AUTOWORK_STATE=1){
+	send {z}
+}else if(AUTOWORK_STATE=2){
+	send {LButton}
+}else if(AUTOWORK_STATE=3){
+	send {e Down}{e Up}
+}
+Return
+
+~t::
+SetTimer Auto_Rbutton,32
+KeyWait t,u
+SetTimer Auto_Rbutton,Off
+Return
+
+Auto_Rbutton:
+send {Rbutton}
+Return

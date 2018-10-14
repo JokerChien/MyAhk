@@ -1,0 +1,309 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed, 0
+;===================================================
+;=              Grid_Health配置文件                =
+;===================================================
+HERO_COUNT:=0
+Loop, read, e:\Program Files\AutoHotkey\Wow_DataBase\Hero_List.txt		;读取配置文件。
+{
+	HERO_COUNT++
+	Line%HERO_COUNT%:= A_LoopReadLine	;行数、行内容。
+}
+
+Loop %HERO_COUNT%
+{
+	element:=Line%A_Index%		;中间变量
+	
+	StringSplit ARRAY,element,`,
+	Hero_Color_%A_Index%:=ARRAY1
+	Hero_SN_%A_Index%:=ARRAY2
+	Hero_Name_%A_Index%:=ARRAY3
+}
+
+;~ MsgBox %Line1%
+
+;===================================================
+;=                   全局变量初始化                =
+;===================================================
+#IfWinActive ahk_class StarCraft II
+;===================================================
+;=                     抓点工具                    =
+;===================================================
+^Numpad9::
+Clipboard := getColorAndXy(680,729,0xDDB1FA)
+return
+
+^Numpad6::
+MouseGetPos mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard = %mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+
+^Numpad3::
+ITEM_OUTPUT:=GetColor(680,729) . "," . GetColor(731,729) . "," . GetColor(680,679) . "," . GetColor(731,679) . "," . GetColor(680,629) . "," . GetColor(731,629)
+Clipboard := ITEM_OUTPUT
+MsgBox "物品截取OK"
+Return
+
+^NumpadDot::
+SKILL_OUTPUT:=GetColor(815,725) . "`t" . GetColor(871,725) . "`t" . GetColor(926,725) . "`t" . GetColor(982,725)
+Clipboard := SKILL_OUTPUT
+MsgBox "技能截取OK"
+Return
+
+^Numpad8::
+;提取地图上基地的坐标。需要建造好基地并且选中（高亮）。
+OutPutList:=""
+x:=	285
+y:=1037 
+while(y>=787){
+	while(x>=28){
+		percentage:=floor(((y-787)*(285-28)-(285-x))/((1037-787)*(285-28))*100) . "%"
+		ToolTip %percentage%,840,0
+		if(GetColor(x,y)=0x00FF00){
+			OutPutList:=OutPutList . x . "," . y . "," . "0x00FF00" . "`n"
+		}
+		x:=x-8
+	}
+	y:=y-8
+	x:=285
+}
+ToolTip
+Clipboard:=OutPutList
+MsgBox ok
+Return
+;===================================================
+;=               判断是否聊天中                    =
+;===================================================
+;~ ~sc01C::
+;~ 	IsNotChat()	;键盘的回车。
+;~ Return
+
+;~ ~sc11C::
+;~ 	IsNotChat()	;小键盘的回车。
+;~ Return
+
+;~ ~Esc::
+;~ 	ISNOTCHAT=True
+;~ Return
+
+!a::
+n:=0
+while(GetKeyState("")){
+	if(not judge(1348,858,0xFEFEFE)){
+		send {a}
+	}else if(n<7){
+		Click
+		n++
+	}else{
+		Click Right
+		n:=0
+	}
+	sleep 32
+}
+Return
+
+~5::
+;~ MouseGetPos mx,my
+;~ if(MouseInMiniMap(mx,my)){
+;~ 	Search_Home(mx,my)
+;~ }else 
+if(judge(799,1000,0xC5B97C) or judge(619,911,0xFEFEFE)){
+	send {esc}	;第三个农民在造 或 第二行的第二个农民在造。
+}else if(judge(741,994,0x9CA274)){
+	;第二个农民在造。
+}else if(judge(562,911,0x404040) or not judge(741,994,0x9CA274)){
+	send {e}	;第二行第二个农民不在造 或 第二个农民不在造。
+}else{
+	
+}
+Return
+
+
+;~ MouseInMiniMap(x,y){
+;~ 	Return x>19 and x<290 and y>786 and y<1041
+;~ }
+
+;~ Search_Home(x,y){
+;~ 	global xhome,yhome
+;~ 	x:=x+10
+;~ 	y:=y+10
+;~ 	while(y>y-10){
+;~ 		x:=x+10
+;~ 		while(x>x-10){
+;~ 			cout:="Searching..." . x . "," . y
+;~ 			ToolTip %cout%,840,0
+;~ 			if(judge(x,y,0x00FF00,0x00BB00)){
+;~ 	;~ 			MsgBox aaa
+;~ 				xhome:=x
+;~ 				yhome:=y
+;~ 				cout:="Home:" . x . "," . y
+;~ 				ToolTip %cout%,840,0
+;~ 				Return
+;~ 			}
+;~ 			x--
+;~ 		}
+;~ 		y--
+;~ 	}
+;~ }
+
+
+~s::	;追猎。
+while(GetKeyState("s","p")){
+	if(not Training()){
+		send {s}
+	}else{
+		Click
+	}
+}
+Return
+
+~z::	;狂徒。
+while(GetKeyState("z","p")){
+	if(not Training()){
+		send {z}
+	}else{
+		Click
+	}
+}
+Return
+
+~e::	;哨兵。
+while(GetKeyState("e","p")){
+	if(not Training()){
+		send {e}
+	}else{
+		Click
+	}
+}
+Return
+
+~d::	;隐刀。
+while(GetKeyState("d","p")){
+	if(not Training()){
+		send {d}
+	}else{
+		Click
+	}
+}
+Return
+
+~t::	;电兵。
+while(GetKeyState("t","p")){
+	if(not Training()){
+		send {t}
+	}else{
+		Click
+	}
+}
+Return
+
+Home::
+;~ ToolTip Searching...,840,0
+MouseGetPos mx,my
+x:=mx+10
+y:=my+10
+while(y>my-10){
+	x:=mx+10
+	while(x>mx-10){
+		cout:="Searching..." . x . "," . y
+		ToolTip %cout%,840,0
+		if(judge(x,y,0x00FF00,0x00BB00)){
+;~ 			MsgBox aaa
+			xhome:=x
+			yhome:=y
+			cout:="Home:" . x . "," . y
+			ToolTip %cout%,840,0
+			Return
+		}
+		x--
+	}
+	y--
+}
+Return
+
+end::
+MouseMove 20,20,,r
+Return
+
+;~ ~sc029::
+~sc029::
+send {shift down}
+while(GetKeyState("``","p")){
+	if(judge(1347,856,0x2D2418)){
+		send {s}
+	}else if(judge(1347,856,0xD89778)){
+		send {u}{c}{t}{f}{h}{r}{z}
+	}else{	
+		send {backspace}
+		sleep 50
+		send {v}
+		Click 840,420
+	}
+}
+send {shift up}{Esc}
+return
+
+Training(){
+	Return judge(1348,858,0x81ACDF,0x5D6471,0x3286ED,0x3342B0,0x808C98)
+}
+
+f3::
+if(judge(1413,990,0x3C2F24)){
+	send {u}
+}
+if(judge(1483,924,0xC1C0D1)){
+	send {c}
+}
+if(judge(1413,925,0x241910)){
+	send {t}
+}
+if(judge(1548,917,0x7B6446)){
+	send {f}
+}
+if(judge(1347,922,0x7A7169)){
+	send {h}
+}
+if(judge(1549,860,0xBB9F6D)){
+	send {r}
+}
+if(judge(1481,863,0x40466D)){
+	send {z}
+}
+Return
+
+;===================================================
+;=              	   正文				   		   =
+;===================================================
+;~ sc029::
+;~ if(ISNOTCHAT){
+;~ 	send {Numpad7}
+;~ }
+;~ return
+;===================================================
+;=                钱教授的百宝盒                   =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+getColorAndXy(x,y,binColor=""){
+	MouseMove x,y
+	PixelGetColor mouse_color,x,y,RGB
+	cout:=x . "," . y . "," . mouse_color
+	MsgBox %cout%
+	Return cout
+}
+
+GetColor(x,y){
+	PixelGetColor clr,x,y,RGB
+	Return clr
+}
+;===================================================
+;=             StarCraft II插件                    =
+;===================================================

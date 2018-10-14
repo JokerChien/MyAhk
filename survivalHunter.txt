@@ -1,0 +1,316 @@
+;================================钱教授的工具宝
+^1::
+getColorAndXy(0x6B3D25,645,1032)
+return
+
+^2::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard =%c4%,%mx%,%my%
+MsgBox %c4%,%mx%,%my%
+return
+
+!^+Left::  MouseMove,-1,0,,R
+!^+Up::    MouseMove,0,-1,,R
+!^+Right:: MouseMove,1,0,,R
+!^+Down::  MouseMove,0,1,,R
+
+getColorAndXy(binColor,x,y){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%gColor%,%x%,%y%
+	MsgBox %gColor%,%x%,%y%
+}
+
+^Numpad1::
+getColorAndXy(0x6B3D25,646,1016)
+return
+^Numpad2::
+getColorAndXy(0x71442A,689,1016)
+return
+^Numpad3::
+getColorAndXy(0x75492D,732,1016)
+return
+^Numpad4::
+getColorAndXy(0x531602,776,1016)
+return
+^Numpad5::
+getColorAndXy(0x4D1101,819,1016)
+return
+^Numpad6::
+getColorAndXy(0x460D01,862,1016)
+return
+
+;================================正文
+1::
+loop{
+	if(orjudge(0xA97600,0x3333A9,652,847) or judge(0x946700,652,766) or TabIsDown()){
+		;什么也不做。吟唱魔法或假死。
+	}else if(judge(0xFFFBE7,948,1016) or judge(0x7ED0F8,732,1016)){
+		send {9}
+		;宠物跟随。无敌或冰箱。
+	}else if(orjudge(0x041701,0x0A3D02,645,1032) and judge(0xFFFF00,215,938) or judge(0xC6C8C3,732,973)){
+		send {9}
+		;宠物跟随。当被翼龙钉刺控制或驱散射击控制。
+	}else if(judge(0x7B9561,28,958)){
+		pvpMode()
+		;pvp模式。如果目标敌对。
+	}else{
+		SoundPlay %A_WinDir%\Media\ding.wav
+		Break
+	}
+	sleep 325
+}
+return
+
+pvpMode(){
+	local IsMoving:=IsMoving()
+	local LookAtMe:=orjudge(0x565059,0x560000,466,119)
+	local LookAtPet:=orjudge(0x1C191E,0x1C0000,466,119)
+	local IsSlowDown:=IsSlowDown()
+	local hasMana:=judge(0x000083,317,75)
+	local feignDeath:=judge(0x0D5A4A,448,1006)
+	local intimidation:=judge(0x856767,542,910)
+	local isSinging:=orjudge(0xA47300,0x3232A4,652,811)
+	local safeguard:=judge(0x33220D,402,958)
+	local isPveTarget:=or3judge(0x009700,0x980000,0x545354,737,925)
+	local petTreatment:=judge(0x2D2A28,308,910)
+	local iselite:=judge(0x007402,317,60)
+	local isClose:=judge(0x660000,958,927)
+	local stingsAvailable:=not or3judge(0x000000,0x100031,0x2986EF,646,1016) and not judge(0x0C3E54,1480,79)	;钉刺可用。无钉刺效果且不是跟踪元素。
+	local isPvpTarget:=not or3judge(0x009700,0x980000,0x545354,737,925)
+	
+	if(isClose and judge(0x996F36,168,862) and (not hasMana or judge(0x92536F,737,925))){
+		send {[}
+		;威慑。近战、技能可用、无蓝单位或骑士。
+	}else if(petTreatment and judge(0x010000,355,862)){
+		send {'}
+		;杀戮命令。技能可用、治疗宠物可用。
+	}else if(judge(0x0E240A,215,862)){
+		send {]}
+		;拳刃的宽容。
+	}else if(LookAtMe and IsMoving and judge(0x0D5A4A,448,1006)){
+		send {Del}
+		;假死。看我、未移动、技能可用。
+	}else if(isClose and not judge(0x64614C,776,1016) and judge(0x0000C0,179,75) and judge(0x403A25,121,862)){
+		send {=}
+		;灵猴守护。贴身、不是灵猴守护、蓝高于50、技能可用。
+	}else if(isClose and not judge(0x161F8D,776,1016) and not judge(0x0000B3,147,75) and judge(0x5863D0,74,862)){
+		send {-}
+		;蝰蛇守护。贴身、不是蝰蛇守护、蓝低于30、技能可用。
+	}else if(not judge(0x161F8D,776,1016) and not judge(0x0000C0,179,75) and judge(0x5863D0,74,862)){
+		send {-}
+		;蝰蛇守护。不是蝰蛇守护、蓝低于50、技能可用。
+	}else if((not judge(0x185E41,776,1016) and judge(0x0000D6,226,75) or not or3judge(0x161F8D,0x185E41,0x64614C,776,1016)) and judge(0x114030,28,862)){
+		send {k}
+		;雄鹰守护。不是雄鹰守护、蓝多于79，或者不是三大守护之一。技能可用。
+	}else if(judge(0x291C08,221,677)){	
+		send !{z}
+		;援护。技能可用。
+	}else if(judge(0xE4C294,260,677)){
+		send +{z}
+		;牺牲咆哮。技能可用。
+	}
+
+	if(LookAtMe and judge(0xD3D3CC,402,910)){
+		send {i}
+		;驱散射击。技能可用。
+	}else if((not hasMana and judge(0x92536F,737,925)) and judge(0x143D40,215,910) and judge(0x663300,958,927)){
+		send {0}
+		;翼龙钉刺。无蓝单位或骑士、技能可用、5到15码。
+	}else if((isSinging or LookAtMe) and hasMana and judge(0x143D40,215,910)){
+		send {0}
+		;翼龙钉刺。吟唱魔法或看着我、有蓝单位、技能可用。
+	}else if(not judge(0x322724,862,1016) and judge(0x988752,542,1006)){	
+		send {PGDN}
+		;摔绊。无该DEBUFF、技能可用。
+	}else if(judge(0x480400,121,910)){
+		send {8}
+		;猫釉撕咬。技能可用。
+	}else if(iselite and not LookAtPet and not LookAtMe and judge(0x006500,958,927) and judge(0x006634,958,949) and judge(0x6466D7,355,910)){
+		send {u}
+		;扰乱射击。是精英、不看宠物、不看我、小于35码、大于28码、技能可用。
+	}else if(not IsSlowDown and not LookAtPet and judge(0x104660,308,1006)){
+		send {Ins}
+		;震荡射击。未被减速、不看宠物、技能可用。
+	}else if(judge(0x2F00CB,402,1006)){
+		send {PGUP}
+		;冰霜陷阱。技能可用。
+	}else if(imReady() and judge(0x7D5BA9,542,910)){
+		send {j}
+		;准备就绪。全技能CD、吃公转、技能可用。
+	}else if(stingsAvailable and hasMana and judge(0x2682ED,215,1006) and not judge(0x980000,737,925)){	
+		send {F10}
+		;蝰蛇钉刺。钉刺可用、有魔法、技能可用、不是野怪。
+	}else if(stingsAvailable and or3judge(0x775D42,0x98913F,0x92536F,737,925) and judge(0x100031,168,1006)){
+		send {F9}
+		;毒蝎钉刺。钉刺可用、战贼骑、技能可用。
+	}else if(stingsAvailable and judge(0x0C0A07,121,1006)){
+		send {F8}
+		;毒蛇钉刺。钉刺可用、技能可用。
+	}else if(petTreatment and not judge(0x00B600,204,110) and not judge(0x9D938B,905,1016)){
+		send {y}
+		;治疗宠物。技能可用、宠物不健康、无该DEBUFF。
+	}else if(not IsMoving and petTreatment and not judge(0x00A100,170,110) and judge(0x7D0F00,448,958)){
+		send +{x}
+		;纳鲁的赐福。宠物濒危、技能可用、不在移动、治疗宠物可用（算射程）。
+	}else if(not IsMoving and not judge(0x00C600,181,60) and judge(0x7D0F00,448,958) ){
+		send {x}
+		;纳鲁的赐福。不在移动、玩家绿不满50、技能可用。
+	}else if(not hasMana and not IsMoving and judge(0x00048C,495,910) and judge(0x984A06,737,925)){
+		send {h}
+		;恐吓野兽。不在移动、技能可用、德鲁伊野兽态。
+	}else if(NeedToBeDispersed() and judge(0x0B030A,402,862)){
+		send {Numpad0}
+		;宁神射击。技能可用、有魔法要驱散。
+	}else if(not judge(0xD8484C,819,1016) and judge(0xB69293,261,1006)){
+		send {F11}
+		;猎人印记。目标无该DEBUFF、技能可用。
+	}else if(judge(0x100036,28,1006)){
+		send {F6}
+		;奥术射击。技能可用。
+	}else if(isPvpTarget and judge(0x726D57,28,910)){
+		send {6}
+		;瞄准射击。是PVP目标、技能可用。
+	}else if(not IsMoving and judge(0x1C0018,495,1006)){
+		send {End}
+		;多重射击。技能可用、不在移动。
+	}else if(not IsMoving and judge(0xEE0000,74,1006)){
+		send {F7}
+		;急速射击。不在移动、技能可用。
+	}else if(not IsMoving and judge(0x1B0931,261,862)){
+		send {\}
+		;稳固射击。不在移动、技能可用。
+	}
+
+	if(isClose and judge(0x613627,74,910)){
+		send {7}
+		;猛禽一击。贴身、技能可用。
+	}else if(judge(0x240404,308,910) or not judge(0x00A100,170,110)){
+		send {9}
+		;宠物跟随。离的太远时、或快死翘翘时。
+	}else if(not LookAtPet and judge(0x00B600,204,110)){
+		send {;}
+		;宠物出击。不看宠物、健康。
+	}	
+}
+
+imReady(){
+	local petTreatment:=judge(0x2D2A28,308,910)
+	return judge(0xFFFF00,215,910) and judge(0xFFFF00,402,910) and judge(0xFFFF00,402,1006) and (petTreatment and judge(0xFFFF00,355,862) or not petTreatment) and judge(0xFFFF00,121,958)
+	;CD中。翼龙钉刺、驱散射击、冰霜陷阱、杀戮命令、逃脱。
+}
+;================================钱教授的百宝盒
+NeedToBeDispersed(){
+	return or4judge(0x420000,0x4D4455,0x100818,0xFEF2CD,948,1016) or judge(0x2CACA7,732,1016) or or3judge(0xBD4994,0xF7B77D,0x181018,991,1016)
+	;自由之手、保护之手、闪电之盾、真言术盾。寒冰护体。野性赐福、力量祝福、王者祝福。
+}
+
+IsSlowDown(){
+	return or4judge(0x757065,0x080808,0xB13708,0x5A3B5A,689,1016) or or4judge(0xDD979F,0x420000,0x4D4455,0xFFFBE7,948,1016) or or5judge(0x3401D1,0x938AE0,0xDEFFFF,0xE7F5FE,0x3401D1,991,1016) or orjudge(0x322724,0x2CA2C5,862,1016)
+	;断筋、刺耳怒吼、减速、减速药膏。野兽之心、自由之手、保护之手、圣盾术。冰霜陷阱光环、寒冰箭、冰霜震击、冰锥术、冰霜新星。摔绊、震荡射击。
+}
+
+cantIntercept(){
+	return judge(0x7ED0F8,732,1016) or judge(0xFFFBE7,948,1016) or judge(0x8F8B9C,689,973)
+	;寒冰屏障、圣盾术、利刃风暴。
+}
+
+judge(tar_color,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color=get_color){	
+		return true
+	}else{
+		return false
+	}
+}
+
+orjudge(tar_color1,tar_color2,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+
+or3judge(tar_color1,tar_color2,tar_color3,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color or tar_color3=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+
+or4judge(tar_color1,tar_color2,tar_color3,tar_color4,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+
+or5judge(tar_color1,tar_color2,tar_color3,tar_color4,tar_color5,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+;Tab键和鼠标右键是不是被按下。
+TabIsDown(){
+	GetKeyState state,Tab,p
+	if state=D
+		return true
+	Else
+		return False
+}
+
+;是否移动状态，即WASD是否被按下。
+IsMoving(){
+	GetKeyState state,w,p
+	if state=D
+	;这里state=D不能加括号，确实非常之奇怪。
+		return true
+	Else
+		return AIsDown()
+}
+
+AIsDown(){
+	GetKeyState state,a,p
+	if state=D
+		return true
+	Else
+		return SIsDown()
+}
+
+SIsDown(){
+	GetKeyState state,s,p
+	if state=D
+		return true
+	Else
+		return DIsDown()
+}
+
+DIsDown(){
+	GetKeyState state,d,p
+	if state=D
+		return true
+	Else
+		return RIsDown()
+}
+
+RIsDown(){
+	GetKeyState state,r,p
+	if state=D
+		return true
+	Else
+		return false
+}
+
+interinterceptionIsReady(){
+	return orjudge(0xBC9D6A,0xFFBE7B,261,1006) or judge(0xBE8C4F,74,958) or judge(0x899798,168,958)
+}

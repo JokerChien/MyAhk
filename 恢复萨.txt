@@ -1,0 +1,243 @@
+CoordMode Mouse,Screen
+;===================================================
+;=                    调试小工具                   =
+;===================================================
+
+^Numpad8::
+getColorAndXy(0x000000,16,858)
+return
+
+^Numpad9::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard =%c4%,%mx%,%my%
+MsgBox %c4%,%mx%,%my%
+return
+
+;================================正文
+1::
+SoundPlay %A_WinDir%\Media\tada.wav
+loop{
+	
+	if(GetKeyState("esc","p")){
+		SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+		Break
+	}else if(orjudge(0x26A53E,0x5A9139,695,651) and judge(0x00CE00,423,60) and judge(0x00D300,217,60)){
+		send {F12}
+		;停止施法。次级治疗波治疗波、目标和我都满75血。
+	}else if(judge(0x080000,709,634)){
+		;什么也不做。玩家施法。
+	}else if(orjudge(0x5F5D5F,0x332F30,465,35)){
+		PvpMode()
+		;PVP模式。
+	}else{
+		SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+		Break
+	}
+	sleep 256
+}
+return
+
+PvpMode(){
+	local iHv85Hlth:=judge(0x00D600,231,60)
+	local iHv75Hlth:=judge(0x00D300,217,60)
+	local iHv65Hlth:=judge(0x00CE00,202,60)
+	local iHv45Hlth:=judge(0x00C000,173,60)
+	
+	local iHv45Mn:=judge(0x0000C0,173,75)
+	
+	local trgHs85Hlth:=judge(0x00D600,438,60)
+	local trgHs75Hlth:=judge(0x00CE00,423,60)
+	local trgHs65Hlth:=judge(0x00CE00,409,60)
+	local trgHs45Hlth:=judge(0x00BC00,380,60)
+	
+	local isMoving:=IsMoving()
+	local isSlowDown:=judge(0xFFD100,86,893)
+	local trgHsMn:=judge(0x000083,317,75)
+	local targetIsSinging:=judge(0x080000,709,666)
+	local isNearBy:=judge(0x9F0000,5,835)
+	local lookAtMe:=orjudge(0x8CC8FE,0x8C0000,465,114)
+	local airT:=AirTotem()
+	local waterT:=WaterTotem()
+	local earthT:=EarthTotem()
+	local fireT:=FireTotem()
+	local equippedShield:=judge(0xFFFFFF,631,1024)
+	local isHelp:=judge(0xFFFFFF,584,1024)
+	local isDead:=judge(0xFFFFFF,1657,975)
+	local nocombat:=judge(0xFFFFFF,1610,975)
+	local beStoped:=judge(0xFFD100,121,893)
+	local healingWave:=judge(0xFFFFFF,1517,1024)
+	local tidalWave:=judge(0xFFD100,157,893)
+	
+	local trgHsRiptide:=judge(0xFFD100,50,893)
+	local iHvRiptide:=judge(0xFFD100,121,893)
+	
+	local chainHeal:=judge(0xFFFFFF,24,975)
+	
+	local trgBeBuffed:=judge(0xFFD100,440,893) or judge(0xFFD100,475,893) or judge(0xFFD100,510,893)
+	local trgBeAbsCtrled:=judge(0xFFD100,546,893) or judge(0xFFD100,581,893)
+	local trgBeSlowedDown:=judge(0xFFD100,616,893) or judge(0xFFD100,652,893) or judge(0xFFD100,687,893)
+	local naturesSwiftnessStarts:=not orjudge(0xFFFFFF,0xFFFF00,1004,1024)
+	
+	;先验模块。
+	if(not isHelp and targetIsSinging and judge(0xFFFFFF,304,1024)){
+		send {Ins}
+		;强风震击。目标吟唱、技能可用。
+	}else if(not isHelp and targetIsSinging and judge(0xFFFFFF,1144,1024)){
+		send {6}
+		;根基图腾。目标吟唱、技能可用。
+	}else if((not iHv45Hlth or isHelp and not trgHs45Hlth) and judge(0xFFFFFF,1004,1024)){
+		send {x}
+		;自然迅捷。我不满45绿或有方目标不满45怒气、技能可用。
+	}
+
+	;主打模块。
+	if(not iHv45Hlth and naturesSwiftnessStarts and healingWave){
+		send +{i}
+		;治疗波。我不满45绿、自然迅捷启动、治疗波可用。
+	}else if(isHelp and not trgHs45Hlth and naturesSwiftnessStarts and healingWave){
+		send {i}
+		;治疗波。友方目标、不满45绿、自然迅捷启动、治疗波可用。
+	}else if(not iHv85Hlth and not iHvRiptide and judge(0xFFFFFF,1050,1024)){
+		send +{c}
+		;激流。我不满85绿、我没有激流、激流可用。
+	}else if(isHelp and not trgHs85Hlth and not trgHsRiptide and judge(0xFFFFFF,1050,1024)){
+		send {c}
+		;激流。有方目标、不满85绿、没有激流、激流可用。
+	}else if(not iHv75Hlth and not isMoving and judge(0xFFFFFF,1330,1024)){
+		send +{0}
+		;次级治疗波。我不满75血、不在移动、技能可用。
+	}else if(isHelp and not trgHs75Hlth and not isMoving and judge(0xFFFFFF,1330,1024)){
+		send {0}
+		;次级治疗波。友善目标、不满75绿、不在移动、技能可用。
+	}else if(isHelp and not trgHs65Hlth and not judge(0xFFD100,86,893) and judge(0xFFFFFF,258,975)){
+		send {\}
+		;大地之盾。友善目标、不满65绿、无该BUFF、技能可用。
+	}else if(not iHv45Hlth and judge(0xFFFFFF,24,1024)){
+		send {F6}
+		;生命之血。我不满50绿、能可用。
+	}else if(not iHv45Hlth and judge(0xFFFFFF,71,1024)){
+		send +{F7}
+		;纳鲁赐福。我不满50绿、技能可用。
+	}else if(not judge(0xFFD100,15,893) and judge(0xFFFFFF,1423,1024)){
+		send {y}
+		;水之盾。身上无护盾、技能可用。
+	}else if(not isHelp and not trgBeAbsCtrled and not trgBeSlowedDown and isNearBy and judge(0xFFFFFF,164,1024)){
+		send {F9}
+		;地缚图腾。敌对目标、未被控制、未被减速、附近、技能可用。
+	}else if(not isHelp and not trgBeAbsCtrled and not trgBeSlowedDown and judge(0xFFFFFF,118,1024) and judge(0xFFFFFF,1144,1024)){
+		send {F8}
+		;冰霜震击。敌对目标、未被控制、未被定身、技能可用、根基可用。
+	}else if(not isHelp and not trgBeAbsCtrled and trgBeBuffed and judge(0xFFFFFF,118,975)){
+		send {=}
+		;净化术。敌对、未被控制、被增益、技能可用。
+	}else if(not waterT and judge(0xFFFFFF,211,1024)){
+		send {F10}
+		;法力之泉图腾。无水系图腾、技能可用。
+	}else if(not fireT and judge(0xFFFFFF,351,975)){
+		send {'}
+		;火舌图腾。无火图腾、技能可用。
+	}else if(not nocombat and not isHelp and not isMoving and judge(0xFFFFFF,771,1024)){
+		send {5}
+		;闪电链。战斗中、敌对、没移动、技能可用。
+	}else if(not isHelp and not isMoving and judge(0xFFFFFF,537,1024)){
+		send {PGDN}
+		;闪电箭。敌对、没移动、技能可用。
+	}else if(not nocombat and not isHelp and not judge(0xFFD100,50,893) and judge(0xFFFFFF,397,1024) and judge(0xFFFFFF,1144,1024)){
+		send {PGUP}
+		;烈焰震击。战斗中、无该DEBUFF、技能可用、根基可用。
+	}else if(){
+		
+	}else if(){
+		
+	}else if(){
+		
+	}else if(){
+		
+	}
+}
+
+AirTotem(){
+	return orjudge(0x7B29C8,0xEEDFD8,120,95)
+}
+
+WaterTotem(){
+	return or3judge(0xE3C782,0x4DA2CB,0x9ABDC8,161,95)
+}
+
+EarthTotem(){
+	return or5judge(0xB9AEA2,0x370601,0xD7CBDC,0xD99D03,0x6E6E5B,202,95)
+}
+
+FireTotem(){
+	return or5judge(0xEBA80E,0xE29466,0x902C05,0x873F07,0x160700,242,95)
+}
+
+
+;===================================================
+;=                钱教授的百宝盒                   =
+;===================================================
+
+judge(tar_color,x,y){
+	PixelGetColor get_color,x,y,RGB
+	Return tar_color=get_color
+}
+
+orjudge(tar_color1,tar_color2,x,y){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color
+}
+
+or3judge(tar_color1,tar_color2,tar_color3,x,y){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color
+}
+
+or4judge(tar_color1,tar_color2,tar_color3,tar_color4,x,y){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color
+}
+
+or5judge(tar_color1,tar_color2,tar_color3,tar_color4,tar_color5,x,y){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+;是否移动状态，即WASD是否被按下。
+IsMoving(){
+	Return GetKeyState("w","p") or GetKeyState("a","p") or GetKeyState("s","p") or GetKeyState("d","p")
+}
+
+GetColor(x,y){
+	PixelGetColor theColor,x,y,RGB
+	return theColor
+}
+
+getColorAndXy(binColor,x,y){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%gColor%,%x%,%y%
+	MsgBox %gColor%,%x%,%y%
+}
+
+!^Numpad4::
+Clipboard = 0504aslan@163.com
+send ^{v}{Tab}
+Clipboard = chao1986
+send ^{v}{enter}
+return
+
+~LCtrl::
+    while(GetKeyState("LCtrl")){
+        MouseGetPos x,y
+		PixelGetColor mouse_color,x,y,RGB
+        ToolTip % mouse_color "," x "," y
+        Sleep 10
+    }
+    ToolTip
+return
+
+
+;===================================================
+;=                很会奶萨的奶萨                   =
+;===================================================

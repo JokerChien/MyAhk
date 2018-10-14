@@ -1,0 +1,425 @@
+;================================钱教授的工具宝
+^1::
+getColorAndXy(0x241900,724,843)
+return
+
+^2::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard =%c4%,%mx%,%my%
+MsgBox %c4%,%mx%,%my%
+return
+
+getColorAndXy(binColor,x,y){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%gColor%,%x%,%y%
+	MsgBox %gColor%,%x%,%y%
+}
+
+;================================正文
+1::
+SoundPlay %A_WinDir%\Media\tada.wav
+loop{
+	if(judge(0x080000,709,634)){
+		;玩家施法什么也不做。
+	}else if(EscIsDown()){
+		SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+		Break
+	}else{
+		Gua()
+	}
+	sleep 256
+}
+return
+
+Gua(){
+	local petOrGreen:=orjudge(0x00FF00,0x8080FF,526,28)
+	local nocombat:=judge(0xFFFFFF,1470,975)
+	local isElite:=judge(0x332F30,465,35)
+	local isDead:=judge(0xFFFFFF,1517,975)
+	local isNearBy:=judge(0x9F0000,5,835)
+	local isClose:=judge(0x780000,5,815)
+	local isHelp:=judge(0xFFFFFF,584,1024)
+	local about10To30Yards:=judge(0x9F9E00,5,835)
+	
+	if(judge(0xC39628,787,44)){
+		;战场中。
+		if(judge(0xA04600,813,222)){
+			MouseClick left,813,222
+			;施放灵魂。
+		}else if(judge(0x6E5400,844,731)){
+			MouseClick left,844,731
+			;离开战场。
+		}
+	
+		if(isHelp and judge(0x5F5D5F,465,35) and not petOrGreen and not judge(0xD9EFF6,1440,34) and not isDead and about10To30Yards and not judge(0x626D7B,1442,148)){
+			send {backspace}
+			;跟随。普通怪、非绿怪宠物、不在被灵魂医者复活中、不是死人、10到30码、不是灵魂状态。
+		}
+	
+		if(not judge(0x5F5D5F,465,35) or not about10To30Yards or petOrGreen or isDead){	
+			send {up}
+			;选择友善目标。无目标或普通怪、或不在10到30码以内、或宠物绿怪、或死人。
+		}
+		
+		if(judge(0xFFFFFF,1377,1024)){
+			sleep 256
+			if(judge(0xFFFFFF,1377,1024)){
+				send {t}
+			}
+			;骑马。两次校验。
+		}else if(judge(0xCC0000,1299,237) or judge(0xCC0000,1327,237) or judge(0xCC0000,1353,237) or judge(0xCC0000,1384,237)){
+			;需要我驱散。
+			PvpMode()
+		}else if(judge(0x652516,1373,1022) and nocombat){	
+			;骑乘状态、脱离战斗。
+			if(judge(0xFFFFFF,724,975)){
+				send {numpad4}
+				send {space}
+				;寻找矿物。技能可用。
+			}
+		}else{
+			PvpMode()
+		}	
+		
+		if(judge(0x626D7B,1442,148)){
+			send {space}
+			sleep 666
+			;跳。灵魂状态。
+		}else if(orjudge(0xD22111,0x5F0E00,810,224)){
+			MouseClick left,810,224
+			;施放灵魂。对话框。
+		}
+	}else if(not judge(0x715F5B,1522,192)){
+		;没在战场队列里。
+		if(judge(0x081094,1665,576)){
+			MouseClick Left,1665,576
+			;点PVP标签。可用。
+		}else if(judge(0x776200,130,681)){
+			MouseClick left,130,681
+			;点战场标签。可用。
+		}else if(orjudge(0xE4B500,0xFFECDD,265,643)){
+			MouseClick left,265,643
+			;加入战斗。
+		}else{
+			PvpMode()
+		}	
+	}else{
+		;在战场队列里。
+		if(judge(0xE0A800,372,645)){
+			MouseClick left,372,645
+			;取消。可用。
+		}else if(orjudge(0x580200,0xCB1403,752,242)){
+			MouseClick left,752,242
+			;进入战斗。框体可用。
+		}else if(orjudge(0xFFEEE1,0xEBB600,733,224)){
+			MouseClick left,733,224
+			;进入战斗。框体可用。
+		}else{
+			PvpMode()
+		}
+	
+		if(isHelp and judge(0x5F5D5F,465,35) and not petOrGreen and not judge(0xD9EFF6,1440,34) and not isDead and about10To30Yards and not judge(0x626D7B,1442,148)){
+			send {backspace}
+			;跟随。普通怪、非绿怪宠物、不在被灵魂医者复活中、不是死人、10到30码、不是灵魂状态。
+		}
+	
+		if(not judge(0x5F5D5F,465,35) or not about10To30Yards or petOrGreen or isDead){	
+			send {up}
+			;选择友善目标。无目标或普通怪、或不在10到30码以内、或宠物绿怪、或死人。
+		}
+	}
+}
+
+PvpMode(){
+	local lookAtMe:=orjudge(0x87837D,0x870000,465,114)
+	local isHelp:=judge(0xFFFFFF,584,1024)
+	local isMoving:=True
+	local targetHasMana:=judge(0x000083,317,75)
+	local isNearBy:=judge(0x9F0000,5,835)
+	local targetIsSinging:=orjudge(0xEBA400,0x4747EB,807,806)
+	local has85Health:=judge(0x00D600,231,60)
+	local has75Health:=judge(0x00D300,217,60)
+	local has65Health:=judge(0x00CE00,202,60)
+	local has50Health:=judge(0x00C600,181,60)
+	local targetHas85Health:=judge(0x00D600,438,60)
+	local targetHas75Health:=judge(0x00CE00,423,60)
+	local targetHas65Health:=judge(0x00CE00,409,60)
+	local targetHas50Health:=judge(0x00C000,388,60)
+	local hasShield:=judge(0xFFD100,15,893)
+	local targetHasShield:=judge(0xFFD100,121,893)
+	local isDead:=judge(0xFFFFFF,1517,975)
+	local outOfRange:=judge(0x000078,5,815)
+	local isPet:=judge(0x8080FF,526,28)
+	local nocombat:=judge(0xFFFFFF,1470,975)
+	local fartherThan30Yard:=judge(0x007700,5,815)
+	local isElite:=judge(0x332F30,465,35)
+	local absolutelyCtrled:=judge(0xFFD100,546,893) or judge(0xFFD100,581,893)
+	local partlyCtrled:=judge(0xFFD100,616,893) or judge(0xFFD100,652,893) or judge(0xFFD100,687,893)
+	local needToBeDisperse:=judge(0xFFD100,440,893) or judge(0xFFD100,475,893) or judge(0xFFD100,510,893)
+	local pvpTarget:=not or3judge(0x8080FF,0xFF0000,0xFFFF00,526,28)
+
+	;治疗模块。
+	if(not hasShield and judge(0xFFFFFF,211,1024)){
+		send {F10}
+		;真言术盾。玩家无盾、技能可用。
+	}else if(not isHelp and isNearBy and not absolutelyCtrled and not partlyCtrled and (not hasShield and not isElite or pvpTarget)and judge(0xFFFFFF,1190,1024)){
+		send {7}
+		;心灵尖啸。敌对、在附近、未被控制、未被定身、玩家无盾目标非精英或PVP目标、技能可用。
+	}else if(not nocombat and not hasShield and (not has50Health or lookAtMe and not isHelp) and judge(0xFFFFFF,164,1024)){
+		send +{F9}
+		;痛苦压制。战斗中、无盾、不满50血或敌对目标看我、技能可用。
+	}else if(not nocombat and isHelp and not targetHas65Health and not targetHasShield and judge(0xFFFFFF,258,1024)){
+		send {F11}
+		;真言术盾。目标不满65血、目标无盾、技能可用。
+	}else if(not nocombat and isHelp and not targetHas50Health and not targetHasShield and judge(0xFFFFFF,164,1024)){
+		send {F9}
+		;痛苦压制。战斗中、友方、不满50血、无盾、技能可用。
+	}else if(not isMoving and not has65Health and judge(0xFFFFFF,397,1024)){
+		send +{PGUP}
+		;苦修。不在移动、玩家不满65血、技能可用。
+	}else if(isHelp and not isMoving and not targetHas65Health and judge(0xFFFFFF,397,1024)){
+		send {PGUP}
+		;苦修。友方、不在移动、目标不满60血、技能可用。
+	}else if(isHelp and not isMoving and not has75Health and not targetHas75Health and judge(0xFFFFFF,444,975) and not judge(0xFFFFFF,526,28)){		
+		send {NumpadDot}
+		;联结治疗。友方、不在移动、自己不满75血、目标不满75血、技能可用、不是牧师。
+	}else if(not has75Health and not isMoving and judge(0xFFFFFF,71,975)){
+		send +{-}
+		;快速治疗。玩家不满75血、不在移动、技能可用。
+	}else if(isHelp and not targetHas75Health and not isMoving and judge(0xFFFFFF,71,975)){
+		send {-}
+		;快速治疗。友善、目标不满75血、不在移动、技能可用。
+	}else if(not has85Health and judge(0xFFFFFF,118,975) and not judge(0xFFD100,86,893)){
+		send +{=}
+		;恢复。自己不满75血、技能可用、无该BUFF。
+	}else if(isHelp and not targetHas85Health and judge(0xFFFFFF,118,975) and not judge(0xFFD100,157,893)){
+		send {=}
+		;恢复。友善、不满75血、技能可用、无该BUFF。
+	}else if(not nocombat and not has85Health and judge(0xFFFFFF,211,975) and not judge(0xFFD100,192,893)){
+		send +{]}
+		;愈合祷言。战斗中、自己不满75血、技能可用、无该BUFF。
+	}else if(not nocombat and isHelp and not targetHas85Health and judge(0xFFFFFF,211,975) and not judge(0xFFD100,192,893)){
+		send {]}
+		;愈合祷言。战斗中、友善、不满75血、技能可用、无该BUFF。
+	}else if(not judge(0xFFD100,50,893) and judge(0xFFFFFF,71,1024)){
+		send {F7}
+		;心灵之火。无该DEBUFF、技能可用。
+	}else if(judge(0xFFFFFF,444,1024)){
+		send +{Del}
+		;反恐。技能可用。
+	}
+	
+	;防御驱散模块。
+	if(judge(0xCC0000,1271,238) and judge(0xFFFFFF,771,975)){
+		send {Numpad5}
+		;驱散魔法。魔法搞我、技能可用。
+	}else if(judge(0xCC0000,1299,237) and judge(0xFFFFFF,817,975)){
+		send {Numpad6}
+		;驱散魔法。魔法队友1、技能可用。
+	}else if(judge(0xCC0000,1327,237) and judge(0xFFFFFF,864,975)){
+		send {Numpad1}
+		;驱散魔法。魔法队友2、技能可用。
+	}else if(judge(0xCC0000,1353,237) and judge(0xFFFFFF,910,975)){
+		send {Numpad2}
+		;驱散魔法。魔法队友3、技能可用。
+	}else if(judge(0xCC0000,1384,237) and judge(0xFFFFFF,957,975)){
+		send {Numpad3}
+		;驱散魔法。魔法队友4、技能可用。
+	}
+	
+	;进攻模块。
+	if(not nocombat and not judge(0x0000B3,159,75) and judge(0xFFFFFF,1330,1024)){
+		send {0}
+		;暗影恶魔。战斗中、不满35蓝、技能可用（宏）。
+	}else if(not has85Health and isNearBy and judge(0xFFFFFF,397,975)){
+		send {Numpad0}
+		;神圣新星。玩家不满85血、目标在附近、技能可用。
+	}else if(not isHelp and targetHas50Health and not isMoving and judge(0x0000A2,330,75) and judge(0xFFFFFF,118,1024) and not or4judge(0xFF0000,0x8080FF,0x808080,0xFFFF00,526,28)){	
+		send {F8}
+		;法力燃烧。敌对、有50血、不在移动、目标有10蓝、技能可用、不是野怪不是精英。
+	}else if(not isHelp and not isMoving and judge(0xFFFFFF,1284,1024) and not judge(0xFFFFFF,526,28)){
+		send {9}
+		;心灵震爆。敌对、不在移动、技能可用、不是牧师。
+	}else if(not isHelp and not isMoving and judge(0xFFFFFF,351,975)){
+		send {'}
+		;神圣之火。敌对、不在移动、技能可用。
+	}else if(not isHelp and needToBeDisperse and judge(0xFFFFFF,491,1024)){
+		send {End}
+		;驱散魔法。有BUFF要驱散、技能可用。
+	}else if(not isHelp and judge(0xFFFFFF,537,1024)){
+		send {PGDN}
+		;噬灵瘟疫。敌对、技能可用。
+	}else if(not isHelp and judge(0xFFFFFF,1470,1024) and not judge(0xFFD100,157,893)){
+		send {u}
+		;暗言术痛。敌对、技能可用、无该DEBUFF。
+	}else if(hasShield and judge(0xFFFFFF,211,1024) and judge(0xFFD100,263,893)){
+		send {y}
+		;暗言术灭。有盾、盾可用、技能可用（宏）。
+	}else if(not isHelp and not isMoving and judge(0xB9B4BE,785,1011)){
+		send {5}
+		;射击。
+	}if(judge(0xFFFFFF,724,975)){
+		send {numpad4}
+		send {space}
+		;寻找矿物。技能可用。
+	}
+}
+
+;================================钱教授的百宝盒
+
+^!Numpad1::
+SoundPlay %A_WinDir%\Media\tada.wav
+loop{
+	if(orjudge(0x002400,0x241900,724,843)){
+		;玩家施法什么也不做。
+	}else if(EscIsDown()){
+		SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+		Break
+	}else{
+		DoForGlory()
+	}
+	sleep 256
+}
+return
+
+DoForGlory(){
+	;之前先把战斗的召唤任务给接了。
+	if(orjudge(0x9A6F00,0xFF9788,112,655)){
+		MouseClick left,112,655
+		;完成任务。
+	}else if(orjudge(0x8B0F01,0x200001,112,655)){
+		MouseClick left,112,655
+		;继续。
+	}else if(orjudge(0xFFDA10,0xEFC310,43,322)){
+		MouseClick left,43,322
+		;共同的努力。
+	}else{
+		MouseClick Right,832,530
+	}
+}
+
+IsSlowDown(){
+	return judge(0xFFD100,121,893) or judge(0xFFD100,227,893) or judge(0x1A62CF,122,871)
+}
+
+cantIntercept(){
+	return judge(0x7ED0F8,732,1016) or judge(0xFFFBE7,948,1016) or judge(0x8F8B9C,689,973)
+	;寒冰屏障、圣盾术、利刃风暴。
+}
+
+judge(tar_color,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color=get_color){
+		return true
+	}else{
+		return false
+	}
+}
+
+orjudge(tar_color1,tar_color2,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+
+or3judge(tar_color1,tar_color2,tar_color3,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color or tar_color3=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+
+or4judge(tar_color1,tar_color2,tar_color3,tar_color4,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+
+or5judge(tar_color1,tar_color2,tar_color3,tar_color4,tar_color5,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+;Tab键和鼠标右键是不是被按下。
+TabIsDown(){
+	GetKeyState state,Tab,p
+	if state=D
+		return true
+	Else
+		return RButtonIsDown()
+}
+
+RButtonIsDown(){
+	GetKeyState state,RButton,p
+	if state=D
+		return true
+	Else
+		return False
+}
+
+;是否移动状态，即WASD是否被按下。
+IsMoving(){
+	GetKeyState state,w,p
+	if state=D
+	;这里state=D不能加括号，确实非常之奇怪。
+		return true
+	Else
+		return AIsDown()
+}
+
+AIsDown(){
+	GetKeyState state,a,p
+	if state=D
+		return true
+	Else
+		return SIsDown()
+}
+
+SIsDown(){
+	GetKeyState state,s,p
+	if state=D
+		return true
+	Else
+		return DIsDown()
+}
+
+DIsDown(){
+	GetKeyState state,d,p
+	if state=D
+		return true
+	Else
+		return RIsDown()
+}
+
+RIsDown(){
+	GetKeyState state,r,p
+	if state=D
+		return true
+	Else
+		return false
+}
+
+interinterceptionIsReady(){
+	return orjudge(0xBC9D6A,0xFFBE7B,261,1006) or judge(0xBE8C4F,74,958) or judge(0x899798,168,958)
+}
+
+EscIsDown(){
+	GetKeyState state,Esc,p
+	if state=D
+		return true
+	Else
+		return False
+}

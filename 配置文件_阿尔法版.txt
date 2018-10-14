@@ -1,0 +1,108 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed 0
+GroupAdd MyGroup,ahk_class XLMAIN
+GroupAdd MyGroup,ahk_class SciTEWindow
+;===================================================
+;=              Player_HP配置文件                  =
+;===================================================
+LineCount:=0
+Loop, read, D:\Program Files\AutoHotkey\Wow_DataBase\Player_HP.txt	;读取配置文件。
+{
+	LineCount++
+	Line%LineCount% := A_LoopReadLine	;行数、行内容。
+}	
+
+Loop %LineCount%
+{
+	element:=Line%A_Index%	;中间变量
+	StringSplit word_array,element,`, ;删除逗号
+	X_HP%A_Index%:=word_array1
+	Y_HP%A_Index%:=word_array2
+	C_HP%A_Index%:=word_array3
+}
+
+;===================================================
+;=                钱教授的工具包                   =
+;===================================================
+^Numpad8::
+GetColorAndXy(8,888,0xFFD100)
+return
+
+^Numpad9::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard =%mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+
+
+;===================================================
+;=               常用函数、工具                    =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+Eql2(a,b="",c="",d=""){
+	Return a=b or a=c or a=d
+}
+
+IsMoving(){
+	Return GetKeyState("w","p") or GetKeyState("a","p") or GetKeyState("s","p") or GetKeyState("d","p")
+}
+
+GetColorAndXy(x,y,binColor){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%x%,%y%,%gColor%
+	MsgBox %x%,%y%,%gColor%
+}
+
+GetColor(x,y){
+	PixelGetColor theColor,x,y,RGB
+	return theColor
+}
+
+^Numpad4::
+Clipboard = 0504aslan@163.com
+send ^{v}{Tab}
+sleep 128
+Clipboard = chao1986
+send ^{v}{enter}
+return
+
+;右Ctrl快速得到颜色。
+~RCtrl::
+    while(GetKeyState("RCtrl")){
+        MouseGetPos x,y
+		PixelGetColor mouse_color,x,y,RGB
+        ToolTip % x "," y "," mouse_color
+        Sleep 16
+    }
+    ToolTip
+return
+
+;===================================================
+;=                   正文                          =
+;===================================================
+F12::
+Output:=""
+Loop %LineCount%
+{
+;~ 	x:=X_HP%A_Index%
+;~ 	y:=Y_HP%A_Index%
+;~ 	c:=C_HP%A_Index%
+;~ 	Output := RegExReplace(Output,"$", x "," y "," c "`n")
+	Output := RegExReplace(Output,"$", X_HP%A_Index% "," Y_HP%A_Index% "," C_HP%A_Index% "`n")
+}
+
+ToolTip %Output%,840,0
+Return
+
+F11::
+ToolTip
+Return

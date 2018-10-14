@@ -1,0 +1,632 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed 0
+GroupAdd MyGroup,ahk_class XLMAIN
+GroupAdd MyGroup,ahk_class SciTEWindow
+PATIENT_NUM:=0
+PATIENT_TYPE:=0	;病患类型。1、MT。2、没想好。
+loop 30{
+	ButtonNum_%A_Index%:=0
+	AlarmScore_%A_Index%:=0
+	;声明全局。序列号相应按键号置零。
+}
+
+;===================================================
+;=              Grid_Health配置文件                =
+;===================================================
+LineCount:=0
+Loop, read, D:\Program Files\AutoHotkey\Wow_DataBase\Grid_Health.txt		;读取配置文件。
+{
+	LineCount++
+	Line%LineCount% := A_LoopReadLine	;行数、行内容。
+}
+
+Loop %LineCount%
+{
+	element:=Line%A_Index%		;中间变量
+	StringLeft Left4Words,element,4
+	if(Left4Words=="Raid" or Left4Words=="Play" or Left4Words=="Targ"){
+		variableName:=element
+		%variableName%_count:=0
+		num:=%variableName%_count
+		Continue
+	}
+
+	%variableName%_count++
+	num:=%variableName%_count
+	
+	StringSplit ARRAY,element,`,
+	%variableName%_X_%num%:=ARRAY1
+	%variableName%_Y_%num%:=ARRAY2
+	%variableName%_value_%num%:=ARRAY3
+}
+
+;===================================================
+;=                  截点工具包                     =
+;===================================================
+^Numpad8::
+GetColorAndXy(163,975,0xFFFFFF)
+return
+
+^Numpad9::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard = %mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+
+;===================================================
+;=                选取需要治疗的人                 =
+;===================================================
+#IfWinActive ahk_class GxWindowClassD3d
+SelectTarget(){
+	global PATIENT_NUM:=0,PATIENT_TYPE:=0,PATIENT_C4CLR,Num_PrayerOfMending:=0
+	MaxAlarmScore:=0
+	MaxAlarmSequenceNum:=0
+	c2X:=0
+	c2Y:=0
+	
+	m:=0
+	n:=0
+
+	while(n<=4){
+		while(m<=4){
+			x := 14+m*39
+			y := 149+n*39
+			c1Clr:=GetColor(x,y)
+			c3Clr:=GetColor(x,y+26)
+			SequenceNum:=n*5+m+1	;序列号为5n+m+1。
+			
+			if(c1Clr=0xFF0000 or not c1Clr=0xFFFFFF and not c1Clr=0xFFFF00){
+				AlarmScore_%SequenceNum%:=0
+				;如果40码以外、离线、死掉或骑乘，则忽略该单位。
+			}else{
+				unitHealth:=GetUnitRaidHealth(SequenceNum)
+				AlarmScore_%SequenceNum%:=100-unitHealth	;X=100-H。补血评分的基础值为损失的血量。
+				c3Clr:=GetColor(x,y+26)
+				c4Clr:=GetColor(x+26,y+26)
+				
+				inCrisis:=c3Clr==0xFF00FF or c3Clr==0xFF0000	;若高仇恨、中致死、中透骨之寒，则危机值为true。
+				AlarmScore_%SequenceNum%*=inCrisis+1	;;第一仇恨2X。其他X。
+				AlarmScore_%SequenceNum%+=inCrisis	;;第一仇恨2X+1。其他X。
+				AlarmScore_%SequenceNum%-=5*(c3Clr==0x00FF00)	;被别人治疗。评分-5。
+;~ 				AlarmScore_%SequenceNum%-=5*(c3Clr==0xFFFFFF or c3Clr==0x0000FF or c4Clr==0xFFFFFF or c4Clr==0x00FF00 or c4Clr==0xFF00FF or c4Clr==0xFFFF00)	;开了防御、保命技能。
+				AlarmScore_%SequenceNum%-=5*(Eql2(c3Clr,0xFFFFFF,0x0000FF))	;开了保命技能可减少分值。
+				AlarmScore_%SequenceNum%+=10*(Eql2(c4Clr,0xFFFFFF,0x0000FF,0xFF00FF))	;中了DEBUFF、增加分值。
+				PATIENT_NUM+=AlarmScore_%SequenceNum%>15	;若补血评分大于10，病患数+1。
+				Num_PrayerOfMending+=c4Clr=0x00FFFF	;愈合祷言数量+1。
+				
+				if(AlarmScore_%SequenceNum%>MaxAlarmScore){
+					MaxAlarmSequenceNum:=SequenceNum
+					MaxAlarmScore:=AlarmScore_%SequenceNum%
+					c2X:=x+26
+					c2Y:=y
+					PATIENT_TYPE:=inCrisis+0	;将病患类型定义为MT。
+					PATIENT_C4CLR:=c4Clr		;4号位传递下去。
+				}
+			}
+			m++
+		}
+		n++
+		m:=0
+	}
+	
+	if(MaxAlarmScore>0 and not judge(c2X,c2Y,0xFFFFFF)){
+		;最大危机值大于0、且危机点未被选中。
+		if(not ButtonNum_%MaxAlarmSequenceNum%=0){
+			;有快捷按钮。
+			loop 5{
+				PressButton(ButtonNum_%MaxAlarmSequenceNum%)
+				sleep 40
+				if(judge(c2X,c2Y,0xFFFFFF)){
+					Break
+				}
+			}
+		}
+		
+		if(not judge(c2X,c2Y,0xFFFFFF)){
+			;如果搞了半天还未选中目标，则进行补偿策略。
+			p:=25
+			while(p>0){
+				PressButton(p)
+				Sleep 60
+				if(judge(c2X,c2Y,0xFFFFFF)){
+					ButtonNum_%MaxAlarmSequenceNum%:=p
+					Break
+				}
+				p--
+			}
+		}
+	}
+}
+
+;~ RCtrl::
+;~ while(GetKeyState("RCtrl","p")){
+;~ 	unitHealth:=""
+;~ 	print:=""
+;~ 	loop 25{
+;~ 		unitHealth:=GetUnitRaidHealth(A_Index)
+;~ 		print:=RegExReplace(print , "$" , A_Index "::" unitHealth "`n")
+;~ 		unitHealth:=""
+;~ 	}
+;~ 	ToolTip %print%,840,0
+;~ 	sleep 100
+;~ }
+;~ ToolTip
+;~ Return
+
+;===================================================
+;=                  状态计量函数                   =
+;===================================================
+GetUnitRaidHealth(SequenceNum){
+	local min_Num:=0
+	local max_Num:=Raid%SequenceNum%_count-1
+	while(max_Num-min_Num>1){
+		local mid_Num:=Round((min_Num+max_Num)/2)
+		if(GetColor(Raid%SequenceNum%_X_%mid_Num%,Raid%SequenceNum%_Y_%mid_Num%)=0x000000){	;反算黑点，不算绿灯。
+			max_Num:=mid_Num
+		}else{
+			min_Num:=mid_Num
+		}
+	}
+
+	Return Round(min_Num/(Raid%SequenceNum%_count-1)*100)
+}
+
+GetValue(valueName){
+	local min_Num:=0
+	local max_Num:=%valueName%_count-1
+	while(max_Num-min_Num>1){
+		local mid_Num:=Round((min_Num+max_Num)/2)
+;~ 		if(GetColor(%valueName%_X_%mid_Num%,%valueName%_Y_%mid_Num%)=%valueName%_value_%mid_Num%){
+;~ 			min_Num:=mid_Num
+;~ 		}else{
+;~ 			max_Num:=mid_Num
+;~ 		}
+		local micro_Color:=GetColor(%valueName%_X_%mid_Num%,%valueName%_Y_%mid_Num%)
+		if(valueName="PlayerHealth" or valueName="TargetHealth"){
+			StringLeft left4String,micro_Color,4
+			StringRight right2String,micro_Color,2
+			if(left4String="0x00" and right2String="00"){
+				min_Num:=mid_Num
+			}else{
+				max_Num:=mid_Num
+			}
+		}else if(valueName="PlayerMana"){
+			StringLeft left6String,micro_Color,6
+			if(left6String="0x0000"){
+				min_Num:=mid_Num
+			}else{
+				max_Num:=mid_Num
+			}
+		}else if(valueName="PlayerRage"){
+			StringRight right4String,micro_Color,4
+			if(right4String="0000"){
+				min_Num:=mid_Num
+			}else{
+				max_Num:=mid_Num
+			}
+		}else if(valueName="PlayerEnergy"){
+			StringRight right2String,micro_Color,2
+			if(right2String="00"){
+				min_Num:=mid_Num
+			}else{
+				max_Num:=mid_Num
+			}
+		}else if(valueName="PlayerRune"){
+			StringLeft left4String,micro_Color,4
+			if(left4String="0x00"){
+				min_Num:=mid_Num
+			}else{
+				max_Num:=mid_Num
+			}
+		}else{
+			max_Num:=mid_Num
+		}	
+	}
+
+	Return Round(min_Num/(%valueName%_count-1)*100)
+}
+
+;===================================================
+;=                     初始化                      =
+;===================================================
+RaidMemberIni(){
+	iniX:=14
+	iniY:=149
+	
+	p:=1
+	while(p<=30){
+		PressButton(p)
+		Sleep 115
+		
+		m:=0
+		n:=0
+		while(n<=4){
+			while(m<=4){
+				x:=iniX+m*39
+				y:=iniY+n*39
+				SequenceNum:=n*5+m+1	;序列号为5n+m+1。
+				if(judge(x+26,y,0xFFFFFF)){
+					ButtonNum_%SequenceNum%:=p
+				}	
+				m++
+			}
+			n++
+			m:=0
+		}
+		p++
+	}
+
+	SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+	;叫唤一声表示初始化结束。
+}
+
+;===================================================
+;=                锚点映射按钮                     =
+;===================================================
+PressButton(num){
+	if(num=1){
+		send !+^{'}
+	}else if(num=2){
+		send !+{'}
+	}else if(num=3){
+		send +^{'}
+	}else if(num=4){
+		send +{'}
+	}else if(num=5){
+		send !{'}
+	}else if(num=6){
+		send {'}
+	}else if(num=7){
+		send !+^{;}
+	}else if(num=8){
+		send !+{;}
+	}else if(num=9){
+		send +^{;}
+	}else if(num=10){
+		send +{;}
+	}else if(num=11){
+		send !{;}
+	}else if(num=12){
+		send {;}
+	}else if(num=13){
+		send !+^{\}
+	}else if(num=14){
+		send !+{\}
+	}else if(num=15){
+		send +^{\}
+	}else if(num=16){
+		send +{\}
+	}else if(num=17){
+		send !{\}
+	}else if(num=18){
+		send {\}
+	}else if(num=19){
+		send !+^{]}
+	}else if(num=20){
+		send !+{]}
+	}else if(num=21){
+		send +^{]}
+	}else if(num=22){
+		send +{]}
+	}else if(num=23){
+		send !{]}
+	}else if(num=24){
+		send {]}
+	}else if(num=25){
+		send {Numpad0}
+	}else if(num=26){
+		send {F1}
+	}else if(num=27){
+		send {F2}
+	}else if(num=28){
+		send {F3}
+	}else if(num=29){
+		send {F4}
+	}else if(num=30){
+		send {F5}
+	}
+}
+
+;===================================================
+;=                   正文                          =
+;===================================================
+;===================================================
+;=                   正文                          =
+;===================================================
+#IfWinActive ahk_class GxWindowClassD3d
+~1::
+BIG_BLOCK:=False
+AOE_SWITCH:=1	;SOLO模式
+PRINT:="[SOLO]模式"
+CHARGE_DELAY:=0
+INTERCEPTION_DELAY:=0
+ToolTip %PRINT%,840,0
+SetTimer mainCircle,200
+Return
+
+~2::
+BIG_BLOCK:=False
+AOE_SWITCH:=2	;AOE模式。
+PRINT:="[AOE]模式"
+CHARGE_DELAY:=0
+INTERCEPTION_DELAY:=0
+ToolTip %PRINT%,840,0
+SetTimer mainCircle,200
+Return
+
+~Esc::
+BIG_BLOCK:=True
+Return
+
+mainCircle:
+	tarKind:=GetColor(465,35)
+	
+	if(bigSwitch){
+		Ending()
+	}else if(judge(709,634,0x080000)){
+		;玩家施法。空转。
+	}else if(tarKind=0x332F30){
+		MainMode(True)
+		;主函数。（精英）
+	}else if(tarKind=0x5F5D5F){
+		MainMode(False)
+		;拯救模式。（非精英）
+	}else{
+		Ending()
+	}
+Return
+
+Ending(){
+	global AOE_SWITCH
+	
+	SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+	SetTimer mainCircle,Off
+	ToolTip
+	AOE_SWITCH:=False
+}
+
+MainMode(isElite){
+	global AOE_SWITCH 
+	
+	tarColor:=GetColor(567,1020)
+	isHarm:=tarColor=0x9A7651
+	isHelp:=tarColor=0xA88160
+	
+	isMoving:=IsMoving()
+	targetIsSinging:=judge(709,666,0x080000)
+	targetHasMana:=judge(317,75,0x000083,0x000084)
+	isClose:=judge(5,835,0x9F0000)
+	inCombat:=judge(1654,975,0xFFFFFF)
+	lookAtMe:=judge(465,114,0xB78418,0xB70000,0xB18018,0xB10000)
+	isPveTarget:=judge(527,28,0x808080,0xFF0000,0xFFFF00,0x8080FF)
+	inCombat:=judge(1654,975,0xFFFFFF)
+	trial:=judge(190,893,0xFFD100)
+	gcd:=judge(1607,975,0xFFFFFF)
+	
+	player_HP:=GetValue("PlayerHealth")
+	target_HP:=GetValue("TargetHealth")
+	player_MP:=GetValue("PlayerMana")
+	
+	blessing:=GetColor(16,858)
+;~ 	stamping:=GetColor(51,858)
+	SealOfInt:=judge(51,858,0x113542,0x2E8EB0)	;智慧圣印。
+	
+	if(isHarm and targetIsSinging and judge(303,1025,0xFFFFFF)){
+		send {Ins}
+		;制裁之锤。敌对目标、目标吟唱、目标有蓝、技能可用。
+	}else if(player_HP<35 and judge(350,975,0xFFFFFF)){
+		send +{'}
+		;圣疗术。我不满35血、技能可用。
+	}else if(isHelp and target_HP<35 and judge(350,975,0xFFFFFF)){
+		send {'}
+		;圣疗术。友善、他不满20血、技能可用。
+	}else if(inCombat and player_HP<25 and judge(210,975,0xFFFFFF) and not judge(225,893,0xFFD100)){
+		send {]}
+		;圣盾术。我不满40血、技能可用、没圣盾保护真言术盾。
+	}else if(isHelp and target_HP<75 and target_HP<=player_HP and not isMoving and judge(444,975,0xFFFFFF)){
+		send {NumpadDot}
+		;圣光术。友善、他不满60血、目标血小于玩家、不移动、技能可用。
+	}else if(player_HP<25 and judge(581,975,0xFFFFFF)){
+		send {Numpad7}
+		;小于25血。喝血瓶。
+	}else if(isHarm and isClose and not judge(119,893,0xFFD100) and judge(537,1025,0xFFFFFF)){
+		send {PGDN}
+		;神圣之盾。无该BUFF、技能可用。
+	}else if(not SealOfInt and player_MP<50 and judge(1233,1025,0xFFFFFF)){
+		send {8}
+		;智慧圣印。无智慧圣印、不满50魔，技能可用。
+	}else if((SealOfInt and player_MP>90 or not judge(48,893,0xFFD100)) and judge(1139,1025,0xFFFFFF)){
+		send {6}
+		;复仇圣印。无圣印、技能可用。
+	}else if(player_MP<70 and judge(768,975,0xFFFFFF)){
+		send {numpad5}
+		;神圣恳求。
+	}else if(){
+		
+	}
+	
+	if(isHarm and judge(163,1025,0xFFFFFF)){
+		send {F9}
+		;愤怒之锤。技能可用。
+	}else if(isHarm and judge(397,1025,0xFFFFFF)){
+		send {PGUP}
+		;正义之锤。技能可用。
+	}else if(isHarm and AOE_SWITCH=2 and judge(350,1025,0xFFFFFF)){
+		send {Home}
+		;复仇者之盾。AOE模式、技能可用。
+	}else if(SealOfInt and isHarm and not trial and not isPveTarget and judge(23,1025,0xFFFFFF)){
+		send {F6}
+		;正义审判。无审判效果、非PVE目标、技能可用。
+	}else if(isHarm and not trial and isPveTarget and judge(116,1025,0xFFFFFF)){
+		send {F8}
+		;智慧审判。智慧审判、敌对、无审判效果、PVE目标、技能可用。
+	}else if(isHarm and not trial and judge(70,1025,0xFFFFFF)){
+		send {f7}
+		;圣光审判。无审判效果、技能可用。
+	}else if(not judge(13,893,0xFFD100) and judge(116,975,0xFFFFFF)){
+		send +{=}
+		;庇护祝福。无BUFF、技能可用。
+	}else if(player_MP>35 and isHarm and isClose and judge(210,1025,0xFFFFFF)){
+		send {F10}
+		;奉献。AOE模式、近战、技能可用。
+	}else if(isHarm and gcd and judge(490,975,0xFFFFFF)){
+		send {wheelup}
+		;六魔包。刻意卡个公转、技能可用。
+	}else if(not judge(164,870,0xEEBD75) and judge(1420,1025,0xFFFFFF)){
+		send {y}
+		;正义之怒。
+	}else if(SealOfInt and isHarm and not isPveTarget and judge(23,1025,0xFFFFFF)){
+		send {F6}
+		;正义审判。无审判效果、非PVE目标、技能可用。
+	}else if(isHarm and isPveTarget and judge(116,1025,0xFFFFFF)){
+		send {F8}
+		;智慧审判。智慧审判、敌对、无审判效果、PVE目标、技能可用。
+	}else if(isHarm and judge(70,1025,0xFFFFFF)){
+		send {f7}
+		;圣光审判。无审判效果、技能可用。
+	}else if(){
+		
+	}
+
+	if(not isMoving){
+		send {space}
+	}
+}
+
+IntWish(){
+	PixelGetColor wishClr,16,858,RGB
+	Return wishClr=0x4D4541 or wishClr=0x1D1A18 or wishClr=0x5C6C85 or wishClr=0x222832
+}
+
+;===================================================
+;=           自动交任务：共同的努力                =
+;===================================================
+^Numpad1::
+bigSwitch:=False
+SetTimer finTask,200
+Return
+
+finTask:
+	if(bigSwitch){
+		SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+		SetTimer finTask,Off
+	}else if(judge(709,634,0x080000)){
+		;玩家施法什么也不做。
+	}else{
+		ForGlory()
+	}
+Return
+
+ForGlory(){
+	;之前先把战斗的召唤任务给接了。
+	
+	if(judge(112,655,0x9A6F00,0xFF9788)){
+		MouseClick left,112,655
+		;完成任务。
+	}else if(judge(112,655,0x8B0F01,0x200001)){
+		MouseClick left,112,655
+		;继续。
+	}else if(judge(43,322,0xFFDA10,0xEFC310)){
+		MouseClick left,43,322
+		;共同的努力。
+	}else{
+		MouseClick Right,832,530
+	}	
+}
+
+;===================================================
+;=               常用函数、工具                    =
+;===================================================
+IfThenClick(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color){
+		Click %x%,%y%
+		Return True
+	}else{
+		Return False
+	}
+}
+
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+Eql2(a,b="",c="",d="",e="",f=""){
+	Return a=b or a=c or a=d or a=e or a=f
+}
+
+IsMoving(){
+	Return GetKeyState("w","p") or GetKeyState("a","p") or GetKeyState("s","p") or GetKeyState("d","p")
+}
+
+GetColorAndXy(x,y,binColor){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%x%,%y%,%gColor%
+	MsgBox %x%,%y%,%gColor%
+}
+
+GetColor(x,y){
+	PixelGetColor theColor,x,y,RGB
+	return theColor
+}
+
+^Numpad4::
+Clipboard = 0504aslan@163.com
+send ^{v}{Tab}
+sleep 128
+Clipboard = chao1986
+send ^{v}{enter}
+return
+
+;~ ;右Ctrl快速得到颜色。
+~RCtrl::
+    while(GetKeyState("RCtrl")){
+        MouseGetPos x,y
+		PixelGetColor mouse_color,x,y,RGB
+        ToolTip % x "," y "," mouse_color
+        Sleep 16
+    }
+    ToolTip
+return
+
+;===================================================
+;=        Excel和SciTE针对judge()的修缮工具        =
+;===================================================
+#IfWinActive ahk_group MyGroup
+F1::
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F2::
+send +^{Right 2}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F3::
+send +^{Right 4}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F4::
+send +^{Right 6}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F5::
+send +^{Right 8}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+;===================================================
+;=           PLD[PRT][老娘和你玩命]                =
+;===================================================

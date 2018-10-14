@@ -1,0 +1,125 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed, 0
+;===================================================
+;=                   全局变量初始化                =
+;===================================================
+#IfWinActive ahk_class CryENGINE
+;~ ~r::
+;~ if(AUTO_RUM=0){
+;~ 	send {w down}
+;~ }else{
+;~ 	send {w Up}
+;~ }
+;~ Return
+
+;~ ~d::
+;~ ~a::
+;~ ~s::
+;~ ~Esc::
+;~ ~q::
+;~ SetTimer AUTOWORK,Off
+;~ AUTOWORK_STATE:=0
+;~ Return
+
+~Esc::
+SetTimer AUTOWORK,Off
+SetTimer Sheild_Mode,Off
+send {e up}{w up}
+theExtraButton:=""
+Return
+
+~e::
+~q::
+~w::
+SetTimer AUTOWORK,Off
+SetTimer Sheild_Mode,Off
+send {e up}{w up}
+	theExtraButton:=""
+;~ AUTOWORK_STATE:=0
+send {lshift down}
+KeyWait w,u
+send {lshift Up}
+Return
+
+;~ $~LButton::
+;~ SetTimer Lb_Auto
+;~ KeyWait LButton,u
+;~ SetTimer Lb_Auto,Off
+;~ Return
+
+;~ Lb_Auto:
+;~ send {lbutton Down}{lbutton Up}
+;~ Return
+
+;~ $~RButton::
+;~ SetTimer Rb_Auto
+;~ KeyWait RButton,u
+;~ SetTimer Rb_Auto,Off
+;~ Return
+
+;~ Rb_Auto:
+;~ send {RButton Down}{RButton Up}
+;~ Return
+
+
+Sheild_Switch:=False
+F1::
+;~ if(not Sheild_Switch){
+	SetTimer Sheild_Mode,55
+	Sheild_Switch:=True
+;~ }else{
+;~ 	SetTimer Sheild_Mode,Off
+;~ 	Sheild_Switch:=False
+;~ 	send {e up}{w up}
+;~ }
+Return
+
+Sheild_Mode:
+send {e down}{w Down}{Tab}
+send %theExtraButton%
+Return
+
+;~ ~q::
+;~ Sheild_Switch:=False
+;~ Return
+
+~x::
+theExtraButton:=theExtraButton . "{LButton Down}{LButton Up}"
+Goto Auto_B_Plan
+SetTimer Auto_B_Plan
+KeyWait x
+SetTimer Auto_B_Plan,Off
+Return
+
+Auto_B_Plan:
+send {LButton Down}{LButton Up}
+Return
+
+$~z::
+SetTimer AUTOWORK,32
+Return
+
+AUTOWORK:
+send {z Down}{z Up}
+;~ IfEqual AUTOWORK_STATE,0,Return
+;~ if(AUTOWORK_STATE=1){
+;~ 	send {z}
+;~ }else if(AUTOWORK_STATE=2){
+;~ 	send {LButton}
+;~ }else if(AUTOWORK_STATE=3){
+;~ 	send {e Down}{e Up}
+;~ }
+Return
+
+~t::
+SetTimer Auto_Rbutton,32
+KeyWait t,u
+SetTimer Auto_Rbutton,Off
+Return
+
+Auto_Rbutton:
+send {Rbutton}
+Return

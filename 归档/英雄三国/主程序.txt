@@ -1,0 +1,218 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed, 0
+;===================================================
+;=              Grid_Health配置文件                =
+;===================================================
+HERO_COUNT:=0
+Loop, read, D:\Program Files\AutoHotkey\Wow_DataBase\Hero_List.txt		;读取配置文件。
+{
+	HERO_COUNT++
+	Line%HERO_COUNT%:= A_LoopReadLine	;行数、行内容。
+}
+
+Loop %HERO_COUNT%
+{
+	element:=Line%A_Index%		;中间变量
+	
+	StringSplit ARRAY,element,`,
+	Hero_Color_%A_Index%:=ARRAY1
+	Hero_SN_%A_Index%:=ARRAY2
+	Hero_Name_%A_Index%:=ARRAY3
+}
+
+;~ MsgBox %Line1%
+
+;===================================================
+;=                   全局变量初始化                =
+;===================================================
+#IfWinActive ahk_class LaunchUnrealUWindowsClient
+;~ ISNOTCHAT:=True
+;~ initialization(){
+;~ 	global
+;~ 	itmClr1:=GetColor(680,729)
+;~ 	itmClr2:=GetColor(731,729)
+;~ 	itmClr4:=GetColor(680,679)
+;~ 	itmClr5:=GetColor(731,679)
+;~ 	itmClr7:=GetColor(680,629)
+;~ 	itmClr8:=GetColor(731,629)
+;~ 	skillColor1:=GetColor(815,725)
+;~ 	skillColor2:=GetColor(871,725)
+;~ 	skillColor3:=GetColor(926,725)
+;~ 	skillColor4:=GetColor(982,725)
+;~ }
+;===================================================
+;=                     抓点工具                    =
+;===================================================
+^Numpad9::
+Clipboard := getColorAndXy(680,729,0xDDB1FA)
+return
+
+^Numpad6::
+MouseGetPos mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard = %mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+
+^Numpad3::
+ITEM_OUTPUT:=""
+Loop 1{
+ITEM_OUTPUT:=ITEM_OUTPUT . getCxy(1525,994+A_Index-1) . "`t" . getCxy(1564,994+A_Index-1) . "`t" . getCxy(1603,994+A_Index-1) . "`n"
+}
+Clipboard := ITEM_OUTPUT
+MsgBox "物品截取OK"
+Return
+
+^NumpadDot::
+SKILL_OUTPUT:=getCxy(815,943) . "`n" . getCxy(877,943) . "`n" . getCxy(939,943) . "`n" . getCxy(1002,943)
+Clipboard := SKILL_OUTPUT
+MsgBox "技能截取+头像OK"
+Return
+;===================================================
+;=                     正文                        =
+;===================================================
+~1::
+ToolTip
+SpellCount:=8
+while(GetKeyState("1","p") or SpellCount>0){
+	ToolTip % "Loading:" . SpellCount,840,0
+	
+	Sk1ll:=GetColor(815,943)
+	Sk2ll:=GetColor(877,943)
+	Sk3ll:=GetColor(939,943)
+	Sk4ll:=GetColor(1002,943)
+	
+	if(Sk1ll=0x320042 or Sk1ll=0xD0DE8C or Sk1ll=0xAD4832 or Sk1ll=0x064879){
+		Cast_Spell(1)
+	}
+
+	if(Sk2ll=0x5A1E43 or Sk2ll=0x9EC07E or Sk2ll=0x621007 or Sk2ll=0x934819 or Sk2ll=0x4A2813 or Sk2ll=0x1D4237){
+		Cast_Spell(2)
+	}
+	
+	if(Sk3ll=0xF63CDB or Sk3ll=0x718D18 or Sk3ll=0x900B01 or Sk3ll=0x975012 or Sk3ll=0x281D13 or Sk3ll=0x2B1E10){
+		Cast_Spell(3)
+	}
+	
+	if(Sk4ll=0x481E66 or Sk4ll=0xD9F452 or Sk4ll=0xC63B01 or Sk4ll=0xBC4B0A or Sk4ll=0x8CAB97 or Sk4ll=0x5E1006){
+		Cast_Spell(4)
+	}
+
+	Use_Item()
+	SpellCount--
+}
+ToolTip
+Return
+
+Use_Item(){
+	send {4}{5}{6}
+}
+
+;~ ~3::
+;~ ToolTip
+;~ SpellCount:=64
+;~ while(GetKeyState("3","p") or SpellCount>0){
+;~ 	ToolTip % SpellCount,840,0
+;~ 	Sk2ll:=GetColor(772,934)
+;~ 	if(Sk2ll=0x3F3446){
+;~ 		Cast_Spell(2)
+;~ 		SpellCount:=64
+;~ 		sleep 256
+;~ 	}
+;~ 	
+;~ 	if(Sk2ll=0x264D58){
+;~ 		Cast_Spell(2)
+;~ 		SpellCount/=2
+;~ 	}
+;~ 	SpellCount--
+;~ }
+;~ ToolTip
+;~ Return
+
+Cast_Spell(n){
+	if(n=1){
+		send {shift down}{q Down}{q up}{shift up}
+		Return true
+	}else if(n=2){
+		send {shift down}{w Down}{w up}{shift up}
+		Return true
+	}else if(n=3){
+		send {shift down}{e Down}{e up}{shift up}
+		Return true
+	}else if(n=4){
+		send {shift down}{r Down}{r up}{shift up}
+		Return true
+	}else if(n=5){
+		send {q Down}{q up}
+		Return true
+	}else if(n=6){
+		send {w Down}{w up}
+		Return true
+	}else if(n=7){
+		send {e Down}{e up}
+		Return true
+	}else if(n=8){
+		send {r Down}{r up}
+		Return true
+	}else{
+		Return false
+	}
+}
+;===================================================
+;=                钱教授的百宝盒                   =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+getColorAndXy(x,y,binColor=""){
+	MouseMove x,y
+	while(GetKeyState("LCtrl")){
+		cout:=""
+		PixelGetColor mouse_color,x,y,RGB
+;~ 		cout:=RegExReplace(cout,"$",x "," y "," mouse_color "`n")
+		cout:=x . "," . y . "," . mouse_color
+        ToolTip % cout
+        Sleep 10
+    }
+    ToolTip
+	Return cout
+}
+
+GetColor(x,y){
+	PixelGetColor clr,x,y,RGB
+	Return clr
+}
+
+GetCxy(x,y){
+	PixelGetColor clr,x,y,RGB
+	cxy:=x . "," . y . "," . clr
+	Return cxy
+}
+
+SendingMsg(string){
+	global ISNOTCHAT
+	send {enter}
+	sleep 100
+	Clipboard:=string
+	send ^{v}{enter}
+	sleep 250	;回车之后判断聊天状态需要200秒。
+	ISNOTCHAT:=True
+}
+
+SendingShiftMsg(string){
+	global ISNOTCHAT
+	send +{enter}
+	sleep 100
+	Clipboard:=string
+	send ^{v}{enter}
+	sleep 250	;回车之后判断聊天状态需要200秒。
+	ISNOTCHAT:=True
+}
+;===================================================
+;=                   英雄三国                      =
+;===================================================

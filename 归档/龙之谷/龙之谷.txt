@@ -1,0 +1,457 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed, 0
+;===================================================
+;=              Grid_Health配置文件                =
+;===================================================
+;~ HERO_COUNT:=0
+;~ Loop, read, D:\Program Files\AutoHotkey\Wow_DataBase\Hero_List.txt		;读取配置文件。
+;~ {
+;~ 	HERO_COUNT++
+;~ 	Line%HERO_COUNT%:= A_LoopReadLine	;行数、行内容。
+;~ }
+
+;~ Loop %HERO_COUNT%
+;~ {
+;~ 	element:=Line%A_Index%		;中间变量
+;~ 	
+;~ 	StringSplit ARRAY,element,`,
+;~ 	Hero_Color_%A_Index%:=ARRAY1
+;~ 	Hero_SN_%A_Index%:=ARRAY2
+;~ 	Hero_Name_%A_Index%:=ARRAY3
+;~ }
+
+;~ MsgBox %Line1%
+
+;===================================================
+;=                   全局变量初始化                =
+;===================================================
+#IfWinActive ahk_class DRAGONNEST
+;===================================================
+;=                     抓点工具                    =
+;===================================================
+;~ ^Numpad9::
+;~ Clipboard := getColorAndXy(680,729,0xDDB1FA)
+;~ return
+
+;~ ^Numpad6::
+;~ MouseGetPos mx,my
+;~ PixelGetColor c4,mx,my,RGB
+;~ clipboard = %mx%,%my%,%c4%
+;~ MsgBox %mx%,%my%,%c4%
+;~ return
+
+^Numpad3::
+ITEM_OUTPUT:=GetColor(305,762) . "," . GetColor(357,762) . "," . GetColor(409,762) . "," . GetColor(461,762) . "," . GetColor(512,762)
+Clipboard := ITEM_OUTPUT
+MsgBox "技能CD截取"
+Return
+
+;~ ^NumpadDot::
+;~ SKILL_OUTPUT:=GetColor(815,725) . "`t" . GetColor(871,725) . "`t" . GetColor(926,725) . "`t" . GetColor(982,725)
+;~ Clipboard := SKILL_OUTPUT
+;~ MsgBox "技能截取OK"
+;~ Return
+;===================================================
+;=                     战士                        =
+;===================================================
+sc029::
+send {LButton Down}
+sleep 1100
+send {lbutton up}
+if(judge(357,762,0x635539) and judge(305,762,0x635539)){
+	send {2}
+	sleep 800
+	send {1}
+}else if(judge(305,762,0x635539)){
+	send {1}
+}else if(judge(409,762,0x635539)){
+	send {3}
+}else if(judge(461,762,0x635539)){
+	send {4}
+}else if(judge(512,762,0x635539)){
+	send {5}
+}
+return
+
+;~ ~r::
+;~ if(not ISNOTCHAT or not HERO_NAME="鱼人夜行者" or not judge(417,680,0xFDDF6C)){	;不是英雄
+;~ 	Return
+;~ }
+;~ send {e}{c}
+;~ sleep 800
+;~ BigBang()
+;~ Return
+
+;~ ~d::
+;~ if(not ISNOTCHAT or not HERO_NAME="鱼人夜行者"  or not judge(417,680,0xFDDF6C)){	;不是英雄
+;~ 	Return
+;~ }
+;~ BigRecover()
+;~ Return
+
+;~ ~w::
+;~ if(not ISNOTCHAT or not judge(417,680,0xFDDF6C)){	;不是英雄
+;~ 	Return
+;~ }
+;~ PaiPai_Main(HERO_NAME="熊战士")
+;~ TA_Main(HERO_NAME="圣堂刺客")
+;~ Return
+
+;~ PaiPai_Main(isPaiPai){
+;~ 	if(isPaiPai){
+;~ 		send {e 2}{r 2}{v 2}
+;~ 		BigBang()
+;~ 	}
+;~ 	Return
+;~ }
+
+;~ TA_Main(isTA){
+;~ 	if(isTA){
+;~ 		BigRecover()
+;~ 		send {r 2}{d 2}
+;~ 	}
+;~ 	Return
+;~ }
+
+;~ TA_Slow(isTA){
+;~ 	if(isTA){
+;~ 		send {c}
+;~ 	}
+;~ 	Return
+;~ }
+
+;~ ~e::
+;~ if(not ISNOTCHAT){
+;~ 	Return
+;~ }else if(judge(815,725,0x353029)){
+;~ 	send {t}	;圣堂刺客的陷阱。	
+;~ 	Return
+;~ }else if(judge(456,658,0x9FD9EE)){
+;~ 	send {tab}	;框中陷阱。
+;~ 	Return
+;~ }else if(not judge(417,680,0xFDDF6C)){	;不是英雄	
+;~ 	Return
+;~ }
+;~ Hus_Main(HERO_NAME="神灵武士")
+;~ TA_Slow(HERO_NAME="圣堂刺客")
+;~ Return
+
+;~ Hus_Main(isHus){
+;~ 	if(isHus){
+;~ 		MouseGetPos Mox,Moy
+;~ 		if(not IsClosed()){
+;~ 			click right,871,725
+;~ 		}
+;~ 		send {v}
+;~ 		sleep 200
+;~ 		Click 332,682
+;~ 		MouseMove Mox,Moy
+;~ 		BigBang()
+;~ 		
+;~ 	}
+;~ 	Return
+;~ }
+
+;~ IsClosed(){
+;~ 	;二号技能未被激活。
+;~ 	Return judge(859,712,0x111407) and judge(886,712,0xF5F23C) and judge(872,712,0x000500) and judge(877,712,0x000101) and judge(884,712,0x332C0F) and judge(875,731,0x94945B)
+;~ }
+
+;~ ~e::
+;~ Clipboard := GetColor(859,712) . "`n" . GetColor(886,712) . "`n" . GetColor(872,712) . "`n" . GetColor(877,712) . "`n" . GetColor(884,712)
+;~ Return
+;===================================================
+;=                先知模块			    		   =
+;===================================================
+;~ CloneOpr(){
+;~ 	sleep 50
+;~ 	send {shift down}
+;~ 	Click 415,661
+;~ 	send {shift Up}
+;~ }
+
+;~ ~e::
+;~ if(not ISNOTCHAT or not HERO_NAME="先知"){
+;~ 	Return
+;~ }
+;~ MouseGetPos Mox,Moy
+;~ sleep 500
+;~ MouseClick right,128,710
+;~ CloneOpr()
+;~ MouseClick right,111,703
+;~ CloneOpr()
+;~ MouseClick right,151,714
+;~ CloneOpr()
+;~ MouseClick right,156,727
+;~ CloneOpr()
+;~ MouseClick right,120,728
+;~ MouseMove Mox,Moy
+;~ Return
+
+;~ ~q::
+;~ if(not ISNOTCHAT or not HERO_NAME="先知"){
+;~ 	Return
+;~ }
+;~ MouseGetPos Mox,Moy
+;~ sleep 500
+;~ MouseClick right,66,653
+;~ CloneOpr()
+;~ MouseClick right,100,644
+;~ CloneOpr()
+;~ MouseClick right,88,612
+;~ CloneOpr()
+;~ MouseClick right,64,629
+;~ CloneOpr()
+;~ MouseClick right,48,621
+;~ MouseMove Mox,Moy
+;~ Return
+
+;~ BigBang(){
+;~ initialization()
+;~ global itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8
+;~ NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0x51595A,0x404948,0x5B6672,0x404C58,0x71777F,0x656A72)
+;~ NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0x777777,0x000000,0x000000,0x000000,0x000000,0x000000)
+;~ NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0x7D6A76,0x756472,0x5095F0,0x4C8DF1,0x163A9D,0x16399C)
+;~ NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0xD0A7BE,0xD9B8CA,0xF4BBDC,0xF7C2E3,0x6F5F6F,0x684F6D)
+;~ NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0xCDA69D,0xD0AEA9,0x767482,0x757180,0x4F4032,0x4F4434)
+;~ NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0x615452,0x625556,0x5D5145,0x6B5E4F,0x8C7C68,0x7B6E5B)
+;~ NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0x3E5989,0x3C5787,0x2E4D79,0x2D4C78,0x111D44,0x0F1C43)
+;~ NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0x252123,0x252123,0x272726,0x282626,0x3C2D1A,0x42311B)
+;~ NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0xA0B5DC,0x97ABD9,0x4D5B6E,0x3F4A56,0x0B090B,0x080708)
+;~ NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0x7C6B86,0x6F5E7A,0x362338,0x241224,0xF4F2F5,0xEFEEF1)
+;~ NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0x001151,0x0B1E5F,0x35547D,0x37557D,0x113056,0x113054)
+;~ NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0x7E8CE5,0x8996F4,0x6974D3,0x7782E9,0x4B58B2,0x5868C7)
+;~ NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0xF1E2F7,0xE8D9ED,0xF9EAFD,0xFBEBFC,0xB9A2DB,0xBEA7E3)
+;~ ;玄冥盾牌,先祖韧鼓,死灵书1,死灵书2,死灵书3,黑皇杖,西瓦的守护,刃甲,分身斧,撒旦,雷神之锤,疯狂面具，食尸鬼的臂章。
+;~ }
+
+;~ BigRecover(){
+;~ initialization()
+;~ global itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8
+;~ NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0x464730,0x434330,0x4B453D,0x4A433C,0x463D33,0x453C33)	;影之灵龛
+;~ NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0x51595A,0x404948,0x5B6672,0x404C58,0x71777F,0x656A72)	;玄冥盾牌
+;~ NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0xA36A33,0xA26A37,0x996545,0x946142,0xBA8E4E,0xBC8B57)	;魔瓶3/3
+;~ NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0xA87B44,0xA67B46,0x9B6A48,0x936644,0xBE8F4F,0xC08C58)	;魔瓶2/3
+;~ NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0xAD7B45,0xAD7B46,0xA26949,0x9D6642,0xBC8E4A,0xBE8C50)	;魔瓶1/3
+;~ NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0xCAA367,0xCAA365,0xD5B273,0xD4B073,0x866E42,0x876E43)	;药膏
+;~ }
+
+;~ ~RButton::
+;~ KeyWait RButton
+;~ initialization()
+
+;~ MouseGetPos xPos,yPos
+;~ if(yPos>600){
+;~ 	Return
+;~ }
+
+;~ NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0x725D7D,0x766482,0x9494AB,0x989AAF,0x9A8499,0x957F94)	;快使用相位靴。
+
+;~ Hvnt25Hlth:=judge(17,85,0x000000)
+;~ Hvnt75Hlth:=Hvnt25Hlth or judge(41,85,0x000000)
+;~ Hvnt75Mn:=judge(41,90,0x000000)
+;~ Hvnt88Mn:=Hvnt75Mn or judge(47,90,0x000000)
+
+;~ if(Hvnt25Hlth){
+;~ 	;血不满25的时候使用魔棒、魔杖、梅肯斯姆。
+;~ 	NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0x6D756D,0x667160,0xD3A262,0xEFA640,0xF2841B,0xF67B11)	;魔棒
+;~ 	NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0xF7F7EA,0xFFFEEF,0xF5EFE5,0xFDFAF3,0xDADFD1,0xEFF5E6)	;魔杖
+;~ 	NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0xA28134,0xA28031,0x8B8F81,0x939281,0x3D6D7D,0x3E7282)	;梅肯斯姆
+;~ 	NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0x000001,0x000001,0x000002,0x000002,0x000001,0x000001)	;敏捷假腿
+
+;~ 	Artificial_Leg_Adjustment(1)	;调整成力量假腿。
+;~ 	
+;~ }else if(Hvnt75Hlth){
+;~ 	Artificial_Leg_Adjustment(1)
+;~ }else if(Hvnt75Mn){
+;~ 	Artificial_Leg_Adjustment(3)
+;~ }else{
+;~ 	PixelGetColor styleClr,539,696,RGB
+;~ 	if(styleClr=0x373B3D){
+;~ 		;敏捷。
+;~ 		Artificial_Leg_Adjustment(2)
+;~ 	}else if(styleClr=0x8C6D0C){
+;~ 		;智慧。
+;~ 		Artificial_Leg_Adjustment(3)
+;~ 	}else{
+;~ 		Artificial_Leg_Adjustment(1)
+;~ 	}
+;~ }
+
+;~ if(Hvnt88Mn){
+;~ 	;蓝不满88,快使用秘法鞋。
+;~ 	NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0x2B81F3,0x3185F6,0x1464D6,0x1161D4,0x04388E,0x04388E)
+;~ }
+;~ return
+
+;~ NumpadAction(SCColor1,SCColor2,SCColor4,SCColor5,SCColor7,SCColor8,jdgClr1,jdgClr2,jdgClr4,jdgClr5,jdgClr7,jdgClr8){
+;~ 	if(SCColor1=jdgClr1){
+;~ 		send {Numpad1}
+;~ 		sleep 100
+;~ 	}else if(SCColor2=jdgClr2){
+;~ 		send {Numpad2}
+;~ 		sleep 100
+;~ 	}else if(SCColor4=jdgClr4){
+;~ 		send {Numpad4}
+;~ 		sleep 100
+;~ 	}else if(SCColor5=jdgClr5){
+;~ 		send {Numpad5}
+;~ 		sleep 100
+;~ 	}else if(SCColor7=jdgClr7){
+;~ 		send {Numpad7}
+;~ 		sleep 100
+;~ 	}else if(SCColor8=jdgClr8){
+;~ 		send {Numpad8}
+;~ 		sleep 100
+;~ 	}else{
+;~ 		return False
+;~ 	}
+;~ }
+
+;~ Artificial_Leg_Adjustment(stance){
+;~ 	global itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8
+;~ 	if(not stance=1){
+;~ 		NumpadAction(GetColor(678,745),GetColor(729,745),GetColor(678,695),GetColor(729,695),GetColor(678,645),GetColor(729,645),0x735B57,0x6A504C,0x5F2A25,0x4B2521,0x090A09,0x060707)
+;~ 	}
+
+;~ 	if(not stance=2){
+;~ 		NumpadAction(itmClr1,itmClr2,itmClr4,itmClr5,itmClr7,itmClr8,0x000001,0x000001,0x000002,0x000002,0x000001,0x000001)
+;~ 	}
+
+;~ 	if(not stance=3){
+;~ 		NumpadAction(GetColor(678,745),GetColor(729,745),GetColor(678,695),GetColor(729,695),GetColor(678,645),GetColor(729,645),0x366E8F,0x2C6283,0x1E4097,0x153385,0x020707,0x000305)
+;~ 	}
+;~ }
+
+;~ ;===================================================
+;~ ;=              	   正文				   		   =
+;~ ;===================================================
+;~ sc029::
+;~ if(ISNOTCHAT){
+;~ 	send {Numpad7}
+;~ }
+;~ return
+
+;~ ~4::
+;~ if(ISNOTCHAT){
+;~ 	send {Numpad4}
+;~ }
+;~ return
+
+;~ ~5::
+;~ if(ISNOTCHAT){
+;~ 	send {Numpad5}	
+;~ }
+;~ return
+
+;~ F3::
+;~ 	;回家主义。
+;~ 	MouseGetPos Mox,Moy
+;~ 	while(GetKeyState("F3","p")){
+;~ 		if(ISSENTINEL){
+;~ 			MouseClick right,24,744
+;~ 		}else if(ISSCOURGE){
+;~ 			MouseClick right,173,600
+;~ 		}
+;~ 		Click 2,Right
+;~ 		sleep 64
+;~ 	}
+;~ 	MouseMove Mox,Moy
+;~ return
+
+;~ F4::
+;~ 	MouseGetPos Mox,Moy
+;~ 	send {shift down}
+;~ 	while(GetKeyState("F4","p")){
+;~ 		MouseClick right,113,626
+;~ 		MouseClick right,53,610
+;~ 		MouseClick right,73,669
+;~ 		R:=25
+;~ 		X_0:=73
+;~ 		Y_0:=650
+;~ 		XMax:=X_0+R
+;~ 		XMin:=X_0-R
+;~ 		Random areaX,%XMax%,%XMin%
+;~ 		delta:=Sqrt(R*R-(areaX-X_0)*(areaX-X_0))
+;~ 		YMax:=Round(Y_0-R+delta)
+;~ 		Ymin:=Round(Y_0-R-delta)
+;~ 		Random areaY,%YMax%,%Ymin%
+;~ 		MouseClick right,%areaX%,%areaY%
+;~ 		MouseClick right,%X_0%,%Y_0%
+;~ 	}
+;~ 	send {shift up}
+;~ 	MouseMove Mox,Moy
+;~ Return
+
+;~ F5::
+;~ 	MouseClick right,107,716
+;~ 	MouseClick right,146,688
+;~ 	MouseClick right,146,732
+;~ 	MouseGetPos Mox,Moy
+;~ 	send {shift down}
+;~ 	while(GetKeyState("F5","p")){
+;~ 		R:=25
+;~ 		X_0:=136
+;~ 		Y_0:=700
+;~ 		XMax:=X_0+R
+;~ 		XMin:=X_0-R
+;~ 		Random areaX,%XMax%,%XMin%
+;~ 		delta:=Sqrt(R*R-(areaX-X_0)*(areaX-X_0))
+;~ 		YMax:=Round(Y_0+R+delta)
+;~ 		Ymin:=Round(Y_0+R-delta)
+;~ 		Random areaY,%YMax%,%Ymin%
+;~ 		MouseClick right,%areaX%,%areaY%
+;~ 		MouseClick right,%X_0%,%Y_0%
+;~ 	}
+;~ 	send {shift up}
+;~ 	MouseMove Mox,Moy
+;~ Return
+
+;~ F6::
+;~ while(not GetKeyState("Esc","p")){
+;~ 	Click Right 800,200
+;~ 	Click Right 800,180
+;~ 	sleep 1000
+;~ }
+;~ Return
+;===================================================
+;=                钱教授的百宝盒                   =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+getColorAndXy(x,y,binColor=""){
+	MouseMove x,y
+	while(GetKeyState("LCtrl")){
+		cout:=""
+		PixelGetColor mouse_color,x,y,RGB
+;~ 		cout:=RegExReplace(cout,"$",x "," y "," mouse_color "`n")
+		cout:=x . "," . y . "," . mouse_color
+        ToolTip % cout
+        Sleep 10
+    }
+    ToolTip
+	Return cout
+}
+
+GetColor(x,y){
+	PixelGetColor clr,x,y,RGB
+	Return clr
+}
+
+SendingMsg(string){
+	global ISNOTCHAT
+	send {enter}
+	sleep 100
+	Clipboard:=string
+	send ^{v}{enter}
+	ISNOTCHAT:=True
+}
+;===================================================
+;=                  龙之谷插件                     =
+;===================================================

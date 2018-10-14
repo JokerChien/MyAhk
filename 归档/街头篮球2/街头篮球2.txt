@@ -1,0 +1,182 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed, 0
+;===================================================
+;=              Grid_Health配置文件                =
+;===================================================
+HERO_COUNT:=0
+Loop, read, e:\Program Files\AutoHotkey\Wow_DataBase\Hero_List.txt		;读取配置文件。
+{
+	HERO_COUNT++
+	Line%HERO_COUNT%:= A_LoopReadLine	;行数、行内容。
+}
+
+Loop %HERO_COUNT%
+{
+	element:=Line%A_Index%		;中间变量
+	
+	StringSplit ARRAY,element,`,
+	Hero_Color_%A_Index%:=ARRAY1
+	Hero_SN_%A_Index%:=ARRAY2
+	Hero_Name_%A_Index%:=ARRAY3
+}
+
+;~ MsgBox %Line1%
+
+;===================================================
+;=                   全局变量初始化                =
+;===================================================
+#IfWinActive ahk_class FS2
+;===================================================
+;=                     抓点工具                    =
+;===================================================
+^Numpad9::
+Clipboard := getColorAndXy(1466,993)
+return
+
+^Numpad6::
+MouseGetPos mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard = %mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+
+^Numpad3::
+ITEM_OUTPUT:=GetColor(680,729) . "," . GetColor(731,729) . "," . GetColor(680,679) . "," . GetColor(731,679) . "," . GetColor(680,629) . "," . GetColor(731,629)
+Clipboard := ITEM_OUTPUT
+MsgBox "物品截取OK"
+Return
+
+^NumpadDot::
+SKILL_OUTPUT:=GetColor(815,725) . "`t" . GetColor(871,725) . "`t" . GetColor(926,725) . "`t" . GetColor(982,725)
+Clipboard := SKILL_OUTPUT
+MsgBox "技能截取OK"
+Return
+
+^Numpad8::
+;提取地图上基地的坐标。需要建造好基地并且选中（高亮）。
+OutPutList:=""
+x:=	285
+y:=1037 
+while(y>=787){
+	while(x>=28){
+		percentage:=floor(((y-787)*(285-28)-(285-x))/((1037-787)*(285-28))*100) . "%"
+		ToolTip %percentage%,840,0
+		if(GetColor(x,y)=0x00FF00){
+			OutPutList:=OutPutList . x . "," . y . "," . "0x00FF00" . "`n"
+		}
+		x:=x-8
+	}
+	y:=y-8
+	x:=285
+}
+ToolTip
+Clipboard:=OutPutList
+MsgBox ok
+Return
+;===================================================
+;=               判断是否聊天中                    =
+;===================================================
+;~ ~sc01C::
+;~ 	IsNotChat()	;键盘的回车。
+;~ Return
+
+;~ ~sc11C::
+;~ 	IsNotChat()	;小键盘的回车。
+;~ Return
+
+;~ ~Esc::
+;~ 	ISNOTCHAT=True
+;~ Return
+w::Up
+s::Down
+a::Left
+d::Right
+
+u::LShift
+i::w
+j::a
+k::s
+l::d
+h::f
+
+up::i
+down::s
+Left::a
+Right::d
+
+n::q
+m::e
+o::
+send {d Down}
+sleep 685
+send {d up}
+Return
+
+y::
+send {a Down}
+send {left down}
+sleep 110
+send {Left up}
+send {a up}
+loop 10{
+send {right down}
+sleep 20
+send {right up}
+}
+Return
+
+!^Numpad1::
+send {q}{i}{a}{n}{0}{5}{0}{4}
+send {tab}
+send {0}{5}{0}{4}{a}{s}{l}{a}{n}
+Return
+
+!^Numpad2::
+send {a}{s}{l}{a}{n}{0}{5}{0}{4}
+sleep 50
+send {tab}
+sleep 50
+send {0}{5}{0}{4}{q}{i}{a}{n}
+Return
+
+~sc029::
+click 1466,993
+click 1273,573
+click 859,827
+click 274,896
+click 0,0
+Return
+;===================================================
+;=              	   正文				   		   =
+;===================================================
+;~ sc029::
+;~ if(ISNOTCHAT){
+;~ 	send {Numpad7}
+;~ }
+;~ return
+;===================================================
+;=                钱教授的百宝盒                   =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+getColorAndXy(x,y,binColor=""){
+	MouseMove x,y
+	PixelGetColor mouse_color,x,y,RGB
+	cout:=x . "," . y . "," . mouse_color
+	MsgBox %cout%
+	Return cout
+}
+
+GetColor(x,y){
+	PixelGetColor clr,x,y,RGB
+	Return clr
+}
+;===================================================
+;=                 FreeStyle II                    =
+;===================================================

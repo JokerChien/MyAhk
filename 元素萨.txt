@@ -1,0 +1,272 @@
+;================================钱教授的工具宝
+^1::
+getColorAndXy(0x920000,465,114)
+return
+
+^2::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard =%c4%,%mx%,%my%
+MsgBox %c4%,%mx%,%my%
+return
+
+!^+Left::  MouseMove,-1,0,,R
+!^+Up::    MouseMove,0,-1,,R
+!^+Right:: MouseMove,1,0,,R
+!^+Down::  MouseMove,0,1,,R
+
+getColorAndXy(binColor,x,y){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%gColor%,%x%,%y%
+	MsgBox %gColor%,%x%,%y%
+}
+
+;================================正文
+1::
+SoundPlay %A_WinDir%\Media\tada.wav
+loop{
+	
+	if(orjudge(0x26A53E,0x5A9139,695,651) and judge(0x00CE00,423,60) and judge(0x00D300,217,60)){
+		send {F12}
+		;停止施法。次级治疗波治疗波、目标和我都满75血。
+	}else if(judge(0x080000,709,634)){
+		;什么也不做。玩家施法。
+	}else if(orjudge(0x5F5D5F,0x332F30,465,35)){
+		PvpMode()
+		;PVP模式。
+	}else if(EscIsDown()){
+		SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+		Break
+	}else{
+		SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+		Break
+	}
+	sleep 256
+}
+return
+
+PvpMode(){
+	local iHv75Hlth:=judge(0x00D300,217,60)
+	local iHv65Hlth:=judge(0x00CE00,202,60)
+	local iHv50Hlth:=judge(0x00C600,181,60)
+;~ 	local iHv35Hlth:=judge(0x00B100,152,60)
+;~ 	local iHv20Hlth:=judge(0x00A900,137,60)
+	
+	local iHv50Mn:=judge(0x0000C6,181,75)
+	local trgHs75Hlth:=judge(0x00CE00,423,60)
+	
+	local isMoving:=IsMoving()
+	local isSlowDown:=judge(0xFFD100,86,893)
+	local trgHsMn:=judge(0x000083,317,75)
+	local targetIsSinging:=judge(0x080000,709,666)
+	local isNearBy:=judge(0x9F0000,5,835)
+	local lookAtMe:=orjudge(0x8CC8FE,0x8C0000,465,114)
+	local airT:=AirTotem()
+	local waterT:=WaterTotem()
+	local earthT:=EarthTotem()
+	local fireT:=FireTotem()
+	local equippedShield:=judge(0xFFFFFF,631,1024)
+	local isHelp:=judge(0xFFFFFF,584,1024)
+	local isDead:=judge(0xFFFFFF,1657,975)
+	local nocombat:=judge(0xFFFFFF,1610,975)
+	local beStoped:=judge(0xFFD100,121,893)
+	
+	;先验模块。
+	if(not isHelp and targetIsSinging and judge(0xFFFFFF,304,1024)){
+		send {Ins}
+		;强风震击。目标吟唱、技能可用。
+	}else if(not isHelp and targetIsSinging and judge(0xFFFFFF,1144,1024)){
+		send {6}
+		;根基图腾。目标吟唱、技能可用。
+	}else if(not isDead and not isHelp and isNearBy and not beStoped and judge(0xFFFFFF,258,975)){
+		send {\}
+		;雷霆风暴。附近、未被定身、技能可用、
+	}	
+
+	;主打模块。
+	if(not iHv65Hlth and not isMoving and judge(0xFFFFFF,1330,1024)){
+		send +{0}
+		;次级治疗波。我不满75血、不在移动、技能可用。
+	}else if(isHelp and not trgHs75Hlth and not isMoving and judge(0xFFFFFF,1517,1024)){
+		send {i}
+		;治疗波。友善目标、不满75绿、不在移动、技能可用。
+	}else if(not iHv50Hlth and judge(0xFFFFFF,24,1024)){
+		send {F6}
+		;生命之血。我不满50绿、能可用。
+	}else if(not iHv50Hlth and judge(0xFFFFFF,71,1024)){
+		send +{F7}
+		;纳鲁赐福。我不满50绿、技能可用。
+	}else if(not judge(0xFFD100,15,893) and judge(0xFFFFFF,1423,1024)){
+		send {y}
+		;水之盾。身上无护盾、技能可用。
+	}else if(not isHelp and not earthT and not beStoped and isNearBy and judge(0xFFFFFF,164,1024)){
+		send {F9}
+		;地缚图腾。无土图腾、未被定身、附近、技能可用。
+	}else if(not waterT and judge(0xFFFFFF,211,1024)){
+		send {F10}
+		;法力之泉图腾。无水系图腾、技能可用。
+	}else if(not isHelp and not fireT and isNearBy and judge(0xFFFFFF,444,975)){
+		send {NumpadDot}
+		;火焰新星图腾。无火系图腾、附近、技能可用。
+	}else if(not nocombat and not isHelp and not isSlowDown and judge(0xFFFFFF,118,1024) and judge(0xFFFFFF,1144,1024)){
+		send {F8}
+		;冰霜震击。战斗中、未被减速、技能可用、根基可用。
+	}else if(not nocombat and not isHelp and not isMoving and judge(0xFFFFFF,771,1024)){
+		send {5}
+		;闪电链。战斗中、敌对、没移动、技能可用。
+	}else if(not isHelp and not isMoving and judge(0xFFFFFF,537,1024)){
+		send {PGDN}
+		;闪电箭。敌对、没移动、技能可用。
+	}else if(not nocombat and not isHelp and not judge(0xFFD100,50,893) and judge(0xFFFFFF,397,1024) and judge(0xFFFFFF,1144,1024)){
+		send {PGUP}
+		;烈焰震击。战斗中、无该DEBUFF、技能可用、根基可用。
+	}else if(){
+		
+	}
+}
+
+AirTotem(){
+	return orjudge(0x7B29C8,0xEEDFD8,120,95)
+}
+
+WaterTotem(){
+	return or3judge(0xE3C782,0x4DA2CB,0x9ABDC8,161,95)
+}
+
+EarthTotem(){
+	return or5judge(0xB9AEA2,0x370601,0xD7CBDC,0xD99D03,0x6E6E5B,202,95)
+}
+
+FireTotem(){
+	return or5judge(0xEBA80E,0xE29466,0x902C05,0x873F07,0x160700,242,95)
+}	
+;================================钱教授的百宝盒
+NeedToBeDispersed(){
+	return or4judge(0x420000,0x4D4455,0x100818,0xFEF2CD,948,1016) or judge(0x2CACA7,732,1016) or or3judge(0xBD4994,0xF7B77D,0x181018,991,1016)
+	;自由之手、保护之手、闪电之盾、真言术盾。寒冰护体。野性赐福、力量祝福、王者祝福。
+}
+
+cantIntercept(){
+	return judge(0x7ED0F8,732,1016) or judge(0xFFFBE7,948,1016) or judge(0x8F8B9C,689,973)
+	;寒冰屏障、圣盾术、利刃风暴。
+}
+
+judge(tar_color,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color=get_color){
+		return true
+	}else{
+		return false
+	}
+}
+
+orjudge(tar_color1,tar_color2,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+
+or3judge(tar_color1,tar_color2,tar_color3,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color or tar_color3=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+
+or4judge(tar_color1,tar_color2,tar_color3,tar_color4,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+
+or5judge(tar_color1,tar_color2,tar_color3,tar_color4,tar_color5,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+;Tab键和鼠标右键是不是被按下。
+TabIsDown(){
+	GetKeyState state,Tab,p
+	if state=D
+		return true
+	Else
+		return RButtonIsDown()
+}
+
+RButtonIsDown(){
+	GetKeyState state,RButton,p
+	if state=D
+		return true
+	Else
+		return False
+}
+
+;是否移动状态，即WASD是否被按下。
+IsMoving(){
+	GetKeyState state,w,p
+	if state=D
+	;这里state=D不能加括号，确实非常之奇怪。
+		return true
+	Else
+		return AIsDown()
+}
+
+AIsDown(){
+	GetKeyState state,a,p
+	if state=D
+		return true
+	Else
+		return SIsDown()
+}
+
+SIsDown(){
+	GetKeyState state,s,p
+	if state=D
+		return true
+	Else
+		return DIsDown()
+}
+
+DIsDown(){
+	GetKeyState state,d,p
+	if state=D
+		return true
+	Else
+		return RIsDown()
+}
+
+RIsDown(){
+	GetKeyState state,r,p
+	if state=D
+		return true
+	Else
+		return false
+}
+
+interinterceptionIsReady(){
+	return orjudge(0xBC9D6A,0xFFBE7B,261,1006) or judge(0xBE8C4F,74,958) or judge(0x899798,168,958)
+}
+
+MouseClickRight(color,x,y){
+	Click right %x%,%y%
+}
+
+EscIsDown(){
+	GetKeyState state,Esc,p
+	if state=D
+		return true
+	Else
+		return False
+}

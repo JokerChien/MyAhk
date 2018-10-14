@@ -1,0 +1,385 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed 0
+GroupAdd MyGroup,ahk_class XLMAIN
+GroupAdd MyGroup,ahk_class SciTEWindow
+ActionButton_1:="{4}"
+ActionButton_2:="{5}"
+ActionButton_3:="{6}"
+ActionButton_4:="{7}"
+ActionButton_5:="{8}"
+ActionButton_6:="{9}"
+ActionButton_7:="{0}"
+ActionButton_8:="{-}"
+ActionButton_9:="{=}"
+ActionButton_10:="{y}"
+ActionButton_11:="{u}"
+ActionButton_12:="{i}"
+
+ActionButton_61:="{o}"
+ActionButton_62:="{p}"
+ActionButton_63:="{[}"
+ActionButton_64:="{]}"
+ActionButton_65:="{\}"
+ActionButton_66:="{h}"
+ActionButton_67:="{j}"
+ActionButton_68:="{k}"
+ActionButton_69:="{l}"
+ActionButton_70:="{;}"
+ActionButton_71:="{'}"
+ActionButton_72:="{n}"
+
+ActionButton_49:="{m}"
+ActionButton_50:="{,}"
+ActionButton_51:="{.}"
+ActionButton_52:="{/}"
+ActionButton_53:="{F5}"
+ActionButton_54:="{F6}"
+ActionButton_55:="{F7}"
+ActionButton_56:="{F8}"
+ActionButton_57:="{F9}"
+ActionButton_58:="{F10}"
+ActionButton_59:="{F11}"
+ActionButton_60:="{F12}"
+	
+ActionButton_1_x:=354
+ActionButton_2_x:=396
+ActionButton_3_x:=438
+ActionButton_4_x:=480
+ActionButton_5_x:=522
+ActionButton_6_x:=564
+ActionButton_7_x:=606
+ActionButton_8_x:=648
+ActionButton_9_x:=690
+ActionButton_10_x:=732
+ActionButton_11_x:=774
+ActionButton_12_x:=816
+ActionButton_49_x:=863
+ActionButton_50_x:=905
+ActionButton_51_x:=947
+ActionButton_52_x:=989
+ActionButton_53_x:=1031
+ActionButton_54_x:=1073
+ActionButton_55_x:=1115
+ActionButton_56_x:=1157
+ActionButton_57_x:=1199
+ActionButton_58_x:=1241
+ActionButton_59_x:=1283
+ActionButton_60_x:=1325
+ActionButton_61_x:=354
+ActionButton_62_x:=396
+ActionButton_63_x:=438
+ActionButton_64_x:=480
+ActionButton_65_x:=522
+ActionButton_66_x:=564
+ActionButton_67_x:=606
+ActionButton_68_x:=648
+ActionButton_69_x:=690
+ActionButton_70_x:=732
+ActionButton_71_x:=774
+ActionButton_72_x:=816
+
+ActionButton_1_y:=1028
+ActionButton_2_y:=1028
+ActionButton_3_y:=1028
+ActionButton_4_y:=1028
+ActionButton_5_y:=1028
+ActionButton_6_y:=1028
+ActionButton_7_y:=1028
+ActionButton_8_y:=1028
+ActionButton_9_y:=1028
+ActionButton_10_y:=1028
+ActionButton_11_y:=1028
+ActionButton_12_y:=1028
+ActionButton_49_y:=975
+ActionButton_50_y:=975
+ActionButton_51_y:=975
+ActionButton_52_y:=975
+ActionButton_53_y:=975
+ActionButton_54_y:=975
+ActionButton_55_y:=975
+ActionButton_56_y:=975
+ActionButton_57_y:=975
+ActionButton_58_y:=975
+ActionButton_59_y:=975
+ActionButton_60_y:=975
+ActionButton_61_y:=975
+ActionButton_62_y:=975
+ActionButton_63_y:=975
+ActionButton_64_y:=975
+ActionButton_65_y:=975
+ActionButton_66_y:=975
+ActionButton_67_y:=975
+ActionButton_68_y:=975
+ActionButton_69_y:=975
+ActionButton_70_y:=975
+ActionButton_71_y:=975
+ActionButton_72_y:=975
+
+PtyMbr_1:="{Up}"
+PtyMbr_2:="+!{Up}"
+PtyMbr_3:="+^{Up}"
+PtyMbr_4:="+{Up}"
+PtyMbr_5:="!{Up}"
+;===================================================
+;=                  截点工具包                     =
+;===================================================
+^Numpad8::
+GetColorAndXy(696,219,0x670000)
+return
+
+^Numpad9::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard = %mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+
+;~ 1664,934,0x00014B
+;~ 3::
+;~ 	PixelGetColor Color_Send_Keys,1664,888,RGB
+;~ 	MsgBox %Color_Send_Keys%
+;~ 	StringKeys:=Skl_4972_2Hex(Color_Send_Keys)
+;~ 	send %StringKeys%
+;~ PixelGetColor Color_Send_Keys,1664,934,RGB
+;~ StringKeys:=Skl_0112_2Hex(Color_Send_Keys)
+;~ send %StringKeys%
+;~ MsgBox %StringKeys%
+;~ Return
+
+Skl_0112_2Hex(inputString){
+	local right3Words,sWord,hex_2,send_Keys,kWord
+	hex_2:=""
+	StringRight right3Words,inputString,3
+;~ 	MsgBox %right3Words%
+	StringSplit sWord,right3Words
+	Loop 3{
+		hex_2:=hex_2 . Hex_To_2(sWord%A_Index%)
+	}
+;~ 	Return cout
+	StringSplit kWord,hex_2
+	send_Keys:=""
+	Loop 12{
+		if(kWord%A_Index%="1"){
+			send_Keys:=send_Keys . ActionButton_%A_Index%
+		}
+	}
+	
+	Return send_Keys
+}
+
+Skl_4972_2Hex(inputString){
+	local right6Words,sWord,hex_2,send_Keys,i,kWord
+	hex_2:=""
+	StringRight right6Words,inputString,6
+	StringSplit sWord,right6Words
+	Loop 6{
+		hex_2:=hex_2 . Hex_To_2(sWord%A_Index%)
+	}
+	
+;~ 	MsgBox %hex_2%
+	StringSplit kWord,hex_2
+	send_Keys:=""
+	Loop 24{
+		i:=A_Index+48
+		if(kWord%A_Index%="1"){
+			send_Keys:=send_Keys . ActionButton_%i%
+;~ 			MsgBox %i%
+		}
+	}
+	
+	Return send_Keys
+}
+
+
+;~ ^1::  ;这个方法是可行的。
+;~ inputing:="a"
+;~ send %inputing%
+;~ Return
+
+;~ ^Numpad7::
+;~ Loop 12{
+;~ 	cout:=cout . GetColor(333+21+42*(A_Index-1),975) . "`n"
+;~ }
+;~ MsgBox %cout%
+;~ Return
+;===================================================
+;=                   正文                          =
+;===================================================
+#IfWinActive ahk_class GxWindowClass
+~1::
+AOE_CD_INSIDE:=0
+AOE_SWITCH:=1
+n:="SOLO 模式"
+;~ n:=n . "`n" . right6Words_2nd
+ToolTip %n%,840,0
+SetTimer ActionBar1,0
+;~ SetTimer ActionBar2,55
+Return
+
+~2::
+AOE_CD_INSIDE:=0
+AOE_SWITCH:=2
+n:="AOE 模式"
+ToolTip %n%,840,0
+SetTimer ActionBar1,0
+Return
+
+~Esc::
+AOE_SWITCH:=0
+SetTimer ActionBar1,Off
+SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+ToolTip
+Return
+
+
+;~ 1664,888,0x065000
+ActionBar1:
+	PixelGetColor Color_Send_Keys,1664,469,RGB
+	StringRight right6Words_II,Color_Send_Keys,6
+	StringSplit sWord_II,right6Words_II
+
+	if(sWord_II6=0){
+		Ending()
+	}
+	StringKeys:=PtyMbr_%sWord_II5%
+	send %StringKeys%
+	
+	PixelGetColor Color_Send_Keys,1664,934,RGB
+	StringKeys:=Skl_0112_2Hex(Color_Send_Keys)
+	send %StringKeys%
+		
+	PixelGetColor Color_Send_Keys,1664,888,RGB
+	StringKeys:=Skl_4972_2Hex(Color_Send_Keys)
+	send %StringKeys%
+;~ 	Skl_4972_2Hex
+
+Return
+
+;~ PartySelection(i){
+;~ 	if(GetKeyState("Esc","p")){
+;~ 	}else if(i=1){
+;~ 		send {Up}
+;~ 	}else if(i=2){
+;~ 		send +!{Up}
+;~ 	}else if(i=3){
+;~ 		send +^{Up}
+;~ 	}else if(i=4){
+;~ 		send +{Up}
+;~ 	}else if(i=5){
+;~ 		send !{Up}
+;~ 	}
+;~ }
+
+;~ PtyMbr_1:="{Up}"
+;~ PtyMbr_2:="+!{Up}"
+;~ PtyMbr_3:="+^{Up}"
+;~ PtyMbr_4:="+{Up}"
+;~ PtyMbr_5:="!{Up}"
+
+Ending(){
+	global AOE_SWITCH
+	AOE_SWITCH:=0
+	SetTimer ActionBar1,Off
+	SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+	ToolTip
+}
+;===================================================
+;=               常用函数、工具                    =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+JDG_RGB(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	
+	if(get_color=tar_color1){
+		Return 1
+	}else if(get_color=tar_color2){
+		Return 2
+	}else if(get_color=tar_color3){
+		Return 3
+	}else if(get_color=tar_color4){
+		Return 4
+	}else if(get_color=tar_color5){
+		Return 5
+	}else{
+		Return 0
+	}	
+}
+
+Eql2(a,b="",c="",d="",e="",f=""){
+	Return a=b or a=c or a=d or a=e or a=f
+}
+
+IsMoving(){
+	Return GetKeyState("w","p") or GetKeyState("a","p") or GetKeyState("s","p") or GetKeyState("d","p") or (GetKeyState("LButton","p") and GetKeyState("RButton","p"))
+}
+
+GetColorAndXy(x,y,binColor){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%x%,%y%,%gColor%
+	MsgBox %x%,%y%,%gColor%
+}
+
+GetColor(x,y){
+	PixelGetColor theColor,x,y,RGB
+	return theColor
+}
+
+;右Ctrl快速得到颜色。
+~RCtrl::
+    while(GetKeyState("RCtrl")){
+        MouseGetPos x,y
+		PixelGetColor mouse_color,x,y,RGB
+        ToolTip % x "," y "," mouse_color
+        Sleep 16
+    }
+    ToolTip
+return
+
+Hex_To_2(hex){
+	if(hex="0"){
+		Return "0000"
+	}else if(hex="1"){
+		Return "0001"
+	}else if(hex="2"){
+		Return "0010"
+	}else if(hex="3"){
+		Return "0011"
+	}else if(hex="4"){
+		Return "0100"
+	}else if(hex="5"){
+		Return "0101"
+	}else if(hex="6"){
+		Return "0110"
+	}else if(hex="7"){
+		Return "0111"
+	}else if(hex="8"){
+		Return "1000"
+	}else if(hex="9"){
+		Return "1001"
+	}else if(hex="A"){
+		Return "1010"
+	}else if(hex="B"){
+		Return "1011"
+	}else if(hex="C"){
+		Return "1100"
+	}else if(hex="D"){
+		Return "1101"
+	}else if(hex="E"){
+		Return "1110"
+	}else if(hex="F"){
+		Return "1111"
+	}
+}
+
+;~ 2014-11-09
+;===================================================
+;=               [全职业][自动下副本]              =
+;===================================================

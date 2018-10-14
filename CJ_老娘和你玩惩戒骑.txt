@@ -1,0 +1,526 @@
+CoordMode Mouse,Screen
+;================================钱教授的工具宝
+^Numpad8::
+getColorAndXy(0x000000,16,858)
+return
+
+^Numpad9::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard =%c4%,%mx%,%my%
+MsgBox %c4%,%mx%,%my%
+return
+
+getColorAndXy(binColor,x,y){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%gColor%,%x%,%y%
+	MsgBox %gColor%,%x%,%y%
+}
+
+!Tab::
+Return
+
+;================================正文
+1::
+SoundPlay %A_WinDir%\Media\tada.wav
+while(WinActive("ahk_class GxWindowClassD3d")){
+	
+	tarKind:=GetColor(465,35)
+	
+	if(GetKeyState("esc","p")){
+		SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+		Break
+	}else if(judge(0x080000,709,634)){
+		;玩家施法什么也不做。
+	}else if(tarKind=0x332F30){
+		MainMode(True)
+		;主函数。（精英）
+	}else if(tarKind=0x5F5D5F){
+		MainMode(False)
+		;拯救模式。（非精英）
+	}else{
+		SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+		Break
+	}
+	sleep 128
+}
+return
+
+MainMode(isElite){
+	local tarColor:=GetColor(567,1020)
+	local isHarm:=tarColor=0x9A7651
+	local isHelp:=tarColor=0xA88160
+	local isMoving:=IsMoving()
+	local targetIsSinging:=judge(0x080000,709,666)
+	local targetHasMana:=judge(0x000083,317,75)
+	local isClose:=judge(0x9F0000,5,835)
+	local inCombat:=judge(0xFFFFFF,1654,975)
+	local lookAtMe:=or4judge(0xB78418,0xB70000,0xB18018,0xB10000,465,114)
+	local isPveTarget:=or4judge(0x808080,0xFF0000,0xFFFF00,0x8080FF,527,28)
+	local inCombat:=judge(0xFFFFFF,1654,975)
+	local trial:=judge(0xFFD100,190,893)
+	local gcd:=judge(0xFFFFFF,1607,975)
+	local player_HP:=MyHealthPower()
+	local target_HP:=TargetHealthPower()
+	local blessing:=GetColor(16,858)
+	local stamping:=GetColor(51,858)
+	
+	if(isHarm and targetIsSinging and judge(0xFFFFFF,303,1025)){
+		send {Ins}
+		;制裁之锤。敌对目标、目标吟唱、目标有蓝、技能可用。
+	}else if(isHarm and targetIsSinging and judge(0xFFFFFF,537,1025)){
+		send {PGDN}
+		;忏悔。敌对目标、目标吟唱、目标有蓝、技能可用。
+	}else if(player_HP<20 and judge(0xFFFFFF,350,975)){
+		send +{'}
+		;圣疗术。我不满20血、技能可用。
+	}else if(isHelp and target_HP<20 and judge(0xFFFFFF,350,975)){
+		send {'}
+		;圣疗术。友善、他不满20血、技能可用。
+	}else if(player_HP<40 and judge(0xFFFFFF,210,975) and not judge(0xFFD100,225,893)){
+		send {]}
+		;圣盾术。我不满40血、技能可用、没圣盾保护真言术盾。
+	}else if(player_HP<40 and judge(0xFFFFFF,1654,1025) and judge(0xFFFF00,210,975)){
+		ProtectionSkill(1,5)
+		;保护之手。我不满40血、技能可用、圣盾术CD。
+	}else if(player_HP<60 and not isMoving and judge(0xFFD100,225,893) and judge(0xFFFFFF,444,975)){
+		send ^{NumpadDot}
+		;圣光术。不满60血、不移动、有圣盾保护真言术盾、技能可用。
+	}else if(isHelp and target_HP<60 and target_HP<player_HP and not isMoving and judge(0xFFFFFF,444,975)){
+		send {NumpadDot}
+		;圣光术。友善、他不满60血、目标血小于玩家、不移动、技能可用。
+	}else if(isHelp and player_HP<60 and target_HP>player_HP and not isMoving and judge(0xFFFFFF,444,975)){
+		send ^{NumpadDot}
+		;圣光术。友善、玩家不满60血、目标血大于玩家、不移动、技能可用。
+	}else if(player_HP<80 and not isMoving and judge(0xFFD100,225,893) and judge(0xFFFFFF,397,975)){
+		send +{Numpad0}
+		;圣光闪。不满80血、不移动、有圣盾保护真言术盾、技能可用。
+	}else if(isHelp and target_HP<player_HP and not isMoving and judge(0xFFFFFF,397,975)){
+		send {Numpad0}
+		;圣光闪。友善、目标血小于玩家、不在移动、技能可用。
+	}else if(isHelp and target_HP>player_HP and not isMoving and judge(0xFFFFFF,397,975)){
+		send +{Numpad0}
+		;圣光闪。友善、目标血大于玩家、不在移动、技能可用。
+	}else if(player_HP<40 and judge(0xFFFFFF,581,975)){
+		send {Numpad7}
+		;小于40血。喝血瓶。
+	}else if(){
+		
+	}
+	
+	GridWorking()
+	
+	if(isHarm and judge(0xFFFFFF,163,1025)){
+		send {F9}
+		;愤怒之锤。技能可用。
+	}else if(isHarm and not trial and isPveTarget and judge(0xFFFFFF,116,1025)){
+		send {F8}
+		;智慧审判。无审判效果、PVE目标、技能可用。
+	}else if(isHarm and not trial and not isPveTarget and judge(0xFFFFFF,23,1025)){
+		send {F6}
+		;正义审判。无审判效果、非PVE目标、技能可用。
+	}else if(isHarm and not trial and judge(0xFFFFFF,70,1025)){
+		send {f7}
+		;圣光审判。无审判效果、技能可用。
+	}else if(isHarm and judge(0xFFFFFF,350,1025)){
+		send {Home}
+		;十字军打击。技能可用。
+	}else if(not (stamping=0x113542 or stamping=0x2E8EB0) and not judge(0x0000B3,145,75) and judge(0xFFFFFF,1233,1025)){
+		send {8}
+		;智慧圣印。无智慧圣印、不满25魔，技能可用。
+	}else if(not judge(0xFFD100,13,893) and judge(0xFFFFFF,23,975)){
+		send +{k}
+		;力量祝福。无力量祝福、技能可用。
+	}else if(not (stamping=0x593B00 or stamping=0xEF9E00) and judge(0x0000D6,224,75) and judge(0xFFFFFF,116,975)){
+		send {=}
+		;命令圣印。无智慧圣印、满80魔，技能可用。
+	}else if(isHarm and isClose and judge(0xFFFFFF,210,1025)){
+		send {F10}
+		;奉献。近战、技能可用。
+	}else if(isHarm and isClose and judge(0xFFFFFF,397,1025)){
+		send {PGUP}
+		;神圣风暴。技能可用。
+	}else if(isHarm and isPveTarget and judge(0xFFFFFF,257,1025)){
+		send {F11}
+		;驱邪术。PVE目标、技能可用。
+	}else if(isHarm and gcd and judge(0xFFFFFF,490,975)){
+		send {wheelup}
+		;六魔包。刻意卡个公转、技能可用。
+	}else if(){
+		
+	}
+}
+
+IntWish(){
+	PixelGetColor wishClr,16,858,RGB
+	Return wishClr=0x4D4541 or wishClr=0x1D1A18 or wishClr=0x5C6C85 or wishClr=0x222832
+}
+;~ RescueMode(){
+;~ 	local isMoving:=IsMoving()
+;~ 	local n_Mode:=UMeHealthBalanceMode()
+;~ 	local length_MyHealth:=MyHealthPower()
+;~ 	
+;~ 	if(not judge(0x006000,138,65) and judge(0xFFFFFF,350,975)){
+;~ 		send +{'}
+;~ 		;圣疗术。我不满20血、技能可用。
+;~ 	}else if(not judge(0x006000,345,65) and judge(0xFFFFFF,350,975)){
+;~ 		send {'}
+;~ 		;圣疗术。目标不满20血、技能可用。
+;~ 	}else if(length_MyHealth<60 and not isMoving and judge(0xFFFFFF,444,975)){
+;~ 		send +{NumpadDot}
+;~ 		;圣光术。不满60血、不移动、技能可用。
+;~ 	}else if(not isMoving and n_Mode=1 and judge(0xFFFFFF,397,975)){
+;~ 		send +{Numpad0}
+;~ 		;圣光闪现。未移动、健康平衡系统倾向于我、技能可用。
+;~ 	}else if(not isMoving and n_Mode=2 and judge(0xFFFFFF,397,975)){
+;~ 		send {Numpad0}
+;~ 		;圣光闪现。未移动、健康平衡系统倾向于目标、技能可用。
+;~ 	}
+;~ 	
+;~ }
+
+MyHealthPower(){
+	local l_hlth:=100
+	if(not judge(0x006000,138,65)){
+		l_hlth:=13
+	}else if(not judge(0x006900,167,65)){
+		l_hlth:=33
+	}else if(not judge(0x006E00,195,65)){
+		l_hlth:=53
+	}else if(not judge(0x007600,224,65)){
+		l_hlth:=73
+	}
+
+	return l_hlth
+}
+
+TargetHealthPower(){
+	local t_hlth:=100
+	if(not judge(0x006000,345,65)){
+		t_hlth:=14
+	}else if(not judge(0x006900,373,65)){
+		t_hlth:=34
+	}else if(not judge(0x006E00,402,65)){
+		t_hlth:=54
+	}else if(not judge(0x007600,430,65)){
+		t_hlth:=74
+	}
+
+	return t_hlth
+}
+
+GridWorking(){
+	if(judge(0x00A700,41,161)){
+		hlth50_X_1:=True
+		hlth70_X_1:=True
+		hlth90_X_1:=True
+	}else if(judge(0x00A600,34,161)){
+		hlth50_X_1:=True
+		hlth70_X_1:=True
+		hlth90_X_1:=False
+	}else if(judge(0x00A600,28,161)){
+		hlth50_X_1:=True
+		hlth70_X_1:=False
+		hlth90_X_1:=False
+	}else{
+		hlth50_X_1:=False
+		hlth70_X_1:=False
+		hlth90_X_1:=False
+	}
+	
+	if(judge(0x00A700,80,161)){
+		hlth50_X_2:=True
+		hlth70_X_2:=True
+		hlth90_X_2:=True
+	}else if(judge(0x00A700,73,161)){
+		hlth50_X_2:=True
+		hlth70_X_2:=True
+		hlth90_X_2:=False
+	}else if(judge(0x00A700,67,161)){
+		hlth50_X_2:=True
+		hlth70_X_2:=False
+		hlth90_X_2:=False
+	}else{
+		hlth50_X_2:=False
+		hlth70_X_2:=False
+		hlth90_X_2:=False
+	}
+
+	if(judge(0x00A700,119,161)){
+		hlth50_X_3:=True
+		hlth70_X_3:=True
+		hlth90_X_3:=True
+	}else if(judge(0x00A700,112,161)){
+		hlth50_X_3:=True
+		hlth70_X_3:=True
+		hlth90_X_3:=False
+	}else if(judge(0x00A700,106,161)){
+		hlth50_X_3:=True
+		hlth70_X_3:=False
+		hlth90_X_3:=False
+	}else{
+		hlth50_X_3:=False
+		hlth70_X_3:=False
+		hlth90_X_3:=False
+	}
+	
+	if(judge(0x00A700,159,161)){
+		hlth50_X_4:=True
+		hlth70_X_4:=True
+		hlth90_X_4:=True
+	}else if(judge(0x00A600,152,161)){
+		hlth50_X_4:=True
+		hlth70_X_4:=True
+		hlth90_X_4:=False
+	}else if(judge(0x00A600,146,161)){
+		hlth50_X_4:=True
+		hlth70_X_4:=False
+		hlth90_X_4:=False
+	}else{
+		hlth50_X_4:=False
+		hlth70_X_4:=False
+		hlth90_X_4:=False
+	}
+	
+	if(judge(0x00A700,198,161)){
+		hlth50_X_5:=True
+		hlth70_X_5:=True
+		hlth90_X_5:=True
+	}else if(judge(0x00A700,191,161)){
+		hlth50_X_5:=True
+		hlth70_X_5:=True
+		hlth90_X_5:=False
+	}else if(judge(0x00A700,185,161)){
+		hlth50_X_5:=True
+		hlth70_X_5:=False
+		hlth90_X_5:=False
+	}else{
+		hlth50_X_5:=False
+		hlth70_X_5:=False
+		hlth90_X_5:=False
+	}
+	
+	skill_1:=judge(0xFFFFFF,1326,1025)
+	skill_2:=judge(0xFFFFFF,955,1025)
+	skill_3:=judge(0xFFFFFF,1002,1025)
+	skill_4:=judge(0xFFFFFF,1049,1025)
+	skill_5:=judge(0xFFFFFF,1095,1025)
+	
+	shinning:=judge(0xFFD100,119,893)
+	
+	n:=1
+	while(n<=5){
+		loop 4{
+			cornerColor_%A_Index%:=CornerColor(n,A_Index)
+		}
+		
+		BCared:=OrEqual(0xFFFFFF,0x0000FF,cornerColor_3)
+		if(skill_%n% and not cornerColor_1=0xFF0000){
+			;技能PLR可用、40码以内。
+			if(n>=2 and hlth90_X_1 and not BCared and (cornerColor_3=0xFF0000 or not hlth50_X_%n%) and not cornerColor_1=0xFFFF00 and not judge(0xFFFF00,1467,1025)){
+				;非玩家、玩家血大于90、未被照顾、被致死或不满50血、30码以内、牺牲无CD。
+				ProtectionSkill(n,4)
+				;对N号玩家使用牺牲之手。
+			}else if(n>=2 and not hlth70_X_%n% and not BCared and not cornerColor_1=0xFFFF00 and cornerColor_3=0xFF0000 and not judge(0xFFFF00,1654,1025)){
+				;不满70血、、未被照顾、30码以内、被致死、保护无CD。
+				ProtectionSkill(n,5)
+				;对N号玩家使用保护之手。
+			}else if(n>=2 and not hlth50_X_%n% and not BCared and not cornerColor_1=0xFFFF00 and not judge(0xFFFF00,1654,1025)){
+				;不满50血、未被照顾、30码以内、保护无CD。
+				ProtectionSkill(n,5)
+				;对N号玩家使用保护之手。
+			}else if(cornerColor_2=0xFFFFFF and not cornerColor_1=0xFFFF00 and not OrEqual(0xFFFFFF,0x0000FF,cornerColor_3)){
+				;被定身、30码以内、未被照顾。
+				ProtectionSkill(n,3)
+				;对N号玩家使用自由之手。
+			}else if(not hlth90_X_%n% and shinning){
+				;不满90血、战争艺术。
+				ProtectionSkill(n,2)
+				;对N号玩家使用圣光闪。
+			}else if(OrEqual(0xFFFFFF,0x00FF00,cornerColor_4)){
+				ProtectionSkill(n,1)
+				;清洁术。有毒或控制魔法。
+			}
+		
+			if(n=1 and cornerColor_3=0xFF0000 and not judge(0xFFFFFF,768,1025)){
+				send {5}
+				;装备盾牌。被菜刀砍、没带盾牌。
+			}Else if(n=1 and not cornerColor_3=0xFF0000 and judge(0xFFFFFF,768,1025)){
+				send {5}
+				;卸下盾牌。没被菜刀砍、带了盾牌。
+			}else if((not hlth70_X_1 or cornerColor_3=0xFF0000) and judge(0xFFFFFF,257,975) and judge(0xFFFF00,210,975)){
+				send {\}
+				;圣佑术。不满70血或被菜刀砍、技能可用、圣盾术CD。
+			}
+		}
+		
+		n++
+	}
+	
+	
+}
+;===================================================
+;=                小队防护策略表                   =
+;===================================================
+OrEqual(a,b,c){
+	return a=c or b=c
+}
+
+Eql2(a,b){
+	return a=b
+}
+
+CornerColor(plr,corner){
+	if(corner=1 or corner=2){
+		y:=148
+	}else if(corner=3 or corner=4){
+		y:=174
+	}
+	
+	if(corner=1 or corner=3){
+		if(plr=1){
+			x:=13
+		}else if(plr=2){
+			x:=52
+		}else if(plr=3){
+			x:=91
+		}else if(plr=4){
+			x:=131
+		}else if(plr=5){
+			x:=170
+		}
+	}else if(corner=2 or corner=4){
+		if(plr=1){
+			x:=37
+		}else if(plr=2){
+			x:=77
+		}else if(plr=3){
+			x:=116
+		}else if(plr=4){
+			x:=155
+		}else if(plr=5){
+			x:=195
+		}
+	}
+	
+	PixelGetColor get_Corner_Color,x,y
+	return get_Corner_Color
+}
+
+;===================================================
+;=                小队防护策略表                   =
+;===================================================
+
+ProtectionSkill(plr,modi){
+	if(plr=1 and modi=1){
+		send {0}
+	}else if(plr=2 and modi=1){
+		send {z}
+	}else if(plr=3 and modi=1){
+		send {x}
+	}else if(plr=4 and modi=1){
+		send {c}
+	}else if(plr=5 and modi=1){
+		send {v}
+	}else if(plr=1 and modi=2){
+		send !{0}
+	}else if(plr=2 and modi=2){
+		send !{z}
+	}else if(plr=3 and modi=2){
+		send !{x}
+	}else if(plr=4 and modi=2){
+		send !{c}
+	}else if(plr=5 and modi=2){
+		send !{v}
+	}else if(plr=1 and modi=3){
+		send ^{0}
+	}else if(plr=2 and modi=3){
+		send ^{z}
+	}else if(plr=3 and modi=3){
+		send ^{x}
+	}else if(plr=4 and modi=3){
+		send ^{c}
+	}else if(plr=5 and modi=3){
+		send ^{v}
+	}else if(plr=1 and modi=4){
+		send +{0}
+	}else if(plr=2 and modi=4){
+		send +{z}
+	}else if(plr=3 and modi=4){
+		send +{x}
+	}else if(plr=4 and modi=4){
+		send +{c}
+	}else if(plr=5 and modi=4){
+		send +{v}
+	}else if(plr=1 and modi=5){
+		send !+{0}
+	}else if(plr=2 and modi=5){
+		send !+{z}
+	}else if(plr=3 and modi=5){
+		send !+{x}
+	}else if(plr=4 and modi=5){
+		send !+{c}
+	}else if(plr=5 and modi=5){
+		send !+{v}
+	}
+}
+
+;===================================================
+;=                钱教授的百宝盒                   =
+;===================================================
+
+judge(tar_color,x,y){
+	PixelGetColor get_color,x,y,RGB
+	Return tar_color=get_color
+}
+
+orjudge(tar_color1,tar_color2,x,y){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color
+}
+
+or3judge(tar_color1,tar_color2,tar_color3,x,y){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color
+}
+
+or4judge(tar_color1,tar_color2,tar_color3,tar_color4,x,y){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color
+}
+
+or5judge(tar_color1,tar_color2,tar_color3,tar_color4,tar_color5,x,y){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+;是否移动状态，即WASD是否被按下。
+IsMoving(){
+	Return GetKeyState("w","p") or GetKeyState("a","p") or GetKeyState("s","p") or GetKeyState("d","p")
+}
+
+GetColor(x,y){
+	PixelGetColor theColor,x,y,RGB
+	return theColor
+}
+
+^Numpad4::
+Clipboard = 0504aslan@163.com
+send ^{v}{Tab}
+Clipboard = chao1986
+sleep 32
+send ^{v}{enter}
+return
+
+~LCtrl::
+    while(GetKeyState("LCtrl")){
+        MouseGetPos x,y
+		PixelGetColor mouse_color,x,y,RGB
+        ToolTip % mouse_color "," x "," y
+        Sleep 10
+    }
+    ToolTip
+return
+
+;老娘兴致勃勃地和你玩惩戒骑。

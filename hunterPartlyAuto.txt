@@ -1,0 +1,332 @@
+;================================钱教授的工具宝
+^1::
+getColorAndXy(0x660000,958,927)
+return
+
+^2::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard =%c4%,%mx%,%my%
+MsgBox %c4%,%mx%,%my%
+return
+
+!^+Left::  MouseMove,-1,0,,R
+!^+Up::    MouseMove,0,-1,,R
+!^+Right:: MouseMove,1,0,,R
+!^+Down::  MouseMove,0,1,,R
+
+getColorAndXy(binColor,x,y){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%gColor%,%x%,%y%
+	MsgBox %gColor%,%x%,%y%
+}
+
+^Numpad1::
+getColorAndXy(0x6B3D25,646,1016)
+return
+^Numpad2::
+getColorAndXy(0x71442A,689,1016)
+return
+^Numpad3::
+getColorAndXy(0x75492D,732,1016)
+return
+^Numpad4::
+getColorAndXy(0x531602,776,1016)
+return
+^Numpad5::
+getColorAndXy(0x4D1101,819,1016)
+return
+^Numpad6::
+getColorAndXy(0x460D01,862,1016)
+return
+
+;================================正文
+1::
+loop{
+	if(not orjudge(0xA97600,0x3333A9,652,847) and not judge(0x946700,652,766)){
+		;不是在自己吟唱魔法的情况下。
+		PixelGetColor targetColor,317,60,RGB
+		if(targetColor=0x007402){
+			pvpMode()
+			;精英模式。（目前尚未开发，故使用PVP模式。）
+		}else if(targetColor=0x007300 or judge(0x7B9561,28,958)){
+			pvpMode()
+			;pvp模式。
+		}else{
+			SoundPlay %A_WinDir%\Media\ding.wav
+			Break
+		}
+	}
+	sleep 256
+}
+return
+
+pvpMode(){
+	local IsMoving:=IsMoving()
+	local LookAtMe:=orjudge(0x565059,0x560000,466,119)
+	local LookAtPet:=orjudge(0x1C191E,0x1C0000,466,119)
+	local IsSlowDown:=IsSlowDown()
+	local hasMana:=judge(0x000083,317,75)
+	local feignDeath:=judge(0x0D5A4A,448,1006)
+	local intimidation:=judge(0x856767,542,910)
+	local isSinging:=orjudge(0xA47300,0x3232A4,652,811)
+	local safeguard:=judge(0x33220D,402,958)
+	local petIsOn:=judge(0x91D584,308,862)
+	local NeedToBeDispersed:=NeedToBeDispersed()
+	local isPveTarget:=or3judge(0x009700,0x980000,0x545354,737,925)
+	;宠物技能
+	if(isSinging and feignDeath and LookAtMe and not IsMoving){
+		send {Del}
+		;假死。对方施放魔法、假死可用、看着我、不在移动。
+	}else if(LookAtMe and feignDeath and not IsMoving and not hasMana){
+		send {Del}
+		;假死。看着我、技能可用、未被减速。
+	}else if(judge(0x856767,542,910)){
+		send {j}
+		;胁迫。技能可用。
+	}else if(judge(0x2F00CB,402,1006) and LookAtMe){
+		send {PGUP}
+		;冰霜陷阱。技能可用、不看宠物。
+	}
+	if(judge(0x010000,355,862) and petIsOn){
+		send {'}
+		;杀戮命令。技能可用。
+	}else if(judge(0x0E240A,215,862)){
+		send {]}
+		;拳刃的宽容。
+	}else if(judge(0xE4C294,260,677)){
+		send {;}
+		;牺牲咆哮。
+	}else if(judge(0x69341B,149,120) and judge(0x291C08,181,677)){
+		send {z}
+		;援护。20集中值。
+	}else if(judge(0x7E3E20,178,120) and judge(0xA46D46,142,677)){
+		send {q}
+		;冲锋。55集中值。
+	}else if(judge(0x854222,199,120) and judge(0xFBE6FD,221,677)){
+		send {f}
+		;雷霆践踏。80集中值。
+	}
+	;玩家技能
+	if(judge(0x660000,958,927)){
+		;近战状态。
+		if(judge(0x3777BA,215,910)){
+			send {0}
+			;逃脱。技能可用。
+		}else if(judge(0xC0AAB3,402,910) and petIsOn){
+			send {i}
+			;狂野怒火。技能可用、宠物存在。
+		}else if(not IsSlowDown){
+			send {PGDN}
+			;摔绊。未被减速。
+		}else if(judge(0x996F36,168,862)){
+			send {[}
+			;威慑。
+		}else if(not judge(0x64614C,776,1016) and judge(0x0000C0,179,75)){
+			send {=}
+			;灵猴守护。不舍灵猴守护、蓝高于50。
+		}else if(not judge(0x161F8D,776,1016) and not judge(0x0000B3,147,75)){
+			send {-}
+			;蝰蛇守护。不是蝰蛇守护、蓝低于30。
+		}else if(not judge(0x480400,121,910)){
+			send {8}
+			;猫釉撕咬。
+		}
+		if(judge(0x613627,74,910)){
+			send {7}
+			;猛禽一击。技能可用。
+		}
+	}else if(not judge(0x006533,958,927)){
+		;远程。
+		if(judge(0x104660,308,1006) and not IsSlowDown and not LookAtPet){
+			send {Ins}
+			;震荡射击。技能可用、未被减速、不看宠物。
+		}else if(not or3judge(0x000000,0x100031,0x2986EF,646,1016) and not judge(0x0C3E54,1480,79) and judge(0x0C0A07,121,1006)){
+			;没有钉刺效果、不是元素。
+			if(orjudge(0x009700,0x980000,737,925)){
+				send {F8}
+				;毒蛇钉刺。
+			}else if(hasMana){
+				send {F10}
+				;蝰蛇钉刺。
+			}else{
+				send {F9}
+				;毒蝎钉刺。
+			}
+		}else if(not judge(0x161F8D,776,1016) and not judge(0x0000C0,179,75)){
+			send {-}
+			;蝰蛇守护。不是蝰蛇守护、蓝低于50。
+		}else if(not judge(0x00B600,204,110) and not judge(0x9D938B,905,1016) and judge(0x2D2A28,308,910)){
+			send {y}
+			;治疗宠物。宠物不健康、无该DEBUFF。
+		}else if(not judge(0x00A100,170,110) and judge(0x7D0F00,448,958) and not IsMoving and judge(0x2D2A28,308,910)){
+			send +{x}
+			;纳鲁的赐福。宠物危险、技能可用、不在移动。
+		}else if(not judge(0x00C600,181,60) and judge(0x7D0F00,448,958) and not IsMoving){
+			send !{x}
+			;纳鲁的赐福。玩家绿不满50、技能可用、不在移动。
+		}else if(judge(0x006500,958,927) and judge(0x006500,958,927) and judge(0x6466D7,355,910)){
+			send {u}
+			;扰乱射击。小于35码、大于28码、技能可用。
+		}else if(judge(0x00048C,495,910) and judge(0x984A06,737,925) and not hasMana and not IsMoving){
+			send {h}
+			;恐吓野兽。技能可用、德鲁伊野兽态。
+		}else if(not judge(0x185E41,776,1016) and judge(0x0000D6,226,75) or not or3judge(0x161F8D,0x185E41,0x64614C,776,1016)){
+			send {k}
+			;雄鹰守护。不是雄鹰守护、蓝多于79，或者不是三大守护之一。
+		}else if(judge(0x0B030A,402,862) and NeedToBeDispersed){
+			send {Numpad0}
+			;宁神射击。技能可用、有魔法要驱散。
+		}else if(judge(0x726D57,28,910)){
+			send {6}
+			;瞄准射击。技能可用。
+		}else if(not judge(0xD8484C,819,1016) and judge(0xB69293,261,1006)){
+			send {F11}
+			;猎人印记。目标身上没有、技能可用。
+		}else if(judge(0x1C0018,495,1006) and not IsMoving){
+			send {End}
+			;多重射击。技能可用、不在移动。
+		}else if(judge(0x100036,28,1006)){
+			send {F6}
+			;奥术射击。技能可用。
+		}else if(not judge(0xD8484C,819,1016) and judge(0xB69293,261,1006)){
+			send {F11}
+			;猎人印记。目标身上没有、技能可用。
+		}else if(judge(0xEE0000,74,1006) and not IsMoving){
+			send {F7}
+			;急速射击。技能可用、不在移动。
+		}else if(not IsMoving and judge(0x1B0931,261,862)){
+			send {\}
+			;稳固射击。不在移动、不在公共CD。
+		}
+	}else{
+		if(not judge(0xD8484C,819,1016) and judge(0xB69293,261,1006)){
+			send {F11}
+			;猎人印记。目标身上没有、技能可用。
+		}
+	}	
+}
+
+;================================钱教授的百宝盒
+NeedToBeDispersed(){
+	return or4judge(0x420000,0x4D4455,0x100818,0xFEF2CD,948,1016) or judge(0x2CACA7,732,1016) or or3judge(0xBD4994,0xF7B77D,0x181018,991,1016)
+	;自由之手、保护之手、闪电之盾、真言术盾。寒冰护体。野性赐福、力量祝福、王者祝福。
+}
+
+IsSlowDown(){
+	return or4judge(0x757065,0x080808,0xB13708,0x5A3B5A,689,1016) or or4judge(0xDD979F,0x420000,0x4D4455,0xFFFBE7,948,1016) or or5judge(0x3401D1,0x938AE0,0xDEFFFF,0xE7F5FE,0x3401D1,991,1016) or orjudge(0x322724,0x2CA2C5,862,1016)
+	;断筋、刺耳怒吼、减速、减速药膏。野兽之心、自由之手、保护之手、圣盾术。冰霜陷阱光环、寒冰箭、冰霜震击、冰锥术、冰霜新星。摔绊、震荡射击。
+}
+
+cantIntercept(){
+	return judge(0x7ED0F8,732,1016) or judge(0xFFFBE7,948,1016) or judge(0x8F8B9C,689,973)
+	;寒冰屏障、圣盾术、利刃风暴。
+}
+
+judge(tar_color,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color=get_color){
+		return true
+	}else{
+		return false
+	}
+}
+
+orjudge(tar_color1,tar_color2,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+
+or3judge(tar_color1,tar_color2,tar_color3,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color or tar_color3=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+
+or4judge(tar_color1,tar_color2,tar_color3,tar_color4,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+
+or5judge(tar_color1,tar_color2,tar_color3,tar_color4,tar_color5,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+;Tab键和鼠标右键是不是被按下。
+TabIsDown(){
+	GetKeyState state,Tab,p
+	if state=D
+		return true
+	Else
+		return RButtonIsDown()
+}
+
+RButtonIsDown(){
+	GetKeyState state,RButton,p
+	if state=D
+		return true
+	Else
+		return False
+}
+
+;是否移动状态，即WASD是否被按下。
+IsMoving(){
+	GetKeyState state,w,p
+	if state=D
+	;这里state=D不能加括号，确实非常之奇怪。
+		return true
+	Else
+		return AIsDown()
+}
+
+AIsDown(){
+	GetKeyState state,a,p
+	if state=D
+		return true
+	Else
+		return SIsDown()
+}
+
+SIsDown(){
+	GetKeyState state,s,p
+	if state=D
+		return true
+	Else
+		return DIsDown()
+}
+
+DIsDown(){
+	GetKeyState state,d,p
+	if state=D
+		return true
+	Else
+		return RIsDown()
+}
+
+RIsDown(){
+	GetKeyState state,r,p
+	if state=D
+		return true
+	Else
+		return false
+}
+
+interinterceptionIsReady(){
+	return orjudge(0xBC9D6A,0xFFBE7B,261,1006) or judge(0xBE8C4F,74,958) or judge(0x899798,168,958)
+}

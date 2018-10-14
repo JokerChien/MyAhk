@@ -1,0 +1,1880 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"> 
+<Frame name="HelloWorldTestFrame" frameStrata="HIGH" toplevel="true" enableMouse="true" movable="true" parent="UIParent"> 
+   <TitleRegion setAllPoints="true"/> 
+   <Size x="300" y="150" /> 
+   <Anchors> 
+      <Anchor point="CENTER" /> 
+   </Anchors> 
+   <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border"> 
+      <BackgroundInsets> 
+         <AbsInset left="11" right="12" top="12" bottom="11" /> 
+      </BackgroundInsets> 
+   </Backdrop> 
+   <Layers> 
+   <Layer level="ARTWORK"> 
+      <FontString name="$parentTextTitle" inherits="GameFontNormal" text="Hello World!"> 
+         <Anchors> 
+            <Anchor point="TOPLEFT" relativeTo="HelloWorldTestFrame"> 
+                  <Offset x="15" y="-15" /> 
+            </Anchor> 
+         </Anchors> 
+      </FontString>
+      <FontString name="$parentSkillOneCD" inherits="GameFontNormal" text="SkillOne"> 
+         <Anchors> 
+            <Anchor point="TOPLEFT" relativeTo="HelloWorldTestFrame"> 
+               <Offset x="15" y="-60" /> 
+            </Anchor> 
+         </Anchors> 
+      </FontString> 
+      <FontString name="$parentTextDelay" inherits="GameFontNormal" text="Delay"> 
+         <Anchors> 
+            <Anchor point="TOPLEFT" relativeTo="HelloWorldTestFrame"> 
+               <Offset x="15" y="-85" /> 
+            </Anchor> 
+         </Anchors> 
+         </FontString> 
+         <FontString name="$parentTextMoney" inherits="GameFontNormal" text="Money">
+            <Anchors>
+               <Anchor point="TOPLEFT" relativeTo="HelloWorldTestFrame">
+                  <Offset x="15" y="-110" />
+               </Anchor> 
+            </Anchors> 
+         </FontString> 
+      </Layer> 
+   </Layers>
+</Frame> 
+
+<Frame name="CoolDownMainFrame" frameStrata="LOW" enableMouse="false" parent="UIParent" hidden="false">
+   <Scripts>
+      <OnEvent> 
+        
+      </OnEvent>
+      <OnLoad> 
+        HelloWorldLoad(); 
+      </OnLoad> 
+      <OnUpdate> 
+        HelloWorldFrameUpdate(); 
+      </OnUpdate>
+   </Scripts>
+</Frame>
+<Frame name="ActionButton1Cooldown" parent="ActionButton1">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton2Cooldown" parent="ActionButton2">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton3Cooldown" parent="ActionButton3">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton4Cooldown" parent="ActionButton4">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton5Cooldown" parent="ActionButton5">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton6Cooldown" parent="ActionButton6">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton7Cooldown" parent="ActionButton7">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton8Cooldown" parent="ActionButton8">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton9Cooldown" parent="ActionButton9">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton10Cooldown" parent="ActionButton10">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton11Cooldown" parent="ActionButton11">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton12Cooldown" parent="ActionButton12">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton13Cooldown" parent="BonusActionButton1">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton14Cooldown" parent="BonusActionButton2">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton15Cooldown" parent="BonusActionButton3">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton16Cooldown" parent="BonusActionButton4">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton17Cooldown" parent="BonusActionButton5">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton18Cooldown" parent="BonusActionButton6">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton19Cooldown" parent="BonusActionButton7">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton20Cooldown" parent="BonusActionButton8">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton21Cooldown" parent="BonusActionButton9">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton22Cooldown" parent="BonusActionButton10">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton23Cooldown" parent="BonusActionButton11">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton24Cooldown" parent="BonusActionButton12">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton25Cooldown" parent="MultiBarRightButton1">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton26Cooldown" parent="MultiBarRightButton2">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton27Cooldown" parent="MultiBarRightButton3">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton28Cooldown" parent="MultiBarRightButton4">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton29Cooldown" parent="MultiBarRightButton5">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton30Cooldown" parent="MultiBarRightButton6">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton31Cooldown" parent="MultiBarRightButton7">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton32Cooldown" parent="MultiBarRightButton8">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton33Cooldown" parent="MultiBarRightButton9">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton34Cooldown" parent="MultiBarRightButton10">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton35Cooldown" parent="MultiBarRightButton11">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton36Cooldown" parent="MultiBarRightButton12">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton37Cooldown" parent="MultiBarLeftButton1">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton38Cooldown" parent="MultiBarLeftButton2">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton39Cooldown" parent="MultiBarLeftButton3">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton40Cooldown" parent="MultiBarLeftButton4">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton41Cooldown" parent="MultiBarLeftButton5">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton42Cooldown" parent="MultiBarLeftButton6">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton43Cooldown" parent="MultiBarLeftButton7">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton44Cooldown" parent="MultiBarLeftButton8">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton45Cooldown" parent="MultiBarLeftButton9">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton46Cooldown" parent="MultiBarLeftButton10">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton47Cooldown" parent="MultiBarLeftButton11">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton48Cooldown" parent="MultiBarLeftButton12">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton49Cooldown" parent="MultiBarBottomRightButton1">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton50Cooldown" parent="MultiBarBottomRightButton2">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton51Cooldown" parent="MultiBarBottomRightButton3">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton52Cooldown" parent="MultiBarBottomRightButton4">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton53Cooldown" parent="MultiBarBottomRightButton5">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton54Cooldown" parent="MultiBarBottomRightButton6">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton55Cooldown" parent="MultiBarBottomRightButton7">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton56Cooldown" parent="MultiBarBottomRightButton8">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton57Cooldown" parent="MultiBarBottomRightButton9">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton58Cooldown" parent="MultiBarBottomRightButton10">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton59Cooldown" parent="MultiBarBottomRightButton11">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton60Cooldown" parent="MultiBarBottomRightButton12">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton61Cooldown" parent="MultiBarBottomLeftButton1">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton62Cooldown" parent="MultiBarBottomLeftButton2">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton63Cooldown" parent="MultiBarBottomLeftButton3">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton64Cooldown" parent="MultiBarBottomLeftButton4">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton65Cooldown" parent="MultiBarBottomLeftButton5">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton66Cooldown" parent="MultiBarBottomLeftButton6">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton67Cooldown" parent="MultiBarBottomLeftButton7">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton68Cooldown" parent="MultiBarBottomLeftButton8">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton69Cooldown" parent="MultiBarBottomLeftButton9">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton70Cooldown" parent="MultiBarBottomLeftButton10">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton71Cooldown" parent="MultiBarBottomLeftButton11">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+<Frame name="ActionButton72Cooldown" parent="MultiBarBottomLeftButton12">
+  <Size>
+      <AbsDimension x="32" y="32"/>
+  </Size>
+  <Anchors>
+      <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+          <Offset>
+              <AbsDimension x="0" y="0"/>
+          </Offset>
+      </Anchor>
+  </Anchors>
+   <Layers>
+      <Layer level="ARTWORK">
+         <FontString name="$parentTextCD" inherits="GameFontNormalLarge" justifyH="CENTER" text="■" font-size="24">
+            <Anchors>
+               <Anchor point="CENTER">
+                  <Offset>
+                     <AbsDimension x="0" y="0"/>
+                  </Offset>
+               </Anchor>
+            </Anchors>
+         </FontString>
+      </Layer>
+   </Layers>
+</Frame>
+
+</Ui>

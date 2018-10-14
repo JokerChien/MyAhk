@@ -1,0 +1,469 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed 0
+GroupAdd MyGroup,ahk_class XLMAIN
+GroupAdd MyGroup,ahk_class SciTEWindow
+;===================================================
+;=              Grid_Health配置文件                =
+;===================================================
+LineCount:=0
+Loop, read, D:\Program Files\AutoHotkey\Wow_DataBase\Grid_Health.txt		;读取配置文件。
+{
+	LineCount++
+	Line%LineCount% := A_LoopReadLine	;行数、行内容。
+}
+
+Loop %LineCount%
+{
+	element:=Line%A_Index%		;中间变量
+	StringLeft Left4Words,element,4
+	if(Left4Words=="Raid" or Left4Words=="Play" or Left4Words=="Targ"){
+		variableName:=element
+		%variableName%_count:=0
+		num:=%variableName%_count
+		Continue
+	}
+
+	%variableName%_count++
+	num:=%variableName%_count
+	
+	StringSplit ARRAY,element,`,
+	%variableName%_X_%num%:=ARRAY1
+	%variableName%_Y_%num%:=ARRAY2
+	%variableName%_value_%num%:=ARRAY3
+}
+
+;===================================================
+;=                  截点工具包                     =
+;===================================================
+^Numpad8::
+GetColorAndXy(8,873,0x294647)
+return
+
+^Numpad9::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard = %mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+
+;===================================================
+;=                   正文                          =
+;===================================================
+#IfWinActive ahk_class GxWindowClassD3d
+AOE_SWITCH:=0
+AOE_CD_INSIDE:=0
+bigSwitch:=False
+
+~1::
+bigSwitch:=False
+AOE_SWITCH:=1
+n:="SOLO 模式"
+ToolTip %n%,840,0
+SetTimer mainCircle,200
+Return
+
+~2::
+bigSwitch:=False
+AOE_SWITCH:=2
+n:="AOE 模式"
+ToolTip %n%,840,0
+SetTimer mainCircle,200
+Return
+
+~Esc::
+bigSwitch:=True
+Return
+
+mainCircle:
+	tarKind:=GetColor(465,35)
+	
+	if(bigSwitch){
+		Ending()
+	}else if(judge(1347,1024,0xC4A94C) and (not GetKeyState("LButton","p") or not GetKeyState("RButton","p"))){
+		;凋零枯萎被按下。鼠标左右键未被按下。
+		MouseGetPos posX,posY
+		Click 840,525
+		MouseMove posX,posY
+	}else if(judge(792,25,0x880700)){
+		;载具战。
+		Knight()
+	}else if(judge(709,634,0x080000) or judge(698,525,0xC8CDD0)){
+		;玩家施法、假死。什么也不做。
+	}else if(tarKind=0x332F30){
+		MainMode(True)
+		;主函数。（精英）
+	}else if(tarKind=0x5F5D5F){
+		MainMode(False)
+		;拯救模式。（非精英）
+	}else{
+		Ending()
+	}
+Return
+
+Knight(){
+	;载具战。
+	if(judge(163,1025,0xFFFFFF)){
+		send {F9}
+	}else if(judge(116,1025,0xFFFFFF)){
+		send {F8}
+	}else if(judge(70,1025,0xFFFFFF)){
+		send {f7}
+	}else if(judge(23,1025,0xFFFFFF)){
+		send {f6}
+	}
+}
+
+Ending(){
+	global AOE_SWITCH,AOE_CD_INSIDE
+	SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+	SetTimer mainCircle,Off
+	ToolTip
+	AOE_SWITCH:=0
+	AOE_CD_INSIDE:=0
+	loop 4{
+		send ^{2}
+		Sleep 256
+	}
+}
+
+
+MainMode(isElite){
+	global AOE_SWITCH,AOE_CD_INSIDE
+	;===	目标敌对、友善	===
+	tarColor:=GetColor(567,1020)
+	isHarm:=tarColor=0x9A7651 and not judge(331,893,0xFFD100)	;敌对且未开无敌技能。
+	isHelp:=tarColor=0xA88160
+	
+	isMoving:=IsMoving()
+	lookAtMe:=judge(465,114,0x2F2E2F,0x2F0000)
+	isSlowedDown:=judge(84,893,0xFFD100) or judge(87,858,0x3D07D8,0xD3C9D5) or judge(296,893,0xFFD100)	;已中某减速技 或亵渎 或冰霜陷阱光环 或定身不受。
+
+	petExists:=judge(84,93,0xFFFF00,0x00FF00,0x6EA3AD) or judge(1654,975,0xFFFFFF)
+	
+	distanceColor:=GetColor(5,835)
+	isClose:=distanceColor=0x9F0000
+	isFar:=not Eql2(distanceColor,0x9F0000,0x9F0050)	;10码以外。
+	
+	;===	目标职业		===
+	tarPrf:=GetColor(527,28)
+	isPvpTarget:=IsPvpTarget(tarPrf)	;PVP目标:10大职业。
+	isPveTarget:=Eql2(tarPrf,0x8080FF,0xFF0000,0xFFFF00,0x808080,0x00FF00)
+	
+	deBuff_1:=judge(13,893,0xFFD100)	;冰霜疫病。
+	deBuff_2:=judge(48,893,0xFFD100)	;血之疫病。
+;~ 	anyDebuffFading:=deBuff_1 and judge(43,873,0x141024) or deBuff_2 and judge(8,873,0x2F444D)
+	
+	player_HP:=GetValue("PlayerHealth")
+	target_HP:=GetValue("TargetHealth")
+	player_RP:=GetValue("PlayerRune")
+	
+	soulFreeze_Color:=GetColor(257,1025)
+	soulFrzCD:=soulFreeze_Color=0xFFFF00
+	soulFrzAv:=soulFreeze_Color=0xFFFFFF
+	antiMgc_Color:=GetColor(163,975)
+	antiMgcCD:=antiMgc_Color=0xFFFF00
+	antiMgcAv:=antiMgc_Color=0xFFFFFF
+	bthCD:=soulFrzCD and antiMgcCD
+	
+	;=======计算符文数========
+	n_Blood_Rune:=Blood_Rune()
+	n_Frost_Rune:=Frost_Rune()
+	n_Evil_Rune:=Evil_Rune()
+	
+	targetHasMana:=judge(317,75,0x000084,0x000083)
+	singUnit:=targetHasMana and not tarPrf=0xABD473	;吟唱职业：除了猎人之外的有蓝单位。
+	
+	
+	stance:=GetColor(370,858)
+	underAttackOfKitchenKnife:=(isPvpTarget or isElite) and not singUnit and lookAtMe or judge(225,893,0xFFD100)	;被精英或PVP菜刀目标偷看、或被致死。
+	targetIsSinging:=singUnit and judge(709,666,0x080000)	;会读魔法的目标在读魔法。
+	focusIsSinging:=judge(709,698,0x080000)
+	
+	if(judge(438,893,0xFFD100) and judge(350,1025,0xFFFFFF)){
+		send {Home}
+		;巫妖之躯。被恐惧、技能可用。
+	}else if(judge(438,893,0xFFD100) and judge(862,1025,0xFFFFFF)){
+		send {e}
+		;自利。被控制、技能可用。
+	}else if(player_HP<85 and judge(155,893,0xFFD100) and judge(155,893,0xFFD100)){
+		send {]}
+		;自我放大便。血小于85、巫妖之躯、技能可用。
+	}else if(player_HP<55 and petExists and judge(70,975,0xFFFFFF)){
+		Send {-}
+		;天灾契约。玩家血小于55、食尸鬼存在、技能可用。
+	}else if(underAttackOfKitchenKnife and not judge(119,893,0xFFD100) and judge(1467,1025,0xFFFFFF)){
+		send {u}
+		;冰封之韧。被菜刀砍、没套套子 且技能可用。
+	}else if(underAttackOfKitchenKnife and judge(444,975,0xFFFFFF)){
+		send {NumpadDot}
+		;闪避护符。被菜刀砍、技能可用。
+	}else if(player_HP<25 and judge(397,975,0xFFFFFF)){
+		send {Numpad0}
+		;喝血瓶。血小于20、技能可用。
+	}else if(isHarm and RuneCost(20,player_RP,player_HP,petExists) and judge(116,975,0xFFFFFF) and not judge(137,975,0xC0D57F)){
+		send {=}
+		;符文打击。敌对、16符文、技能可用、未被激活。
+	}else if(n_Frost_Rune+n_Evil_Rune=1 and n_Blood_Rune>0 and judge(1607,1025,0xFFFFFF)){
+		send {h}
+		;活力分流。冰邪符文只剩一个、血符文有富余、技能可用。
+	}else if(n_Frost_Rune+n_Evil_Rune+n_Blood_Rune=0 and judge(257,975,0xFFFFFF)){
+		send {\}
+		;符文武器增效。没符文、技能可用。
+	}else if(n_Frost_Rune>0 and (isPvpTarget and not singUnit and lookAtMe or isElite and lookAtMe or underAttackOfKitchenKnife) and not stance=0xF7F6FA){
+		send {down}
+		;冰霜灵气。冰符文大于0、菜刀看我、精英看我、菜刀砍我、非冰灵气。
+	}else if(n_Frost_Rune>0 and not Eql2(stance,0xF7F6FA,0xD6FF9C,0xF5D5A7)){
+		send {down}
+		;冰霜灵气。冰霜符文大于0、无灵气。
+	}else if(n_Evil_Rune>0 and not underAttackOfKitchenKnife and not lookAtMe and not stance=0xF5D5A7){
+		Send {Left}
+		;鲜血灵气。邪恶符文大于0、不被菜刀砍、目标不看我、非邪恶灵气。
+	}else if(judge(303,1025,0xFFFFFF)){
+		send {Ins}
+		;王者复生。技能可用。
+	}else if(){
+		
+	}
+
+	if(isHarm and targetIsSinging and soulFrzAv){
+		Send {F11}
+		;心灵冰冻。敌对、目标吟唱、技能可用。
+	}else if(isHarm and targetIsSinging and judge(1280,1025,0xFFFFFF)){
+		Send {9}
+		;绞袭。敌对、目标吟唱、心灵冰冻CD、技能可用。
+	}else if(isHarm and targetIsSinging and lookAtMe and antiMgcCD and judge(1420,1025,0xFFFFFF)){
+		Send {y}
+		;反魔法领域。敌对、目标吟唱、看着我、反魔法护罩CD、技能可用。
+	}else if(isHarm and targetIsSinging and lookAtMe and antiMgcAv){
+		Send {[}
+		;反魔法护罩。敌对、目标吟唱、看着我、技能可用。
+	}else if(isHarm and not deBuff_2 and not isSlowedDown and judge(70,1025,0xFFFFFF)){
+		send {F7}
+		;暗影打击。敌对、无该DEBUFF、未被减速、技能可用。
+	}else if(isHarm and deBuff_1 and deBuff_2 and not isSlowedDown and judge(490,1025,0xFFFFFF)){
+		send {End}
+		;天灾打击。敌对、双疾病、未被减速、技能可用。
+	}else if(isHarm and isPvpTarget and isFar and not isSlowedDown and judge(210,1025,0xFFFFFF)){
+		Send {F10}
+		;寒冰锁链。敌对、PVP、10码以外、未被减速、技能可用。
+	}else if(isHarm and (judge(8,878,0x294647) and deBuff_2 or judge(43,878,0x5E534F) and deBuff_1) and judge(1186,1025,0xFFFFFF)){
+		send {7}
+		AOE_CD_INSIDE:=1
+		;传染。敌对、任一疾病快用完、技能可用。
+	}else if(isHarm and isClose and judge(397,1025,0xFFFFFF) and RuneCost(20,player_RP,player_HP,petExists)){
+		send {PGUP}
+		;召唤石像鬼。敌对、近身、技能可用、留20符能（微妙，见公式）。
+	}else if(isHarm and RuneCost(40,player_RP,player_HP,petExists) and (not judge(190,893,0xFFD100) or player_RP>70) and judge(163,1025,0xFFFFFF)){
+		send {F9}
+		;凋零缠绕。敌对、40符能、无邪恶虫群DEBUFF或符能大于70、技能可用。
+	}else if(isHarm and AOE_CD_INSIDE=0 and AOE_SWITCH=2 and deBuff_1 and deBuff_2 and judge(1186,1025,0xFFFFFF)){
+		send {7}
+		AOE_CD_INSIDE:=1
+		;传染。内置CD为0、AOE开启、双疾病、技能可用。
+	}else if(isPveTarget and isHarm and isClose and AOE_SWITCH=2 and judge(1326,1025,0xFFFFFF)){
+		send {0}
+		;枯萎凋零。PVE目标、敌对、近战、AOE开启、技能可用。
+	}else if(isHarm and AOE_SWITCH=2 and not AOE_CD_INSIDE=0 and deBuff_1 and deBuff_2 and judge(1233,1025,0xFFFFFF)){
+		send {8}
+		;血液沸腾。敌对、AOE已开、AOE内置CD不为0、双疫病、技能可用。
+	}else if(isHarm and not deBuff_2 and judge(70,1025,0xFFFFFF)){
+		send {F7}
+		;暗影打击。敌对、无该DEBUFF、技能可用。
+	}else if(isHarm and not deBuff_1 and judge(23,1025,0xFFFFFF)){
+		send {F6}
+		;冰冷触摸。敌对、无该DEBUFF或无冰冷之爪、技能可用。
+	}else if(petExists and not judge(402,893,0xFFD100) and judge(1139,1025,0xFFFFFF)){
+		send {6}
+		;食尸鬼狂乱。无该BUFF、技能可用。
+	}else if(isHarm and deBuff_1 and deBuff_2 and not judge(473,893,0xFFD100) and judge(116,1025,0xFFFFFF)){
+		send {F8}
+		;鲜血打击。敌对、双疫病、没孤寂、技能可用。
+	}else if(isHarm and deBuff_1 and deBuff_2 and judge(490,1025,0xFFFFFF)){
+		send {End}
+		;天灾打击。敌对、双疾病、技能可用。
+	}else if(isHarm and deBuff_1 and deBuff_2 and player_HP<85 and judge(444,1025,0xFFFFFF)){
+		send {Del}
+		;灵界打击。敌对、双疫病、玩家血小于85、技能可用。
+	}else if(isHarm and RuneCost(40,player_RP,player_HP,petExists) and judge(163,1025,0xFFFFFF)){
+		send {F9}
+		;凋零缠绕。敌对、31符能、技能可用。
+	}else if(judge(537,1025,0xFFFFFF)){
+		send {PGDN}
+		;白骨之盾。技能可用。
+	}else if(judge(1654,1025,0xFFFFFF)){
+		send {j}
+		;寒冬号角。技能可用。
+	}else if(){
+		
+	}
+
+	if(petExists and (not judge(696,745,0xACA89B) or judge(168,130,0x008E00))){
+		;宠物存在、不在蜷缩或85血。
+		if(not judge(152,130,0x008600) and not judge(341,932,0xFFFF00,0x00FF00)){
+			send ^{7}
+			;蜷缩。BB不满60血、技能可用。
+		}else if(isHarm and isFar and (not isSlowedDown or targetIsSinging or not judge(1560,975,0xFFFFFF)) and not judge(261,931,0xFFFF00,0x00FF00)){
+			;10码以外。敌对、未被减速、或在吟唱、或我被晕了、技能不CD。
+			send ^{5}^{6}
+		}else if(isHarm and not judge(222,926,0xFFFF00,0x00FF00) and judge(160,140,0x706F00)){
+			;敌对、技能可用、满70能量。
+			send ^{4}
+		}
+	}
+	
+	if(AOE_CD_INSIDE>35){
+		;8秒的内置CD。
+		AOE_CD_INSIDE:=0
+	}else if(AOE_CD_INSIDE>0){
+		AOE_CD_INSIDE++
+	}
+}
+
+Blood_Rune(){	;计算剩余血符文数。
+	Return 2-judge(114,100,0xFFFF00)-judge(139,100,0xFFFF00)
+}
+
+Frost_Rune(){	;计算剩余冰符文数。
+	Return 2-judge(165,100,0xFFFF00)-judge(191,100,0xFFFF00)
+}
+
+Evil_Rune(){	;计算剩余邪符文数。
+	Return 2-judge(217,100,0xFFFF00)-judge(243,100,0xFFFF00)
+}
+
+IsPvpTarget(tarClr){
+	Return tarClr=0xC41F3B or tarClr=0x9482C9 or tarClr=0xF58CBA or tarClr=0xFFFFFF or tarClr=0xC79C6E or tarClr=0x69CCF0 or tarClr=0xFF7D0A or tarClr=0x0070DE or tarClr=0xFFF569 or tarClr=0xABD473
+}
+
+RuneCost(skillCost,player_RP,player_HP,petExists){
+	gargoyle_Avlb:=not judge(397,1025,0xFFFF00)	;召唤石像鬼不在CD
+	disasterContract_Avlb:=player_HP<75 and petExists and not judge(70,975,0xFFFF00)	;玩家血量不满75、宠物存在、天灾契约不在CD。
+	
+	mindFreeze_Avlb:=not judge(257,1025,0xFFFF00)	;心灵冰冻不在CD。
+	iceboundFortitude_Avlb:=player_HP<80 and not judge(1467,1025,0xFFFF00)	;玩家血不满80、冰封之韧不在CD。
+	antiMagicShield_Avlb:=judge(163,975,0xFFFF00)	;反魔法护罩不在CD。
+	globalRPLeft:=mindFreeze_Avlb or iceboundFortitude_Avlb or antiMagicShield_Avlb
+	
+	
+	
+	Return player_RP>=(skillCost+gargoyle_Avlb*60+globalRPLeft*20+disasterContract_Avlb*40)/1.3
+}
+
+;===================================================
+;=                  状态计量函数                   =
+;===================================================
+GetUnitRaidHealth(SequenceNum){
+	local min_Num:=0
+	local max_Num:=Raid%SequenceNum%_count-1
+	while(max_Num-min_Num>1){
+		local mid_Num:=Round((min_Num+max_Num)/2)
+		if(GetColor(Raid%SequenceNum%_X_%mid_Num%,Raid%SequenceNum%_Y_%mid_Num%)=Raid%SequenceNum%_value_%mid_Num%){
+			min_Num:=mid_Num
+		}else{
+			max_Num:=mid_Num
+		}
+	}
+
+	Return Round(min_Num/(Raid%SequenceNum%_count-1)*100)
+}
+
+GetValue(valueName){
+	local min_Num:=0
+	local max_Num:=%valueName%_count-1
+	while(max_Num-min_Num>1){
+		local mid_Num:=Round((min_Num+max_Num)/2)
+		if(GetColor(%valueName%_X_%mid_Num%,%valueName%_Y_%mid_Num%)=%valueName%_value_%mid_Num%){
+			min_Num:=mid_Num
+		}else{
+			max_Num:=mid_Num
+		}
+	}
+
+	Return Round(min_Num/(%valueName%_count-1)*100)
+}
+
+;===================================================
+;=               常用函数、工具                    =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+Eql2(a,b="",c="",d="",e="",f=""){
+	Return a=b or a=c or a=d or a=e or a=f
+}
+
+IsMoving(){
+	Return GetKeyState("w","p") or GetKeyState("a","p") or GetKeyState("s","p") or GetKeyState("d","p")
+}
+
+GetColorAndXy(x,y,binColor){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%x%,%y%,%gColor%
+	MsgBox %x%,%y%,%gColor%
+}
+
+GetColor(x,y){
+	PixelGetColor theColor,x,y,RGB
+	return theColor
+}
+
+^Numpad4::
+Clipboard = 0504aslan@163.com
+send ^{v}{Tab}
+sleep 128
+Clipboard = chao1986
+send ^{v}{enter}
+return
+
+;右Ctrl快速得到颜色。
+~RCtrl::
+    while(GetKeyState("RCtrl")){
+        MouseGetPos x,y
+		PixelGetColor mouse_color,x,y,RGB
+        ToolTip % x "," y "," mouse_color
+        Sleep 16
+    }
+    ToolTip
+return
+
+;===================================================
+;=        Excel和SciTE针对judge()的修缮工具        =
+;===================================================
+#IfWinActive ahk_group MyGroup
+F1::
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F2::
+send +^{Right 2}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F3::
+send +^{Right 4}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F4::
+send +^{Right 6}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F5::
+send +^{Right 8}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+;===================================================
+;=            DK[邪恶][PVP][斯巴柔船长]            =
+;===================================================

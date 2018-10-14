@@ -1,0 +1,65 @@
+#Persistent
+#IfWinActive, ahk_class wxWindowClassNR  ;只在游戏窗口内有效
+SetTimer, WatchAxis, 5
+return
+WatchAxis:
+ifwinnotactive ahk_class wxWindowClassNR
+  return
+GetKeyState, JoyX, JoyX  ; Get position of X axis.
+GetKeyState, JoyY, JoyY  ; Get position of Y axis.
+GetKeyState, 2JoyX, 2JoyX  ; Get position of X axis.
+GetKeyState, 2JoyY, 2JoyY  ; Get position of Y axis.
+KeyToHoldDownPrev1 = %KeyToHoldDown1%  ; Prev now holds the key that was down before (if any).
+KeyToHoldDownPrev2 = %KeyToHoldDown2%
+KeyToHoldDownPrev3 = %KeyToHoldDown3%  ; Prev now holds the key that was down before (if any).
+KeyToHoldDownPrev4 = %KeyToHoldDown4%
+if JoyX > 70
+    KeyToHoldDown1 = d
+else if JoyX < 30
+    KeyToHoldDown1 = a
+else
+    KeyToHoldDown1 =
+	
+if 2JoyX > 70
+    KeyToHoldDown3 = z
+else if 2JoyX < 30
+    KeyToHoldDown3 = x
+else
+    KeyToHoldDown3 =
+
+if JoyY > 70
+    KeyToHoldDown2 = s
+else if JoyY < 30
+    KeyToHoldDown2 = w
+else
+    KeyToHoldDown2 =
+
+if 2JoyY > 70
+    KeyToHoldDown4 = c
+else if 2JoyY < 30
+    KeyToHoldDown4 = v
+else
+    KeyToHoldDown4 =
+
+if (KeyToHoldDown1 = KeyToHoldDownPrev1 && KeyToHoldDown2 = KeyToHoldDownPrev2 && KeyToHoldDown3 = KeyToHoldDownPrev3 && KeyToHoldDown4 = KeyToHoldDownPrev4 )  ; The correct key is already down (or no key is needed).
+    return  ; Do nothing.
+; Otherwise, release the previous key and press down the new key:
+SetKeyDelay -1  ; Avoid delays between keystrokes.
+if KeyToHoldDownPrev1   ; There is a previous key to release.
+    Send, {%KeyToHoldDownPrev1% up}  ; Release it.
+if KeyToHoldDownPrev2   ; There is a previous key to release.
+    Send, {%KeyToHoldDownPrev2% up}  ; Release it.
+if KeyToHoldDown1   ; There is a key to press down.
+    Send, {%KeyToHoldDown1% down}  ; Press it down.
+if KeyToHoldDown2   ; There is a key to press down.
+    Send, {%KeyToHoldDown2% down}  ; Press it down.
+
+if KeyToHoldDownPrev3   ; There is a previous key to release.
+    Send, {%KeyToHoldDownPrev3% up}  ; Release it.
+if KeyToHoldDownPrev4   ; There is a previous key to release.
+    Send, {%KeyToHoldDownPrev4% up}  ; Release it.
+if KeyToHoldDown3   ; There is a key to press down.
+    Send, {%KeyToHoldDown3% down}  ; Press it down.
+if KeyToHoldDown4   ; There is a key to press down.
+    Send, {%KeyToHoldDown4% down}  ; Press it down.
+return

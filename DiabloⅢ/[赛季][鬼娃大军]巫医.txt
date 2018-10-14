@@ -1,0 +1,296 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed, 0
+;===================================================
+;=                   全局变量初始化                =
+;===================================================
+#IfWinActive ahk_class D3 Main Window Class
+;===================================================
+;=                     全局变量                    =
+;===================================================
+CoreDist:=160
+Shoot_Count:=1
+SKILL_1ST_TIME:=A_Now
+BATTLE_MODE:=0		;1档:聊天。2档:站桩。3档:倒车。4档:左移。5档右移。6:前进。
+TURN_R:=1.95		;转弯半径。数值越大转弯幅度越大。
+Rolling_Time:=A_Now
+;===================================================
+;=                     抓点工具                    =
+;===================================================
+^Numpad9::
+Clipboard := getColorAndXy(722,360,0x613217) 	;33,857,0xFFF3CE 722,360,0x6B4843 722,360,0x29272C
+return
+
+^Numpad6::
+MouseGetPos mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard = %mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+
+^Numpad3::
+ITEM_OUTPUT:=GetColor(872,974) . GetColor(808,974) . GetColor(546,974) . GetColor(611,974) . GetColor(676,974) . GetColor(741,974)
+Clipboard := ITEM_OUTPUT
+MsgBox "技能截取OK"
+Return
+
+^NumpadDot::
+SKILL_OUTPUT:=GetColor(815,725) . "`t" . GetColor(871,725) . "`t" . GetColor(926,725) . "`t" . GetColor(982,725)
+Clipboard := SKILL_OUTPUT
+MsgBox "作废"
+Return
+;===================================================
+;=              	   正文				   		   =
+;===================================================
+~F1::
+if(BATTLE_MODE=1){
+	BATTLE_MODE:=0
+	ToolTip
+}else{
+	BATTLE_MODE:=1
+	ToolTip,Chat Mode,840,250
+}
+Return
+
+~Alt::
+if(BATTLE_MODE=2){	;1档:聊天。2档:站桩。3档:倒车。4档:左移。5档:右移。6档:前进。7档:拾荒。8档:风骚走位
+	BATTLE_MODE:=3
+}
+Rolling_Time:=A_Now
+Return
+
+~Enter::
+~NumpadEnter::
+Loop 5{
+	Sleep 180
+	if(judge(33,857,0xFFF3CE33,0xFFCB8C) and BATTLE_MODE<>1){
+		BATTLE_MODE:=1
+		ToolTip,Chat Mode,840,250
+		Return
+	}
+}
+if(not judge(33,857,0xFFF3CE33,0xFFCB8C) and BATTLE_MODE=1){
+	BATTLE_MODE:=0
+	ToolTip
+}
+Return
+
+~Esc::
+~Space::
+~LButton::
+~RButton::
+~t::
+ifequal,BATTLE_MODE,1,Return
+BATTLE_MODE:=0
+RButtonClick:=0
+ToolTip
+send {shift up}
+Return
+
+F2::
+ifequal,BATTLE_MODE,1,Return
+BATTLE_MODE:=0
+ToolTip
+send {shift up}
+if(RButtonClick=1){
+	RButtonClick:=0
+}else{
+	RButtonClick:=1
+	SetTimer AT_RButtonClick,32
+}
+Return
+
+AT_RButtonClick:
+ifequal,RButtonClick,0,SetTimer AT_RButtonClick,Off
+send {RButton}
+Return
+
+~e::
+ifequal,BATTLE_MODE,1,Return	;如果是聊天模式就跳过。
+if(BATTLE_MODE=0){
+	BATTLE_MODE:=2
+	SetTimer AT_Sht,32
+}Else{
+	BATTLE_MODE:=2
+}
+Return
+
+~r::
+ifequal,BATTLE_MODE,1,Return	;如果是聊天模式就跳过。
+if(BATTLE_MODE=0){
+	BATTLE_MODE:=7
+	SetTimer AT_Sht,32
+}Else{
+	BATTLE_MODE:=7
+}
+Return
+
+~2::
+ifequal,BATTLE_MODE,1,Return	;如果是聊天模式就跳过。
+if(BATTLE_MODE=0){	;8档:风骚走位
+	BATTLE_MODE:=8
+	SetTimer AT_Sht,32
+}Else{
+	BATTLE_MODE:=8
+}
+Return
+
+AT_Sht:
+ifequal,BATTLE_MODE,0,SetTimer AT_Sht,Off	;如果"0.停止"则中止TIMER。1档:聊天。2档:站桩。3档:倒车。4档:左移。5档:右移。6档:前进。7档:拾荒。8档:风骚走位
+if(BATTLE_MODE=7){	;7档:拾荒。
+	send {LButton}
+	Return
+}else if(BATTLE_MODE=8){
+	send {n}
+	IfThenDo(judge(676,974,0x555643),"{2}")
+	Return
+}else{
+	MouseGetPos mx,my
+	Shooting(mx,my)
+	ifequal,BATTLE_MODE,2,Return	;如果是"2.原地射击"则该循环结束。
+	TxTy()
+	ifequal,BATTLE_MODE,0,Return	;如果"0.停止"则中止TIMER。
+}
+
+if(BATTLE_MODE=6){
+	send {n}
+}else if(GetKeyState("r","p")){
+	send {n}
+}else{
+	MouseMove tx,ty
+	send {n}
+	MouseMove mx,my
+}
+Return
+
+TxTy(){
+	global BATTLE_MODE,tx,ty,mx,my,CoreDist,TURN_R
+	if(BATTLE_MODE=3){
+		tx:=-Cos_(mx,my)*CoreDist+840
+		ty:=-Sin_(mx,my)*CoreDist+493
+	}else if(BATTLE_MODE=4){
+		tx:=-Sin_(mx,my)*CoreDist+840
+		ty:=Cos_(mx,my)*CoreDist+450
+		mx-=(tx-840)/Sqrt(CoreDist)*TURN_R
+		my-=(ty-450)/Sqrt(CoreDist)*TURN_R
+	}else if(BATTLE_MODE=5){
+		tx:=Sin_(mx,my)*CoreDist+840
+		ty:=-Cos_(mx,my)*CoreDist+450
+		mx-=(tx-840)/Sqrt(CoreDist)*TURN_R
+		my-=(ty-450)/Sqrt(CoreDist)*TURN_R
+	}
+}
+
+
+~s::
+ifequal,BATTLE_MODE,1,Return	;如果"0.停止"则中止TIMER。1档:聊天。2档:站桩。3档:倒车。4档:左移。5档:右移。6档:前进。7档:拾荒。8档:风骚走位；9档:逃跑
+if(BATTLE_MODE=0){
+	BATTLE_MODE:=3
+	SetTimer AT_Sht,32
+}Else if(BATTLE_MODE=3){	;如果已经 3档:倒车了 再按一下就是 8:零距离风筝。
+	BATTLE_MODE:=9
+	SetTimer AT_Sht,32
+}Else if(BATTLE_MODE=9){	;如果已经 8档。则按了不生效。
+}Else{
+	BATTLE_MODE:=3
+}
+Return
+
+~d::
+ifequal,BATTLE_MODE,1,Return	;如果是聊天模式就跳过。
+if(BATTLE_MODE=0){
+	BATTLE_MODE:=4
+	SetTimer AT_Sht,32
+}Else{
+	BATTLE_MODE:=4
+}
+Return
+
+~a::
+ifequal,BATTLE_MODE,1,Return	;如果是聊天模式就跳过。
+if(BATTLE_MODE=0){
+	BATTLE_MODE:=5
+	SetTimer AT_Sht,32
+}Else{
+	BATTLE_MODE:=5
+}
+Return
+	
+~w::
+ifequal,BATTLE_MODE,1,Return	;如果是聊天模式就跳过。
+if(BATTLE_MODE=0){
+	BATTLE_MODE:=6
+	SetTimer AT_Sht,32
+}Else{
+	BATTLE_MODE:=6
+}
+Return
+
+Shooting(x=0,y=0){
+	global Shoot_Count,SKILL_1ST_TIME,BATTLE_MODE
+;~ 	target_distance:=Sqrt(Square(x-840)+Square(y-493))	;目标距离
+	ifequal,BATTLE_MODE,9,Return	;如果是聊天模式就跳过。
+	send {3}
+	
+	IfThenDo(not judge(52,123,0x770000), "{q}")	;;如果血不满35%则使用血瓶
+	IfThenDo(not judge(220,60,0x16140D) and not judge(310,60,0x16140D) and not judge(130,60,0x16140D) and judge(546,974,0x555643), "{1}")	
+	;↑	鬼娃大军。在2号位和3号位和4号位都不满8且技能可用。
+	IfThenDo(judge(872,974,0x1C201A), "{RButton}")	;;食人鱼可用时施放。
+	IfThenDo(judge(808,974,0x1C201A), "+{lButton}")	;;亡者之握可用时施放。
+	IfThenDo(judge(741,974,0x555643), "{4}")	;;巫毒狂舞可用时施放。
+}
+
+Random_(){
+	Random rand,1,100
+	Return rand
+}
+
+Sin_(x,y){
+	return (y-493)/Sqrt(Square(x-840)+Square(y-493))
+}
+
+Cos_(x,y){
+	return (x-840)/Sqrt(Square(x-840)+Square(y-493))
+}
+
+Square(x){
+	return x*x
+}
+;===================================================
+;=                钱教授的百宝盒                   =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+getColorAndXy(x,y,binColor=""){
+;~ 	MouseMove x,y
+	while(GetKeyState("LCtrl")){
+		cout:=""
+		PixelGetColor mouse_color,x,y,RGB
+;~ 		cout:=RegExReplace(cout,"$",x "," y "," mouse_color "`n")
+		cout:=x . "," . y . "," . mouse_color
+;~         ToolTip % cout
+        Sleep 10
+    }
+    ToolTip
+	Return cout
+}
+
+GetColor(x,y){
+	PixelGetColor clr,x,y,RGB
+	cout:=x . "," . y . "," . clr . "`n"
+	Return cout
+}
+
+IfThenDo(condition=false,action_word=""){
+	if(condition){
+		send %action_word%
+	}
+}
+;====================================================================
+;       Diablo III 巫医 赛季 鬼娃大军 2015年10月18日 18:28:41
+;====================================================================

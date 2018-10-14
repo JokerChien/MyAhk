@@ -1,0 +1,315 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed, 0
+;===================================================
+;=              Grid_Health配置文件                =
+;===================================================
+;~ HERO_COUNT:=0
+;~ Loop, read, D:\Program Files\AutoHotkey\Wow_DataBase\Hero_List.txt		;读取配置文件。
+;~ {
+;~ 	HERO_COUNT++
+;~ 	Line%HERO_COUNT%:= A_LoopReadLine	;行数、行内容。
+;~ }
+
+;~ Loop %HERO_COUNT%
+;~ {
+;~ 	element:=Line%A_Index%		;中间变量
+;~ 	
+;~ 	StringSplit ARRAY,element,`,
+;~ 	Hero_Color_%A_Index%:=ARRAY1
+;~ 	Hero_SN_%A_Index%:=ARRAY2
+;~ 	Hero_Name_%A_Index%:=ARRAY3
+;~ }
+
+;~ MsgBox %Line1%
+;~ f2::
+;~ MouseGetPos mx,my
+;~ PixelGetColor c4,mx,my,RGB
+;~ clipboard = %mx%,%my%,%c4%
+;~ MsgBox %mx%,%my%,%c4%
+;~ return
+;===================================================
+;=                   全局变量初始化                =
+;===================================================
+#IfWinActive ahk_class D3 Main Window Class
+;===================================================
+;=                     全局变量                    =
+;===================================================
+CoreDist:=160
+Shoot_Count:=1
+BATTLE_MODE:=0	;1档:聊天。2档:站桩。3档:倒车。4档:左移。5档右移。6:前进。
+;===================================================
+;=                     抓点工具                    =
+;===================================================
+^Numpad9::
+Clipboard := getColorAndXy(681,71,0xDDB1FA)
+return
+
+^Numpad6::
+MouseGetPos mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard = %mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+
+^Numpad3::
+ITEM_OUTPUT:=GetColor(872,974) . "," . GetColor(808,974) . "," . GetColor(546,974) . "," . GetColor(611,974) . "," . GetColor(676,974) . "," . GetColor(741,974)
+Clipboard := ITEM_OUTPUT
+MsgBox "技能截取OK"
+Return
+
+^NumpadDot::
+SKILL_OUTPUT:=GetColor(815,725) . "`t" . GetColor(871,725) . "`t" . GetColor(926,725) . "`t" . GetColor(982,725)
+Clipboard := SKILL_OUTPUT
+MsgBox "作废"
+Return
+;===================================================
+;=              	   正文				   		   =
+;===================================================
+F1::
+if(BATTLE_MODE=1){
+	BATTLE_MODE:=0
+	ToolTip
+}else{
+	BATTLE_MODE:=1
+	ToolTip,Chat Mode,840,250
+}
+Return
+
+~Esc::
+~Space::
+~LButton::
+~RButton::
+ifequal,BATTLE_MODE,1,Return
+CloseAllTimer()
+BATTLE_MODE:=0
+ToolTip
+send {shift up}
+Return
+
+f2::
+CloseAllTimer()
+Return
+
+~e::
+ifequal,BATTLE_MODE,1,Return
+CloseAllTimer()
+BATTLE_MODE:=2
+SetTimer BM2,32
+Return
+
+BM2:
+	IfNotEqual BATTLE_MODE,2,Return
+	ToolTip
+	MouseGetPos mx,my
+	Shooting(mx,my)
+Return
+
+~s::
+ifequal,BATTLE_MODE,1,Return
+CloseAllTimer()
+BATTLE_MODE:=3
+SetTimer BM3,32
+Return
+	
+BM3:
+	IfNotEqual BATTLE_MODE,3,Return
+	ToolTip
+	MouseGetPos mx,my
+	Shooting(mx,my)
+	
+;~ 	tooltip,⊕,%mx%,%my%
+	tx:=-Cos_(mx,my)*CoreDist+840
+	ty:=-Sin_(mx,my)*CoreDist+493
+	IfNotEqual BATTLE_MODE,3,Return
+	MouseMove tx,ty
+	send {n}	;用N移动不至于误捡物品。
+	
+	MouseMove mx,my
+Return
+
+~d::
+ifequal,BATTLE_MODE,1,Return
+CloseAllTimer()
+BATTLE_MODE:=4
+SetTimer BM4,32
+Return
+	
+BM4:
+	IfNotEqual BATTLE_MODE,4,Return
+	ToolTip
+	MouseGetPos mx,my
+;~ 	target_distance:=Sqrt(Square(mx-840)+Square(my-493))
+	Shooting(mx,my)
+	
+;~ 	tooltip,⊕,%mx%,%my%
+	tx:=-Sin_(mx,my)*CoreDist+840
+	ty:=Cos_(mx,my)*CoreDist+450
+	IfNotEqual BATTLE_MODE,4,Return
+	MouseMove tx,ty
+	send {n}	;用N移动不至于误捡物品。
+	
+;~ 	mx-=(tx-840)/8
+;~ 	my-=(ty-450)/8
+	mx-=(tx-840)/Sqrt(CoreDist)/1.5
+	my-=(ty-450)/Sqrt(CoreDist)/1.5
+	MouseMove mx,my
+Return
+
+~a::
+ifequal,BATTLE_MODE,1,Return
+If(judge(1035,286,0xCB9763))
+Return	;如果在登入画面则取消。	
+
+CloseAllTimer()
+BATTLE_MODE:=5
+SetTimer BM5,32
+Return
+	
+BM5:
+	IfNotEqual BATTLE_MODE,5,Return
+	ToolTip
+	MouseGetPos mx,my
+;~ 	target_distance:=Sqrt(Square(mx-840)+Square(my-493))
+	Shooting(mx,my)
+	
+;~ 	tooltip,⊕,%mx%,%my%
+	tx:=Sin_(mx,my)*CoreDist+840
+	ty:=-Cos_(mx,my)*CoreDist+450
+	IfNotEqual BATTLE_MODE,5,Return
+	MouseMove tx,ty
+	send {n}	;用N移动不至于误捡物品。
+	
+	mx-=(tx-840)/Sqrt(CoreDist)/1.5
+	my-=(ty-450)/Sqrt(CoreDist)/1.5
+	MouseMove mx,my
+Return
+
+~w::
+ifequal,BATTLE_MODE,1,Return
+CloseAllTimer()
+BATTLE_MODE:=6
+SetTimer BM6,32
+Return
+
+BM6:
+	IfNotEqual BATTLE_MODE,6,Return
+	ToolTip
+	MouseGetPos mx,my
+	Shooting(mx,my)
+	
+	send {n}	;用N移动不至于误捡物品。
+Return
+
+CloseAllTimer(){
+	SetTimer BM2,Off
+	SetTimer BM3,Off
+	SetTimer BM4,Off
+	SetTimer BM5,Off
+	SetTimer BM6,Off
+	ToolTip
+}
+
+Shooting(x=0,y=0){
+	global Shoot_Count
+	target_selected:=judge(927,71,0x2B0F0D) or judge(681,71,0x573C13) or judge(724,71,0x2F3339)	;普通怪、金怪、银怪
+	target_distance:=Sqrt(Square(x-840)+Square(y-493))	;目标距离
+	
+;	if(not judge(241,40,0xC4BFE7) and not judge(148,35,0x645260) and judge(741,974,0x555643)){
+;		send {4}	;巨尸2号位3号位都不在，技能可用。
+;~ 	}else if(target_selected and judge(611,974,0x555643,0x4F5649) and target_distance<180){
+;~ 		send {2}
+		;尖啸。选中目标、2技能可用、距离小于xxx。
+;	}else 
+
+	if(target_selected and judge(676,974,0x555643,0x4F4F41) and target_distance<160){
+		send {3}
+		;回避射击。技能可用。
+	}else if(target_distance<220 and target_selected and judge(546,974,0x555643)){	;陷阱
+		send {1}
+	}else if(judge(872,974,0x1B1B14,0x1C201A) and target_selected){
+		send +{RButton}
+		;技能可用。目標or精英or銀怪存在。
+	}else{
+		send +{lButton}
+	}
+	
+;~ 	if(not judge(127,58,0x00FF00) and judge(546,974,0x555643)){	;2号位置的狗没有3个，技能可用。
+;~ 		send {1}	
+;~ 	}
+	
+;~ 	if(target_selected and judge(546,974,0x555643)){	;献祭
+;~ 		send {1}
+;~ 	}
+;~ 	Shoot_Count++54*
+;~ 	if(Shoot_Count>20){
+;~ 		Shoot_Count:=1
+;~ 	}
+}
+
+Random_(){
+	Random rand,1,100
+	Return rand
+}
+
+Sin_(x,y){
+	return (y-493)/Sqrt(Square(x-840)+Square(y-493))
+}
+
+Cos_(x,y){
+	return (x-840)/Sqrt(Square(x-840)+Square(y-493))
+}
+
+Square(x){
+	return x*x
+}
+;===================================================
+;=                钱教授的百宝盒                   =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+getColorAndXy(x,y,binColor=""){
+;~ 	MouseMove x,y
+	while(GetKeyState("LCtrl")){
+		cout:=""
+		PixelGetColor mouse_color,x,y,RGB
+;~ 		cout:=RegExReplace(cout,"$",x "," y "," mouse_color "`n")
+		cout:=x . "," . y . "," . mouse_color
+        ToolTip % cout
+        Sleep 10
+    }
+    ToolTip
+	Return cout
+}
+
+GetColor(x,y){
+	PixelGetColor clr,x,y,RGB
+	Return clr
+}
+;~ SendingMsg(string){
+;~ 	global ISNOTCHAT
+;~ 	send {enter}
+;~ 	sleep 100
+;~ 	Clipboard:=string
+;~ 	send ^{v}{enter}
+;~ 	sleep 250	;回车之后判断聊天状态需要200秒。
+;~ 	ISNOTCHAT:=True
+;~ }
+
+;~ SendingShiftMsg(string){
+;~ 	global ISNOTCHAT
+;~ 	send +{enter}
+;~ 	sleep 100
+;~ 	Clipboard:=string
+;~ 	send ^{v}{enter}
+;~ 	sleep 250	;回车之后判断聊天状态需要200秒。
+;~ 	ISNOTCHAT:=True
+;~ }
+;===================================================
+;=                  D3猎魔                         =
+;===================================================

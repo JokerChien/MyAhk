@@ -1,0 +1,474 @@
+;================================钱教授的工具宝
+^1::
+getColorAndXy(0x241900,724,843)
+return
+
+^2::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard =%c4%,%mx%,%my%
+MsgBox %c4%,%mx%,%my%
+return
+
+getColorAndXy(binColor,x,y){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%gColor%,%x%,%y%
+	MsgBox %gColor%,%x%,%y%
+}
+
+;================================正文
+1::
+SoundPlay %A_WinDir%\Media\tada.wav
+loop{
+	if(orjudge(0x002400,0x241900,724,843)){
+		;玩家施法什么也不做。
+	}else if(EscIsDown()){
+		SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+		Break
+	}else{
+		Gua()
+	}
+	sleep 256
+}
+return
+
+Gua(){
+	local petOrGreen:=orjudge(0x00FF00,0x8080FF,526,28)
+	local isHarm:=judge(0xFFFFFF,584,1024)
+	local isEliteTarget:=judge(0x332F30,465,35)
+	local isDead:=judge(0xFFFFFF,1657,975)
+	local nocombat:=judge(0xFFFFFF,1610,975)
+	local isNearBy:=judge(0x9F0000,5,835)
+	local isClose:=judge(0x780000,5,815)
+	
+	if(judge(0xC39628,787,44)){
+		;战场中。
+		if(judge(0xA04600,813,222)){
+			MouseClick left,813,222
+			;施放灵魂。
+		}else if(judge(0x6E5400,844,731)){
+			MouseClick left,844,731
+			;离开战场。
+		}
+		
+		if(isHarm){
+			if(judge(0xFFFFFF,1657,1024)){
+				send {j}
+				;投掷。
+			}
+		
+			if(judge(0xFFFFFF,24,975)){
+				send {k}
+				;拦截。
+			}else if(judge(0xFFFFFF,351,975)){
+				send {'}
+				;冲锋。
+			}	
+			Protection()
+		}
+		
+		if((judge(0xFFD100,404,893) or judge(0xFFD100,440,893)) and judge(0xFFFFFF,864,1024)){
+			send {e}
+			;徽章。致盲、死亡缠绕、深度冻结、翼龙钉刺、龙息术、制裁之锤 技能可用。
+		}else if(not judge(0x5AA6FF,167,963)){
+			send {Down}
+			;防御姿态。如果不是防御姿态。
+		}else if(not judge(0xFFFFFF,211,975)){
+			send {]}
+			;装备盾牌。
+		}else if(judge(0xFFFFFF,1237,975) and judge(0xFFFFFF,537,1024)){
+			send {PGDN}
+			;震荡波。
+		}else if(judge(0xFFFFFF,1330,975)){
+			send +{5}
+			;震荡猛击。
+		}else if(judge(0xFFFFFF,1144,975)){
+			send +{1}
+			;冲锋。
+		}else if(judge(0xFFFFFF,1190,975)){
+			send +{2}
+			;拦截。
+		}else if(judge(0xFFFFFF,1284,975) and judge(0xA20000,123,75)){
+			send +{4}
+			;援护。
+		}else if(judge(0xFFFFFF,444,1024) and judge(0xAA0000,130,75)){
+			send {Del}
+			;雷霆一击。技能可用。
+		}else if(judge(0xFFFFFF,1237,975)){
+			send +{3}
+			;毁灭打击。
+		}else if(judge(0x5F5D5F,465,35) and not petOrGreen and not judge(0xD9EFF6,1440,34) and not isDead and not isNearBy and not judge(0x780000,5,815)){
+			send {backspace}
+			;跟随。普通怪、非绿怪宠物、不在被灵魂医者复活中、不是死人、不是近身。	
+		}
+	
+		if(isHarm and judge(0xFFFFFF,1657,1024)){
+			;什么也不做。
+		}else if(not isHarm and judge(0xFFFFFF,1237,975)){
+			send {F12}
+			;协助目标。
+		}else if(not judge(0x5F5D5F,465,35) or not isHarm and isClose or petOrGreen or judge(0x00009F,5,835) or isDead or isHarm and not isClose){	
+			send {up}
+			;选择友善目标。无目标或普通怪、在附近、或宠物绿怪、非近战敌对。
+		}
+		
+		if(judge(0xFFFFFF,1377,1024)){
+			sleep 256
+			if(judge(0xFFFFFF,1377,1024)){
+				send {t}
+			}
+			;骑马。两次校验。
+		}else if(judge(0x652516,1373,1022) and nocombat){
+			;骑乘状态、脱离战斗。
+			if(not judge(0x5AA6FF,167,963)){
+				send {Down}
+				;防御姿态。如果不是防御姿态。
+			}else if(judge(0xFFFFFF,724,975)){
+				send {numpad4}
+				send {space}
+				;寻找矿物。技能可用。
+			}
+		}else if(not judge(0x5AA6FF,167,963)){
+			send {Down}
+			;防御姿态。如果不是防御姿态。
+		}else if(judge(0xFFFFFF,118,975) and not nocombat){
+			send {=}
+			;法术反射。
+		}else if(judge(0xFFFFFF,1004,1024)){
+			send {x}
+			;狂暴之怒。
+		}else if(judge(0xFFFFFF,1610,1024)){
+			send {h}
+			;石像形态。
+		}else if(judge(0xFFFFFF,1470,1024)){
+			send {u}
+			;拳刃的宽容。
+		}else if(judge(0xFFFFFF,304,1024)  and not nocombat){
+			send {Ins}
+			;盾牌格挡
+		}else if(judge(0xFFFFFF,724,975)){
+			send {numpad4}
+			send {space}
+			;寻找矿物。技能可用。
+		}
+		
+		if(judge(0x626D7B,1442,148)){
+			send {space}
+			sleep 666
+			;跳。灵魂状态。
+		}else if(orjudge(0xD22111,0x5F0E00,810,224)){
+			MouseClick left,810,224
+			;施放灵魂。对话框。
+		}
+	}else if(not judge(0x715F5B,1522,192)){
+		;没在战场队列里。
+		if(judge(0x081094,1665,576)){
+			MouseClick Left,1665,576
+			;点PVP标签。可用。
+		}else if(judge(0x776200,130,681)){
+			MouseClick left,130,681
+			;点战场标签。可用。
+		}else if(orjudge(0xE4B500,0xFFECDD,265,643)){
+			MouseClick left,265,643
+			;加入战斗。
+		}else if(not judge(0x5AA6FF,167,963)){
+			send {Down}
+			;防御姿态。如果不是防御姿态。
+		}else if(judge(0xFFFFFF,351,1024)){
+			send {Home}
+			;横扫攻击。。
+		}else if(judge(0xFFFFFF,1004,1024)){
+			send {x}
+			;狂暴之怒。
+		}else if(judge(0xFFFFFF,1610,1024)){
+			send {h}
+			;石像形态。
+		}else if(judge(0xFFFFFF,1470,1024)){
+			send {u}
+			;拳刃的宽容。
+		}
+	}else{
+		;在战场队列里。
+		if(orjudge(0xE0A800,0xFFDCCC,372,645)){
+			MouseClick left,372,645
+			;取消。可用。
+		}else if(orjudge(0x580200,0xCB1403,752,242)){
+			MouseClick left,752,242
+			;进入战斗。框体可用。
+		}else if(orjudge(0xFFEEE1,0xEBB600,733,224)){
+			MouseClick left,733,224
+			;进入战斗。框体可用。
+		}else if(not judge(0x5AA6FF,167,963)){
+			send {Down}
+			;防御姿态。如果不是防御姿态。
+		}else if(judge(0xFFFFFF,1004,1024)){
+			send {x}
+			;狂暴之怒。
+		}else if(judge(0xFFFFFF,1610,1024)){
+			send {h}
+			;石像形态。
+		}else if(judge(0xFFFFFF,1470,1024)){
+			send {u}
+			;拳刃的宽容。
+		}else if(judge(0x5F5D5F,465,35) and not petOrGreen and not judge(0xD9EFF6,1440,34) and not isDead and not isNearBy and not judge(0x780000,5,815)){
+			send {backspace}
+			;跟随。普通怪、非绿怪宠物、不在被灵魂医者复活中、不是死人。	
+		}
+		
+		if(not judge(0x5F5D5F,465,35) or judge(0x5F5D5F,465,35) or petOrGreen or judge(0x00009F,5,835) or isDead or isHarm and not judge(0x780000,5,815)){	
+			send {up}
+			;选择友善目标。无目标或普通怪、在附近、或宠物绿怪、非近战敌对。
+		}
+	}
+}
+
+Playing(){
+	if(judge(0xFFFFFF,1470,1024)){
+		;拳刃的宽容。
+		send {u}
+	}else if(judge(0xFFFFFF,1423,1024)){
+		;血性狂暴。
+		send {y}
+	}else if(judge(0xFFFFFF,631,1024)){
+		;利刃风暴。
+		send {2}
+	}else if(judge(0xFFFFFF,444,1024)){
+		;雷霆一击。
+		send {del}
+	}else if(judge(0xFFFFFF,1004,1024)){
+		;狂暴之怒。
+		send {x}
+	}else if(judge(0xFFFFFF,864,1024)){
+		;徽章。
+		send {e}
+	}else if(judge(0xFFFFFF,1610,1024)){
+		;石像形态。
+		send {h}
+	}
+}
+
+Protection(){
+	local needToDisarm:=or4judge(0xC79C6E,0xFFF569,0xF58CBA,0xABD473,526,28) ;骑士盗贼或战士或猎人。
+	local targetHasMana:=judge(0x000083,317,75)
+	local has20Rage:=judge(0xAA0000,137,75)
+	local has25Rage:=judge(0xB00000,144,75)
+	local isSlowDown:=IsSlowDown()
+	local isClose:=judge(0x780000,5,815)
+	local isNearBy:=judge(0x9F0000,5,835)
+	local isMoving:=IsMoving()
+	local isHunter:=judge(0xABD473,526,28)
+	local in10Yards:=orjudge(0x783C00,0x780000,5,815)
+	local lookAtMe:=orjudge(0x9D4321,0x9D0000,465,114)
+	local targetSingMagic:=orjudge(0xEBA400,0x4747EB,807,806)
+	local equippedShield:=judge(0x8F826A,213,962)
+	local breaking:=judge(0xFFFFFF,351,1024) or judge(0xFFFFFF,537,1024) or judge(0xFFFFFF,258,1024)
+	local stun:=judge(0xFFD100,652,893)
+	
+	if(lookAtMe and (isClose and orjudge(0xC0BF00,0xC00000,388,75)) and judge(0xFFFFFF,118,1024)){
+		send {F8}
+		;盾墙。贴身、目标50能量或50怒气、技能可用。
+	}else if(needToDisarm and judge(0xFFFFFF,211,1024)){
+		send {F10}
+		;缴械。目标靠武器吃饭、技能可用。
+	}else if(judge(0xFFFFFF,1330,1024)){
+		send {0}
+		;盾牌猛击。技能可用、30怒气。
+	}else if(judge(0xFFFFFF,118,1024) and not judge(0x00B800,166,60)){
+		send {F8}
+		;盾墙。盾墙可用、40血以下。
+	}else if(lookAtMe and judge(0xFFFFFF,304,1024)){
+		send {Ins}
+		;盾牌格挡。看自己、技能可用。
+	}else if(judge(0xFFFFFF,71,1024) and judge(0xAA0000,130,75)){
+		send {F7}
+		;复仇。技能可用、15怒气。
+	}else if(has20Rage and not judge(0x995F1F,185,878) and judge(0xFFFFFF,258,975) ){
+		send {\}
+		;毁灭打击。20怒气、无该DEBUFF、技能可用。
+	}else if(breaking and not stun and has25Rage and isNearBy and judge(0xFFFFFF,537,1024)){
+		send {PGDN}
+		;震荡波。有打断技、没被晕、25怒气、技能可用、在附近。
+	}else if(breaking and not stun and has25Rage and judge(0xFFFFFF,351,1024)){
+		send {Home}
+		;震荡猛击。有打断技、没被晕、25怒气、技能可用。
+	}else if(has20Rage and not judge(0xFFD100,121,893) and judge(0xFFFFFF,397,1024)){
+		send {PGUP}
+		;撕裂。20怒气、无该DEBUFF、技能可用。
+	}else if(isClose and not targetHasMana and not judge(0xFFD100,157,893) and judge(0xB30000,152,75) and judge(0xFFFFFF,444,1024)){
+		send {Del}
+		;雷霆一击。贴近、目标无蓝、无该DEBUFF、30怒气、技能可用。
+	}else if(isClose and not targetHasMana and has20Rage and not judge(0xFFD100,86,893) and judge(0xFFFFFF,1097,1024)){
+		send {v}
+		;挫志怒吼。贴近、目标没蓝、20怒气、无该DEBUFF、技能可用。
+	}else if(has20Rage and judge(0xFFFFFF,491,1024)){
+		send {End}
+		;惩戒痛击。20怒气、技能可用。
+	}else if(has20Rage and not judge(0xFFD100,15,893) and judge(0xFFFFFF,957,1024)){
+		send {z}
+		;战斗怒吼。20怒气、无战斗命令怒吼、技能可用。
+	}else if(has25Rage and not judge(0xFFD100,192,893) and judge(0xFFFFFF,1517,1024)){
+		send {i}
+		;破甲攻击。25怒气、无该DEBUFF、技能可用。
+	}else if(judge(0xC60000,188,75) and judge(0xFFFFFF,1144,1024)){
+		send {6}
+		;英勇打击。55怒气、技能可用。
+	}
+}
+
+;================================钱教授的百宝盒
+
+^!Numpad1::
+SoundPlay %A_WinDir%\Media\tada.wav
+loop{
+	if(orjudge(0x002400,0x241900,724,843)){
+		;玩家施法什么也不做。
+	}else if(EscIsDown()){
+		SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+		Break
+	}else{
+		DoForGlory()
+	}
+	sleep 256
+}
+return
+
+DoForGlory(){
+	;之前先把战斗的召唤任务给接了。
+	if(orjudge(0x9A6F00,0xFF9788,112,655)){
+		MouseClick left,112,655
+		;完成任务。
+	}else if(orjudge(0x8B0F01,0x200001,112,655)){
+		MouseClick left,112,655
+		;继续。
+	}else if(orjudge(0xFFDA10,0xEFC310,43,322)){
+		MouseClick left,43,322
+		;共同的努力。
+	}else{
+		MouseClick Right,832,530
+	}	
+}
+
+IsSlowDown(){
+	return judge(0xFFD100,121,893) or judge(0xFFD100,227,893) or judge(0x1A62CF,122,871)
+}
+
+cantIntercept(){
+	return judge(0x7ED0F8,732,1016) or judge(0xFFFBE7,948,1016) or judge(0x8F8B9C,689,973)
+	;寒冰屏障、圣盾术、利刃风暴。
+}
+
+judge(tar_color,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color=get_color){
+		return true
+	}else{
+		return false
+	}
+}
+
+orjudge(tar_color1,tar_color2,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+
+or3judge(tar_color1,tar_color2,tar_color3,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color or tar_color3=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+
+or4judge(tar_color1,tar_color2,tar_color3,tar_color4,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+
+or5judge(tar_color1,tar_color2,tar_color3,tar_color4,tar_color5,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+;Tab键和鼠标右键是不是被按下。
+TabIsDown(){
+	GetKeyState state,Tab,p
+	if state=D
+		return true
+	Else
+		return RButtonIsDown()
+}
+
+RButtonIsDown(){
+	GetKeyState state,RButton,p
+	if state=D
+		return true
+	Else
+		return False
+}
+
+;是否移动状态，即WASD是否被按下。
+IsMoving(){
+	GetKeyState state,w,p
+	if state=D
+	;这里state=D不能加括号，确实非常之奇怪。
+		return true
+	Else
+		return AIsDown()
+}
+
+AIsDown(){
+	GetKeyState state,a,p
+	if state=D
+		return true
+	Else
+		return SIsDown()
+}
+
+SIsDown(){
+	GetKeyState state,s,p
+	if state=D
+		return true
+	Else
+		return DIsDown()
+}
+
+DIsDown(){
+	GetKeyState state,d,p
+	if state=D
+		return true
+	Else
+		return RIsDown()
+}
+
+RIsDown(){
+	GetKeyState state,r,p
+	if state=D
+		return true
+	Else
+		return false
+}
+
+interinterceptionIsReady(){
+	return orjudge(0xBC9D6A,0xFFBE7B,261,1006) or judge(0xBE8C4F,74,958) or judge(0x899798,168,958)
+}
+
+EscIsDown(){
+	GetKeyState state,Esc,p
+	if state=D
+		return true
+	Else
+		return False
+}

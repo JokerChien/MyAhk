@@ -1,0 +1,67 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed, 0
+;===================================================
+;=                   全局变量初始化                =
+;===================================================
+#IfWinActive ahk_class CryENGINE
+;~ ~r::
+;~ if(AUTO_RUM=0){
+;~ 	send {w down}
+;~ }else{
+;~ 	send {w Up}
+;~ }
+;~ Return
+
+~d::
+~a::
+~s::
+~Esc::
+~q::
+SetTimer AUTOWORK,Off
+AUTOWORK_STATE:=0
+Return
+
+~w::
+SetTimer AUTOWORK,Off
+AUTOWORK_STATE:=0
+send {lshift down}
+KeyWait w,u
+send {lshift Up}
+Return
+
+~z::
+if (A_PriorHotkey <> "~z" or A_TimeSincePriorHotkey > 400)
+{
+    ; 在按键之间间隔太久，所以这不是一个两次按键。
+    KeyWait, z
+    return
+}
+if(NOT AUTOWORK_STATE=1){
+	SetTimer AUTOWORK,32
+	AUTOWORK_STATE:=1
+}
+Return
+
+AUTOWORK:
+IfEqual AUTOWORK_STATE,0,Return
+if(AUTOWORK_STATE=1){
+	send {z}
+}else if(AUTOWORK_STATE=2){
+	send {LButton}
+}else if(AUTOWORK_STATE=3){
+	send {e Down}{e Up}
+}
+Return
+
+~t::
+SetTimer Auto_Rbutton,32
+KeyWait t,u
+SetTimer Auto_Rbutton,Off
+Return
+
+Auto_Rbutton:
+send {Rbutton}
+Return

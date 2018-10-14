@@ -1,0 +1,485 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed 0
+GroupAdd MyGroup,ahk_class XLMAIN
+GroupAdd MyGroup,ahk_class SciTEWindow
+BIG_SWITCH:=False
+;===================================================
+;=              Player_HP配置文件                  =
+;===================================================
+LineCount:=0
+Loop, read, D:\Program Files\AutoHotkey\Wow_DataBase\Player_HP.txt		;读取配置文件。
+{
+	LineCount++
+	Line%LineCount% := A_LoopReadLine	;行数、行内容。
+}	
+Loop %LineCount%
+{
+	element:=Line%A_Index%	;中间变量
+	StringSplit word_array,element,`,		;删除逗号
+	X_HP%A_Index%:=word_array1
+	Y_HP%A_Index%:=word_array2
+	C_HP%A_Index%:=word_array3
+}
+
+;===================================================
+;=                  截点工具包                     =
+;===================================================
+^Numpad8::
+GetColorAndXy(862,975,0xFFFFFF)
+return
+
+^Numpad9::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard = %mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+;===================================================
+;=                   正文                          =
+;===================================================
+#IfWinActive ahk_class GxWindowClassD3d
+~F2::
+BIG_SWITCH:=False
+SetTimer mainCircle,200
+Return
+
+~Esc::
+BIG_SWITCH:=True
+Return
+
+mainCircle:
+	if(BIG_SWITCH){
+		SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+		SetTimer mainCircle,Off
+	}else if(judge(709,634,0x080000)){
+		sleep 512
+		;骑乘位则等待512毫秒。
+	}else{
+		Main()
+	}
+Return
+
+Main(){
+	global tarPrf:=GetColor(527,28)	;目标职业。
+	global isPveTarget:=Eql2(tarPrf,0x8080FF,0xFF0000,0xFFFF00,0x808080,0x00FF00)
+	global isPvpTarget:=IsPvpTarget(tarPrf)
+	
+	tarColor:=GetColor(567,1020)		;判断敌友。
+	global isHarm:=tarColor=0x474991
+	global isHelp:=tarColor=0x996DA3
+	global inCombat:=judge(1513,975,0xFFFFFF)
+	
+	isSuperhai:=judge(485,42,0x3E281A) and tarColor=0xFFF569	;Superhai:具有某特征的贼。
+	isQXU:=judge(485,42,0x303A5B) and tarColor=0xFFFFFF			;QXW的牧师。
+	global distanceClr:=GetColor(5,815)		;判断距离。
+	global isGhost:=judge(324,128,0x6B7B84)	;目标是否已化作灵魂。
+	global isFlwDis:=IsFlwDis(distanceClr)		;是否跟随距离内。
+	global tgtCanBeFlw:=not isGhost and isPvpTarget and isFlwDis and not isSuperhai and isHelp and not isQXU	;未化作鬼魂;PVP;跟随距离内;不是Superhai不是QXW;友方。
+	
+	if(judge(787,44,0xC39628) or judge(790,75,0x836B48)){ 		;奥山或战歌
+		;战场中。
+		IfThenClick(813,222,0xA04600)
+		IfThenClick(844,731,0x6E5400)
+		IfThenClick(810,224,0xD22111,0x5F0E00)
+		;1、释放灵魂。2、离开战场。3、释放灵魂。
+		MouseMovingClick()
+		Mounting()
+		FlwOtherPlrs()
+		BattleField()
+		RaiseOthers()
+		IfThenClick(791,25,0xC40200)
+		
+	}else if(judge(1444,155,0x4FD8DF)){
+		;被标记为逃亡者。肯定跟随SUPERHAI出事情了。
+		if(judge(862,975,0xFFFFFF)){
+			send {Numpad1}{Space}
+			;点采矿。
+		}
+	}else if(not judge(1522,192,0x715F5B)){	
+		;没在战场队列里。
+		IfThenClick(1665,576,0x081094)
+		IfThenClick(130,681,0x776200)
+		IfThenClick(265,643,0xE4B500,0xFFECDD)
+		;1、点PVP标签。2、点战场标签。3、加入战斗。
+		if(judge(862,975,0xFFFFFF)){
+			send {Numpad1}{Space}
+			;点采矿。
+		}
+	}else{
+		;在战场队列里、战场之前戏。
+		IfThenClick(372,645,0xE0A800,0xFFDCCC)
+		IfThenClick(736,242,0x1F0100,0x921300)
+		IfThenClick(696,219,0x670000,0x840300)	;进入战斗,阿拉希
+		;1、取消。2、进入战斗。
+		FlwOtherPlrs()
+		MouseMovingClick()
+		RaiseOthers()
+		if(judge(862,975,0xFFFFFF)){
+			send {Numpad1}{Space}
+			;点采矿。
+		}
+	}
+	send +{F12}	;调整视角
+}
+
+RaiseOthers(){
+	;提升其他玩家为团长。有些人YY队会问你要团长。
+	global isPvpTarget,isHelp
+	if(judge(48,27,0xA89103) and isPvpTarget and isHelp){
+	;我是团长、目标PVP、友好。
+		if(not judge(596,324,0x9D9D9E)){
+			Click Right,502,64
+			sleep 1024
+			Click 542,324
+		}else{
+			Click 542,324
+		}
+	}
+}
+
+IsPvpTarget(tarClr){
+	Return tarClr=0xC41F3B or tarClr=0x9482C9 or tarClr=0xF58CBA or tarClr=0xFFFFFF or tarClr=0xC79C6E or tarClr=0x69CCF0 or tarClr=0xFF7D0A or tarClr=0x0070DE or tarClr=0xFFF569 or tarClr=0xABD473
+}
+
+IsFlwDis(distanceClr){
+	Return distanceClr=0x787700 or distanceClr=0x783C00 or distanceClr=0x780000
+	;黄橙红。
+}
+
+MouseMovingClick(){
+	global isHelp,isGhost,isHarm
+	if((judge(1513,975,0xFFFFFF) and isHarm or judge(5,835,0x00009F) or not isHelp) and not judge(1441,150,0x606976) and judge(1467,975,0xFFFFFF)){
+		;战斗中或太远或非好目标、我不是非鬼魂状态。在室外。
+		Random x,560,1120
+		Random y,350,700
+		click Right,%x%,%y%
+	}
+}
+
+GridSlct(){
+	x0:=15
+	y0:=150
+	m:=0
+	n:=0
+	gate:=True
+	while(n<=4 and gate){
+		while(m<=4 and gate){
+			x:=x0+m*39
+			y:=y0+n*39
+			if(judge(x,y,0xFFFFFF)){
+				Click %x%,%y%
+				gate:=False
+			}
+			m++
+		}
+		m:=0
+		n++
+	}
+	Return gate
+}
+
+FlwOtherPlrs(){
+	global tgtCanBeFlw,isHelp,distanceClr,inCombat,isPveTarget,isPvpTarget,isHarm,isGhost
+	if(tgtCanBeFlw){
+		send {BackSpace}
+		;跟随目标。
+	}
+	case1:=not Eql2(distanceClr,0x787700) and isHelp and judge(437,65,0x007600) and isPvpTarget	;太近或太远、友善、满85血、PVP目标。
+	case2:=isHarm or isPveTarget or isGhost or judge(5,815,0x000078)	;敌对 或PVE目标 或目标是鬼魂 或距离太远。
+	gate:=GridSlct()	;Grid选取10到30码的队友、无则返回false
+	if((case1 or case2) and gate){
+		send {up}
+		;选择最近的盟友。
+	}
+}
+
+Mounting(){
+	if(judge(1373,1025,0xFFFFFF) and not judge(617,871,0x3D3C5E)){
+		;我需要骑马、我没骑马。
+		send {w}{t}
+		sleep 200
+		m:=0
+		while(m<10 and judge(1373,1025,0xFFFFFF) and not judge(617,871,0x3D3C5E)){
+			;我需要骑马、我没骑马。
+			send {t}
+			sleep 512
+			m++
+		}
+		;骑乘位。
+	}else if(judge(862,975,0xFFFFFF) and judge(617,871,0x3D3C5E)){
+		;寻找矿物可用、我骑着马。
+		send {Numpad1}{Space}
+	}else if(judge(1441,150,0x606976)){
+		send {Space}
+		;灵魂状态跳一跳。
+	}
+}
+
+BattleField(){
+	global inCombat,isHarm,isHelp,isPveTarget,isPvpTarget,isGhost
+	isMoving:=IsMoving()
+	lookAtMe:=judge(465,114,0x2F2E2F,0x2F0000)
+	isSlowedDown:=judge(84,893,0xFFD100)
+
+	targetHasMana:=judge(317,75,0x000083)
+	targetIsSinging:=judge(709,666,0x080000)
+	focusIsSinging:=judge(709,698,0x080000)
+	
+	isClose:=judge(5,835,0x9F0000)
+	
+	player_HP:=MyHP()
+	target_HP:=TargetHealthPower()
+	
+	singUnit:=targetHasMana and not tarPrf=0xABD473
+	isTree:=judge(16,858,0x002F28)
+	
+	if(not judge(137,75,0x0000AA) and judge(118,975,0xFFFFFF) and inCombat){
+		send +{=}
+		;激活。蓝不满25、技能可用、战斗中。
+	}else if(inCombat and player_HP<95 and judge(71,975,0xFFFFFF)){
+		send {-}
+		;树皮术。战斗中、血小于85、技能可用。
+	}else if(judge(616,893,0xFFD100) and judge(1610,975,0xFFFFFF)){
+		send {Right}
+		;旅行形态。被定身、技能可用。
+	}else if(inCombat and judge(1610,975,0xFFFFFF) and not isTree){
+		send +{Down}
+		;生命之树。友军、技能可用、不是树。
+	}
+
+	if(not isGhost){
+		;目标不是鬼魂。
+		if(not player_HP<60 and judge(537,1024,0xFFFFFF)){
+			send {PGDN}
+			;迅捷治愈。自己不满60血、技能可用。
+		}else if(isHelp and target_HP<60 and judge(258,1024,0xFFFFFF)){
+			send {F11}
+			;迅捷治愈。友方、目标不满60血、技能可用。
+		}else if(player_HP<80 and judge(351,1024,0xFFFFFF)){
+			send +{Home}
+			;野性成长。不满80血、技能可用。
+		}else if(player_HP<80 and not judge(86,893,0xFFD100) and judge(24,1024,0xFFFFFF)){
+			send +{F6}
+			;回春术。不满80血、无该BUFF、技能可用。
+		}else if(player_HP<80 and not judge(121,893,0xFFD100) and judge(211,1024,0xFFFFFF)){
+			send +{F10}
+			;生命绽放。不满80血、无该BUFF、技能可用。
+		}else if(isHelp and target_HP<80 and judge(351,1024,0xFFFFFF) and judge(1657,975,0xFFFFFF)){
+			send {Home}
+			;野性成长。友军、不满80血、技能可用、在一个小队或团队。
+		}else if(isHelp and inCombat and judge(444,1024,0xFFFFFF) and not judge(404,893,0xFFD100) and judge(473,893,0xFFD100)){
+			send {del}
+			;驱毒术。友军、技能可用、无该BUFF。
+		}else if(isHelp and target_HP<80 and not judge(333,893,0xFFD100) and judge(24,1024,0xFFFFFF)){
+			send {F6}
+			;回春术。友军、不满80血、友方、无该BUFF、技能可用。
+		}else if(isHelp and target_HP<80 and not judge(369,893,0xFFD100) and judge(211,1024,0xFFFFFF)){
+			send {F10}
+			;生命绽放。友军、不满80血、友方、无该BUFF、技能可用。
+		}else if(isHarm and not isTree and not judge(581,893,0xFFD100) and judge(1423,1024,0xFFFFFF)){
+			send {y}
+			;精灵之火。敌方、非树形态、无该DEBUFF、技能可用。
+		}else if(judge(1517,1024,0xFFFFFF) and inCombat){
+			send {i}
+			;自然之握。非节能施法、技能可用。
+		}else if(not judge(50,893,0xFFD100) and judge(304,1024,0xFFFFFF) and inCombat){
+			send +{Ins}
+			;野性印记。无该BUFF、技能可用。
+		}else if(not isHelp and not targetHasMana and has40Mana and judge(1610,1024,0xFFFFFF) and inCombat){
+			send +{h}
+			;荆棘术。无蓝的敌对目标、有40蓝、技能可用。
+		}else if(judge(862,975,0xFFFFFF)){
+			send {Numpad1}{Space}
+			;点采矿。
+		}
+	}
+	
+}
+
+MyHP(){
+	local min_Num:=0
+	local max_Num:=LineCount
+	while(max_Num-min_Num>5){
+		local mid_Num:=Round((min_Num+max_Num)/2)
+		if(GetColor(X_HP%mid_Num%,Y_HP%mid_Num%)=C_HP%mid_Num%){
+			min_Num:=mid_Num
+		}else{
+			max_Num:=mid_Num
+		}
+	}
+
+	Return Round(min_Num/LineCount*100)
+}
+
+TargetHealthPower(){
+	local t_hlth:=100
+	if(not judge(345,65,0x006000)){
+		t_hlth:=19
+	}else if(not judge(373,65,0x006900)){
+		t_hlth:=39
+	}else if(not judge(402,65,0x006E00)){
+		t_hlth:=59
+	}else if(not judge(430,65,0x007600)){
+		t_hlth:=79
+	}
+
+	return t_hlth
+}
+
+MyRune(){
+	local min_Num:=0
+	local max_Num:=LineCount_Rune
+	while(max_Num-min_Num>10){
+		local mid_Num:=Round((min_Num+max_Num)/2)
+		if(GetColor(X_Rune%mid_Num%,Y_Rune%mid_Num%)=C_Rune%mid_Num%){
+			min_Num:=mid_Num
+		}else{
+			max_Num:=mid_Num
+		}
+	}
+
+	Return Round(min_Num/LineCount_Rune*100)
+}
+
+;~ F12::
+;~ while(GetKeyState("F12","p")){
+;~ 	myHp:=MyHP()
+;~ 	myRune:=MyRune()
+;~ 	ToolTip %myHp%`n%myRune%,840,0
+;~ 	sleep 32
+;~ }
+;~ ToolTip
+;~ Return
+;===================================================
+;=           自动交任务：共同的努力                =
+;===================================================
+^Numpad1::
+BIG_SWITCH:=False
+SetTimer finTask,200
+Return
+
+finTask:
+	if(BIG_SWITCH){
+		SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+		SetTimer finTask,Off
+	}else if(judge(709,634,0x080000)){
+		;玩家施法什么也不做。
+	}else{
+		ForGlory()
+	}
+Return
+
+ForGlory(){
+	;之前先把战斗的召唤任务给接了。
+	
+	if(judge(112,655,0x9A6F00,0xFF9788)){
+		MouseClick left,112,655
+		;完成任务。
+	}else if(judge(112,655,0x8B0F01,0x200001)){
+		MouseClick left,112,655
+		;继续。
+	}else if(judge(43,322,0xFFDA10,0xEFC310)){
+		MouseClick left,43,322
+		;共同的努力。
+	}else{
+		MouseClick Right,832,530
+	}
+}
+
+;===================================================
+;=               常用函数、工具                    =
+;===================================================
+IfThenClick(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color){
+		Click %x%,%y%
+		Return True
+	}else{
+		Return False
+	}
+}
+
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+Eql2(a,b="",c="",d="",e="",f=""){
+	Return a=b or a=c or a=d or a=e or a=f
+}
+
+IsMoving(){
+	Return GetKeyState("w","p") or GetKeyState("a","p") or GetKeyState("s","p") or GetKeyState("d","p")
+}
+
+GetColorAndXy(x,y,binColor){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%x%,%y%,%gColor%
+	MsgBox %x%,%y%,%gColor%
+}
+
+GetColor(x,y){
+	PixelGetColor theColor,x,y,RGB
+	return theColor
+}
+
+^Numpad4::
+Clipboard = 0504aslan@163.com
+send ^{v}{Tab}
+sleep 128
+Clipboard = chao1986
+send ^{v}{enter}
+return
+
+;===================================================
+;=        Excel和SciTE针对judge()的修缮工具        =
+;===================================================
+#IfWinActive ahk_group MyGroup
+F1::
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F2::
+send +^{Right 2}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F3::
+send +^{Right 4}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F4::
+send +^{Right 6}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F5::
+send +^{Right 8}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+;===================================================
+;=                右Ctrl快速得到颜色。             =
+;===================================================
+#IfWinActive
+~RCtrl::
+    while(GetKeyState("RCtrl")){
+        MouseGetPos x,y
+		PixelGetColor mouse_color,x,y,RGB
+        ToolTip % x "," y "," mouse_color
+        Sleep 16
+    }
+    ToolTip
+return
+;===================================================
+;=           Druid[恢复][自动战场][黑桃皮蛋]       =
+;===================================================

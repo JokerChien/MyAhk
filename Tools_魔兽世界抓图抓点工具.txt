@@ -1,0 +1,153 @@
+;================================钱教授的工具宝
+^1::
+getColorAndXy(0x704329,646,973.4)
+return
+
+^2::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard =%c4%,%mx%,%my%
+MsgBox %c4%,%mx%,%my%
+return
+
+getColorAndXy(binColor,x,y){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%gColor%,%x%,%y%
+	MsgBox %gColor%,%x%,%y%
+}
+
+;写入数组:
+^3::
+;截取技能颜色。
+clipboard :=""
+
+sklClrX:=10
+sklClrY:=893
+
+loop 650{
+	
+	PixelGetColor sklClr_%A_Index%, sklClrX , sklClrY,RGB
+	x := sklClrX
+	y := sklClrY
+	c := sklClr_%A_Index%
+	if(c=0xFFD100){
+		clpboard2 := clipboard
+		clpboard3 := RegExReplace(clpboard2,"$", c "," x "," y "`n")
+		clipboard = %clpboard3%
+		sklClrX+=4
+	}else{
+		sklClrX++
+	}
+}
+msgbox "BUFF检查完毕！"
+return
+
+^4::
+clipboard :=""
+sklClrX:=4
+sklClrY:=178
+
+while (sklClrX<288){
+	x := sklClrX
+	y := sklClrY
+	
+	PixelGetColor sklClr_%A_Index%,sklClrX,sklClrY,RGB
+	c := sklClr_%A_Index%
+	if(c=0x00FF03){
+		clpboard2 := clipboard
+		clpboard3 := RegExReplace(clpboard2,"$", c "," x "," y "`n")
+		clipboard = %clpboard3%
+		sklClrX+=10
+	}else{
+		sklClrX++
+	}
+}
+msgbox "魔兽世界技能截取完成。"
+Return
+
+;~ ;钱老师超有用的小工具。
+
+^5::
+;截取生命颜色。
+clipboard :=""
+sklClrX:=100
+sklClrY:=75
+while(sklClrX<=256){
+	x := Floor(sklClrX)
+	y := sklClrY
+	PixelGetColor sklClr_%A_Index%,x,y,RGB
+	c := sklClr_%A_Index%
+	clpboard2 := clipboard
+	clpboard3 := RegExReplace(clpboard2,"$", x "," y "," c "`n")
+	clipboard = %clpboard3%
+	sklClrX++
+}
+msgbox "状态检查完毕！"
+return
+
+^6::
+;扫描。
+clipboard:=""
+sklClrX:=13
+sklClrY:=317
+while(sklClrX<220){
+	x := sklClrX
+	y := sklClrY
+	PixelGetColor sklClr_%A_Index%,x,y,RGB
+	c := sklClr_%A_Index%
+	clpboard2 := clipboard
+	clpboard3 := RegExReplace(clpboard2,"$", c "," x "," y "`n")
+	clipboard = %clpboard3%
+	sklClrX+=3
+}
+msgbox "扫描完毕!"
+return
+
+^7::
+;扫描团队的点。
+clipboard:=""
+sklClrX:=14
+sklClrY:=149
+m:=0
+n:=0
+while(n<=4){
+	
+	while(m<=4){
+		x := sklClrX+m*39
+		y := sklClrY+n*39
+		PixelGetColor sklClr_%A_Index%,x,y,RGB
+		c := sklClr_%A_Index%
+		clpboard2 := clipboard
+		clpboard3 := RegExReplace(clpboard2,"$", c "," x "," y "`n")
+		clipboard = %clpboard3%
+		m++
+	}
+	
+	n++
+	m:=0
+}
+msgbox "扫描完毕!"
+return
+
+!^Numpad2::
+if(WinActive("ahk_class GxWindowClassD3d")){
+	SendInput 0504aslan@163.com
+	send {Tab}
+	SendInput Chao1986
+	send {enter}
+}
+return
+
+~LCtrl::
+    while(GetKeyState("LCtrl")){
+        MouseGetPos x,y
+		PixelGetColor mouse_color,x,y,RGB
+        ToolTip % mouse_color "," x "," y
+        Sleep 10
+    }
+    ToolTip
+return
+
+
+;WOW抓图抓点工具。

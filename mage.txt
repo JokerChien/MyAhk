@@ -1,0 +1,150 @@
+CoordMode Mouse,Screen
+;================================钱教授的工具宝
+^Numpad8::
+getColorAndXy(0xFFD100,87,858)
+return
+
+^Numpad9::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard =%c4%,%mx%,%my%
+MsgBox %c4%,%mx%,%my%
+return
+
+getColorAndXy(binColor,x,y){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%gColor%,%x%,%y%
+	MsgBox %gColor%,%x%,%y%
+}
+
+;================================正文
+1::
+SoundPlay %A_WinDir%\Media\tada.wav
+while(WinActive("ahk_class GxWindowClassD3d")){
+	
+	tarKind:=GetColor(465,35)
+	if(GetKeyState("esc","p")){
+		SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+		Break
+	}else if(judge(0x080000,709,634)){
+		;玩家施法什么也不做。
+	}else if(tarKind=0x332F30){
+		MainMode(True)
+		;主函数。（精英）
+	}else if(tarKind=0x5F5D5F){
+		MainMode(False)
+		;拯救模式。（非精英）
+	}else{
+		SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+		Break
+	}
+	sleep 256
+}
+return
+
+MainMode(isElite){
+	local isMoving:=IsMoving()
+	local isSlowedDown:=judge(0xFFD100,13,893)
+	local isNearBy:=judge(0x9F0000,5,835)
+;~ 	local lookAtMe:=orjudge(0x75708F,0x750000,465,114)
+	
+	local targetHasMana:=judge(0x000083,317,75)
+	local targetIsSinging:=judge(0x080000,709,666)
+	
+	local isClose:=judge(0x780000,5,815)
+	
+	
+	if(not judge(0xFFD100,50,893) and judge(0xFFFFFF,118,1024)){
+		send {F8}
+		;冰甲术。
+	}else if(not judge(0xFFD100,86,893) and judge(0xFFFFFF,211,1024)){
+		send +{f10}
+		;奥数智慧。
+	}else if(not isMoving and not isSlowedDown and judge(0xFFFFFF,71,1024) and not judge(0x783C00,5,815)){
+		send {F7}
+		;寒冰箭。没有移动、未被减速、技能可用。
+	}else if(not isMoving and judge(0xFFFFFF,257,1025) and judge(0x9F9E00,5,835)){
+		send {F11}
+		;奥术飞弹。黄色距离之外。
+	}else if(not isMoving  and judge(0xFFFFFF,444,1025) and judge(0x070407,464,1017)){
+		send {Del}
+		;魔掌。没有移动、未被减速、技能可用。
+	}else if(isMoving and isNearBy and judge(0xFFFFFF,397,1024)){
+		send {pgup}
+		;冰霜新星。附近、技能可用。
+	}else if(not judge(0x00B800,166,60) and judge(0xFFFFFF,1004,1024)){
+		send +{F6}
+		;纳鲁的赐福。玩家绿不满50、技能可用。
+	}else if(judge(0xFFFFFF,304,1024)){
+		send {Ins}
+		;火冲。技能可用。
+	}else if(){
+		
+	}else if(){
+		
+	}
+
+
+}
+
+;===================================================
+;=                钱教授的百宝盒                   =
+;===================================================
+
+judge(tar_color,x,y){
+	PixelGetColor get_color,x,y,RGB
+	Return tar_color=get_color
+}
+
+orjudge(tar_color1,tar_color2,x,y){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color
+}
+
+or3judge(tar_color1,tar_color2,tar_color3,x,y){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color
+}
+
+or4judge(tar_color1,tar_color2,tar_color3,tar_color4,x,y){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color
+}
+
+or5judge(tar_color1,tar_color2,tar_color3,tar_color4,tar_color5,x,y){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+;是否移动状态，即WASD是否被按下。
+IsMoving(){
+	Return GetKeyState("w","p") or GetKeyState("a","p") or GetKeyState("s","p") or GetKeyState("d","p")
+}
+
+GetColor(x,y){
+	PixelGetColor theColor,x,y,RGB
+	return theColor
+}
+
+^Numpad4::
+Clipboard = 0504aslan@163.com
+send ^{v}{Tab}
+Clipboard = chao1986
+sleep 64
+send ^{v}{enter}
+return
+
+~LCtrl::
+    while(GetKeyState("LCtrl")){
+        MouseGetPos x,y
+		PixelGetColor mouse_color,x,y,RGB
+        ToolTip % mouse_color "," x "," y
+        Sleep 10
+    }
+    ToolTip
+return
+
+;===================================================
+;=              桃花带露浓之法师                   =
+;===================================================

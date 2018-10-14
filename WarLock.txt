@@ -1,0 +1,198 @@
+CoordMode Mouse,Screen
+;===================================================
+;=                开头小工具	                   =
+;===================================================
+^Numpad8::
+getColorAndXy(0x000000,16,858)
+return
+
+^Numpad9::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard =%c4%,%mx%,%my%
+MsgBox %c4%,%mx%,%my%
+return
+
+;================================正文
+1::
+SoundPlay %A_WinDir%\Media\tada.wav
+while(WinActive("ahk_class GxWindowClassD3d")){
+	targetCantBeAttack:=judge(0xFFD100,546,893) or judge(0xFFD100,581,893)
+	targetBeCtrled:=judge(0xFFD100,616,893) or judge(0xFFD100,652,893) or judge(0xFFD100,687,893)
+	playerIsSinging:=judge(0x080000,709,634)
+	lookAtMe:=orjudge(0x948170,0x940000,465,114)
+	isHarm:=not targetCantBeAttack and judge(0xFFFFFF,584,1024)
+	
+	PetMode()
+	;与技能无关。
+	
+	if(GetKeyState("esc","p")){
+		SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+		Break
+	}else if(judge(0x000000,695,651) and judge(0xFFD100,15,893) or judge(0xA7A5BB,695,651) and (targetCantBeAttack or targetBeCtrled)){
+		send {F12}
+		;停止施法。施放献祭、已有献祭。
+	}else if(playerIsSinging){
+		;玩家施法什么也不做。
+	}else if(orjudge(0x5F5D5F,0x332F30,465,35)){
+		PvpMode()
+		;PVP模式
+	}else{
+		SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+		Break
+	}
+	sleep 256
+}
+return
+
+PvpMode(){
+	local isMoving:=IsMoving()
+	local has60Health:=judge(0x00C600,181,60)
+	local has40Health:=judge(0x00B800,166,60)
+	local incombat:=judge(0xFFFFFF,1657,975)
+	local isNearBy:=orjudge(0x9F0000,0x9F0050,5,835)
+	local isPveTarget:=or3judge(0x808080,0xFF0000,0xFFFF00,526,28)
+	local has9Or10SoulPieces:=orjudge(0xDDDDDD,0xEEEEEE,1152,990)
+	local targetHas50Health:=judge(0x00C000,388,60)
+	
+	local petExsits:=judge(0xFFFFFF,1610,975)
+
+	
+	if(GetKeyState("f","p")){
+		send {F11}
+	}else if(isPveTarget and not has9Or10SoulPieces and not judge(0x00A900,345,60) and judge(0xFFFFFF,397,1024)){
+		send {PGUP}
+		;吸取灵魂。PVE目标、不满9个灵魂碎片、不满15血、技能可用。
+	}else if(not judge(0x006E00,181,65) and judge(0xFFFFFF,581,975)){
+		send {Numpad7}
+		;喝血瓶。不满50血、物品可用。
+	}else if(judge(0x00D600,224,60) and judge(0xFFFFFF,351,1024) and not judge(0x0000D5,217,75)){
+		send {home}
+		;生命分流。80血、技能可用、蓝不满75。
+	}else if(judge(0x00C700,188,60) and judge(0xFFFFFF,351,1024) and not judge(0x0000C0,173,75)){
+		send {home}
+		;生命分流。55血、技能可用、蓝不满45。
+	}else if(not targetBeCtrled and not petExsits and lookAtMe and judge(0xFFFFFF,258,1024)){
+		send {F11}
+		;恐惧。目标未被控制、宠物存在、看我、技能可用。
+	}else if(not isMoving and not isNearBy and not incombat and judge(0xFFFFFF,24,1024)){
+		send {F6}
+		;暗影箭。不在移动、在远处、非战斗中、技能可用。
+	}else if(isPveTarget and not has9Or10SoulPieces and not judge(0x00A900,345,60) and judge(0xFFFFFF,397,1024)){
+		send {PGUP}
+		;吸取灵魂。PVE目标、不满9个灵魂碎片、不满15血、技能可用。
+	}else if(not isMoving and (not lookAtMe or judge(0xFFD100,121,893)) and not judge(0xFFD100,15,893) and judge(0xFFFFFF,24,1024) and judge(0x00A900,345,60)){
+		send {F7}
+		;献祭。在移动、不看我或牺牲、无该DEBUFF、技能可用、满15血。
+	}else if(targetHas50Health and not judge(0xFFD100,50,893) and judge(0xFFFFFF,118,1024)){
+		send {F8}
+		;腐蚀术。无该DEBUFF、技能可用。
+	}else if(targetHas50Health and not judge(0xFFD100,86,893) and judge(0xFFFFFF,304,1024)){
+		send {Ins}
+		;痛苦诅咒。无该DEBUFF、技能可用。
+;~ 	}else if(not isMoving and (not lookAtMe or judge(0xFFD100,121,893)) and not judge(0x00D600,224,60) and judge(0xFFFFFF,491,1024) and judge(0x00AB00,352,60)){
+;~ 		send {End}
+;~ 		;生命吸取。在移动、不看我或牺牲、不满80血、技能可用、目标有25血。
+	}else if(not isMoving and judge(0x193663,229,1020)){
+		send {F10}
+		;射击。魔杖可用。
+	}else if(){
+		
+	}else if(){
+		
+	}
+}
+
+PetMode(){
+	local lookAtPet:=or4judge(0x003C92,0x000000,0x090D0D,0x090000,465,114)
+	local lookAtMe:=orjudge(0x948170,0x940000,465,114)
+	local isHarm:=not targetCantBeAttack and judge(0xFFFFFF,584,1024)
+	local playerIsSinging:=judge(0x080000,709,634)
+	
+	if(lookAtMe and judge(0xFFFFFF,1144,1024)){
+		send {6}
+		;牺牲。看着我、技能可用。
+	}else if(not judge(0xFFFF00,222,930) and isHarm){
+		send {left}
+		;宠物攻击。不看宠物、技能可用。
+	}
+
+	if(not judge(0x00AF00,144,60) and judge(0xFFFFFF,444,975)){
+		;不满25血、技能可用。
+		if(playerIsSinging){
+			send {F12}
+			;打断施法。玩家吟唱。
+		}
+		send {numpaddot}
+		;治疗石。
+	}
+}
+
+;===================================================
+;=                钱教授的百宝盒                   =
+;===================================================
+
+judge(tar_color,x,y){
+	PixelGetColor get_color,x,y,RGB
+	Return tar_color=get_color
+}
+
+orjudge(tar_color1,tar_color2,x,y){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color
+}
+
+or3judge(tar_color1,tar_color2,tar_color3,x,y){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color
+}
+
+or4judge(tar_color1,tar_color2,tar_color3,tar_color4,x,y){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color
+}
+
+or5judge(tar_color1,tar_color2,tar_color3,tar_color4,tar_color5,x,y){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+;是否移动状态，即WASD是否被按下。
+IsMoving(){
+	Return GetKeyState("w","p") or GetKeyState("a","p") or GetKeyState("s","p") or GetKeyState("d","p")
+}
+
+GetColor(x,y){
+	PixelGetColor theColor,x,y,RGB
+	return theColor
+}
+
+getColorAndXy(binColor,x,y){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%gColor%,%x%,%y%
+	MsgBox %gColor%,%x%,%y%
+}
+
+^Numpad4::
+Clipboard = 0504aslan@163.com
+send ^{v}{Tab}
+Clipboard = chao1986
+sleep 64
+send ^{v}{enter}
+return
+
+~LCtrl::
+    while(GetKeyState("LCtrl")){
+        MouseGetPos x,y
+		PixelGetColor mouse_color,x,y,RGB
+        ToolTip % mouse_color "," x "," y
+        Sleep 10
+    }
+    ToolTip
+return
+
+
+;===================================================
+;=               变态山寨SUPERHIQH                 =
+;===================================================

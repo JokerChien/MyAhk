@@ -1,0 +1,714 @@
+;===================================================
+;=               环境配置                          =
+;===================================================
+CoordMode Mouse,Relative	;坐标相对于激活的窗口。
+SetDefaultMouseSpeed, 0	;鼠标瞬间移动
+;===================================================
+;=                   GUI                           =
+;===================================================
+gui,font,s18 bold,Center
+gui,	Add,	Text,	cBlue	vText_Hero	x20	y15	w200	h30	,	未选定
+gui,font
+Gui,	Add,	Text,	vText_Status	x20	y55	w600	h35	,	未指定
+Gui,	Add,	Text,		x20	y550	w600	h100	,	热键:`n1..只以英雄为目标:T、G。`n2..玩家攻击移动点击：O。★★`n3..打开商店：V。`n4..打开数据面板★★
+
+Gui,	Add,	Button,	x20	y95	w100	h25	,	Q按钮
+Gui,	Add,	Button,	x120	y95	w100	h25	,	W按钮
+Gui,	Add,	Button,	x220	y95	w100	h25	,	E按钮
+Gui,	Add,	Button,	x320	y95	w100	h25	,	R按钮
+Gui,	Add,	Button,	x20	y125	w100	h25	,	D按钮
+Gui,	Add,	Button,	x120	y125	w100	h25	,	右键
+Gui,	Add,	Button,	x220	y125	w100	h25	,	Shift右键
+Gui,	Add,	Button,	x20	y155	w100	h25	,	Shift3按钮
+Gui,	Add,	Button,	x120	y155	w100	h25	,	Shift6按钮
+Gui,	Add,	Button,	x220	y155	w100	h25	,	Shift7按钮
+Gui,	Add,	Button,	x320	y155	w100	h25	,	清空
+Gui,	Add,	Button,	x320	y125	w100	h25	,	自我施法
+
+Gui,	Add,	Radio,cblue	vRadio_Hero	gRadio_Hero	x20		y200	w100	h20	,	芈月
+Gui,	Add,	Radio,cblue	gRadio_Hero	x120	y200	w100	h20	,	孙尚香
+Gui,	Add,	Radio,cblue	gRadio_Hero	x220	y200	w100	h20	,	妲己
+Gui,	Add,	Radio,cblue	gRadio_Hero	x320	y200	w100	h20	,	狄仁杰
+Gui,	Add,	Radio,cblue	gRadio_Hero	x20	y230	w100	h20	,	蔡文姬
+Gui,	Add,	Radio,cblue	gRadio_Hero	x120	y230	w100	h20	,	李元芳
+Gui,	Add,	Radio,cblue	gRadio_Hero	x220	y230	w100	h20	,	不知火舞
+Gui,	Add,	Radio,cblue	gRadio_Hero	x320	y230	w100	h20	,	橘右京
+Gui,	Add,	Radio,cblue	gRadio_Hero	x20	y260	w100	h20	,	吕布
+
+Hero_Name_1:="芈月"
+W_Send_1:="{w}{w}"
+E_Send_1:="{e}{e}{RButton}"
+
+Hero_Name_2:="孙尚香"
+A_Send_2:="{w}"
+
+Hero_Name_3:="妲己"
+W_Send_3:="{Space}{q}{w}{e}{RButton}"
+
+Hero_Name_4:="狄仁杰"
+A_Send_4:="{q}"
+
+Hero_Name_5:="蔡文姬"
+Q_Send_5:="{q}{q}{RButton}"
+W_Send_5:="{w}{w}"
+E_Send_5:="{e}{e}{RButton}"
+
+Hero_Name_6:="李元芳"
+Q_Send_6:="{q}{q}"
+G_Send_6:="{Space}{Space}{RButton}"
+W_Send_6:="{w}{w}{RButton}"
+
+Hero_Name_7:="不知火舞"
+A_Send_7:="{w}"
+
+Hero_Name_8:="橘右京"
+A_Send_8:="{q}"
+	
+Hero_Name_9:="吕布"
+W_Send_9:="{q 3}{w 3}"
+;===================================================
+;=               公共变量                          =
+;===================================================
+START_LINE:=1
+TIME_HLTH:=NowatimeStamp()
+TIME_ATT:=NowatimeStamp()
+TIME_NOW:=NowatimeStamp()
+Last_Spell_Time:=NowatimeStamp()
+Last_Spell_Name:=""
+ATT_FREQ:=1.00
+PRINTING:=""
+HERO_INDEX:=0
+AutoMode_Switch:=0
+
+Gui, Show, x200 y200 h666 w440, 四个六撸啊撸配音助手 版本：#20170808#190542
+
+Radio_Hero:			;gRadio_Hero的触发更新。
+Gui, Submit ,NoHide	;保存每个与控件相关联的变量。
+HERO_NAME:=Hero_Name_%Radio_Hero%
+Q_Sending:=Q_Send_%Radio_Hero%
+W_Sending:=W_Send_%Radio_Hero%
+E_Sending:=E_Send_%Radio_Hero%
+A_Sending:=A_Send_%Radio_Hero%
+G_Sending:=G_Send_%Radio_Hero%
+GuiControl ,,Text_Hero,%HERO_NAME%
+Return
+
+^9::
+getColorAndXy(645,944,0x774F71)
+return
+
+^0::
+MouseGetPos mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard = %mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+
+~b::
+~Esc::
+~Space::
+EndSwitch:=False
+SetTimer auto_Mode,Off
+Return
+
+;~ ================================游戏窗口================================
+#IfWinActive ahk_class TXGuiFoundation
+^7::
+getColorAndXy(645,944,0x774F71)
+return
+
+^8::
+MouseGetPos mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard = %mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+
+f2::
+Click 840,525,Right
+Return
+
+~$t::
+send {RButton down}
+SetTimer Move_Mode,128
+KeyWait t,up
+SetTimer Move_Mode,Off
+send {RButton Up}
+Return
+
+Move_Mode:
+send {rbutton down}
+Return
+
+~$r::
+send {RButton down}
+SetTimer R_Mode,128
+KeyWait r,up
+SetTimer R_Mode,Off
+send {RButton Up}
+Return
+
+R_Mode:
+send {RButton down}{r}
+Return
+
+~$q::
+SetTimer q_Mode,128
+KeyWait q,up
+SetTimer q_Mode,Off
+Return
+
+q_Mode:
+Q_Sending:=Q_Send_%Radio_Hero%
+send %Q_Sending%
+Return
+
+~$w::
+SetTimer w_Mode,128
+KeyWait w,up
+SetTimer w_Mode,Off
+Return
+
+w_Mode:
+send %W_Sending%
+Return
+
+~$e::
+SetTimer e_Mode,128
+KeyWait e,up
+SetTimer e_Mode,Off
+Return
+
+e_Mode:
+E_Sending:=E_Send_%Radio_Hero%
+send %E_Sending%
+Return
+
+~$g::
+;~ Shoot_Piston:=True
+send {RButton Down}
+SetTimer HiEnRn_Mode,111
+KeyWait g,up
+SetTimer HiEnRn_Mode,Off
+send {RButton Up}
+Return
+
+HiEnRn_Mode:
+;~ send {RButton Down}{Space}
+;~ send %G_Sending%
+send {RButton Down}
+sleep 22
+send {Space Down}
+sleep 22
+send {Space Up}
+Return
+
+$~l::
+SetTimer assembleMode,128
+KeyWait l,up
+SetTimer assembleMode,Off
+Return
+
+assembleMode:
+send {k}
+Return
+
+$~u::
+SetTimer awayMode,128
+KeyWait u,up
+SetTimer awayMode,Off
+Return
+
+awayMode:
+send {i}{o}{j}
+Return
+
+$~a::
+;~ SetTimer A_Mode,111
+;~ KeyWait a,up
+;~ SetTimer A_Mode,Off
+;~ Return
+
+;~ A_Mode:
+MouseGetPos MoX,MoY
+TgX:=2*840-MoX
+TgY:=2*580-MoY
+MouseMove TgX,TgY
+A_Sending:=A_Send_%Radio_Hero%
+send %A_Sending%
+MouseMove MoX,MoY
+Return
+
+;~ 778,1028,0x010304 机械公敌不满55温度。
+;Q=615,981,0x494020 W=678,979,0xE9CD67 E=744,981,0x5B5028 R=809,980,0x564C26 D=881,968,0x7E6F38 F=931,967,0x89783D
+auto_Mode:
+if(Radio_Hero=27){	;27..兰博
+	CaseWhenElseSend(not judge(778,1028,0x010304),"",AutoMode_Switch=1 and judge(617,922,0xE7C37B),"{Q}",AutoMode_Switch=2 and judge(681,922,0xE7C37B),"{W}")
+}else if(Radio_Hero=40){	;40..寡妇
+	CaseWhenElseSend(AutoMode_Switch=1,"{q}{E}",AutoMode_Switch=2,"{q}{E}{D}{F}",AutoMode_Switch=3,"{q}{E}{D}{F}+{3}+{6}+{7}")
+	GetHealthy()
+}else if(AutoMode_Switch=0){
+	SetTimer auto_Mode,Off
+}
+Return
+
+;~ ~$r::
+;~ SetTimer rButton_Mode,20
+;~ KeyWait r,up
+;~ SetTimer rButton_Mode,Off
+;~ IfEqual,Radio_Hero,36,send {a}{LButton}	;若是薇恩则按一下。
+;~ Return
+
+;~ rButton_Mode:
+;~ if(Radio_Hero=39){	;维鲁斯。
+;~ 	CaseWhenElseSend(judge(809,980,0x564C26),"{R}",judge(744,981,0x5B5028),"{E}",True,"{Q}{RButton}+{3}+{6}+{7}")
+;~ 	Return
+;~ }
+;~ rSending:=rButton_%Radio_Hero%
+;~ send %rSending%
+;~ Return
+
+~$3::
+SetTimer k3Button_Mode,20
+KeyWait 3,up
+SetTimer k3Button_Mode,Off
+send {space Up}
+Return
+
+k3Button_Mode:
+if(Radio_Hero=37){	;发条
+	CaseWhenElseSend(judge(615,981,0x494020),"{Q}",judge(678,979,0xE9CD67),"{w}",True,"!{e}+{3}+{6}+{7}")
+	Return
+}else if(Radio_Hero=1){	;阿兹尔
+	CaseWhenElseSend(judge(678,979,0xE9CD67),"{W}",judge(744,981,0x5B5028),"{E}",judge(615,981,0x494020),"{Q}",True,"{RButton}")
+	Return
+}else if(Radio_Hero=9 or Radio_Hero=2){	;塔利斯塔\金克斯。
+	send {space Down}
+	Gosub Combo_Mode
+	Return
+}else if(AutoMode_%Radio_Hero%){
+	AutoMode_Switch:=3
+	SetTimer auto_Mode,22
+	Return
+}
+k3Sending:=k3Button_%Radio_Hero%
+send %k3Sending%
+Return
+
+~$d::
+SetTimer dButton_Mode,20
+KeyWait d,up
+SetTimer dButton_Mode,Off
+Return
+
+dButton_Mode:
+if(Radio_Hero=24){	;卡特琳娜。
+	CaseWhenElseSend(judge(615,981,0x494020),"{Q}{D}+{3}+{6}+{7}",judge(744,981,0x5B5028),"{E}{D}",judge(678,979,0xE9CD67),"{W}",True,"{D}{RButton}+{3}+{6}+{7}")
+	Return
+}
+dSending:=dButton_%Radio_Hero%
+send %dSending%
+Return
+
+;~ ~g::
+;~ IfEqual,Radio_Hero,25,send {W}	;若是卡牌大师则先按一下W。
+;~ TIME_NOW:=NowatimeStamp()
+;~ Last_Spell_Name:=""
+;~ AttSwitch:=True
+;~ SetTimer Attack_Mode,33
+;~ KeyWait g,up
+;~ SetTimer Attack_Mode,Off
+;~ IfEqual,Radio_Hero,36,send {a}{LButton}	;若是薇恩则按一下。
+;~ Return
+
+;~ ;[Q]617,922,0xE7C37B [W]681,922,0xE7C37B [E]746,922,0xE7C37B [R]811,922,0xE7C37B	四个技能都OK时。
+;~ ;Q=615,981,0x494020 W=678,979,0xE9CD67 E=744,981,0x5B5028 R=809,980,0x564C26 D=881,968,0x7E6F38 F=931,967,0x89783D
+;~ Attack_Mode:
+;~ CaseWhenElseSend(not judge(1169,985,0x0A50CB),"{1}")	;如果回城不可用，则使用1号物品。
+;~ if(Radio_Hero=22){	;皇子。EQAWAD367
+;~ 	RyzeShoot(3,1,17,2,19)	;瑞兹连招。1:Q 2:W 3:E 4:R 17:咒刃 18:A 19:A+D+3+6+7
+;~ 	Return
+;~ }else if(Radio_Hero=31){	;牛头。WQ二连。
+;~ 	IfThenElseSend(judge(678,979,0xE9CD67),"{W}{RButton}","{W}{Q}{E}{D}{RButton}+{3}+{6}+{7}")
+;~ 	Return
+;~ }else if(Radio_Hero=24){	;卡特琳娜。
+;~ 	CaseWhenElseSend(judge(615,981,0x494020),"{Q}",judge(744,981,0x5B5028),"{E}",judge(678,979,0xE9CD67),"{W}",True,"{RButton}+{3}+{6}+{7}")
+;~ 	Return
+;~ }else if(Radio_Hero=1){	;阿兹尔。
+;~ 	CaseWhenElseSend(judge(678,979,0xE9CD67),"{W}",judge(615,981,0x494020),"{Q}",True,"+{6}+{7}")
+;~ 	Auto_HiEnRun(Hero_AutoBeat_%Radio_Hero%)
+;~ 	Return
+;~ }else if(Radio_Hero=44){	;波比
+;~ 	CaseWhenElseSend(judge(744,981,0x5B5028),"{E}",judge(678,979,0xE9CD67),"{W}",judge(615,981,0x494020),"{Q}",True,"{RButton}+{3}+{6}+{7}")
+;~ 	Return
+;~ }else if(Radio_Hero=46){	;盲僧
+;~ 	CaseWhenElseSend(judge(744,981,0x5B5028),"{E}{o}+{3}+{6}+{7}",judge(678,979,0xE9CD67),"!{w}{o}+{3}+{6}+{7}",judge(615,981,0x494020),"{Q}",True,"{o}+{3}+{6}+{7}")
+;~ 	Return
+;~ }else if(Radio_Hero=12){	;瑞兹。Q+A+W+Q+E+Q+A
+;~ 	RyzeShoot(1,2,17,3,18)	;瑞兹连招。1:Q 2:W 3:E 4:R 17:咒刃 18:A 19:A+D+3+6+7
+;~ 	Return
+;~ }else if(Radio_Hero=34){	;劫。WEQ连招。W影分身只释放第一段的技能。
+;~ 	CaseWhenElseSend(judge(744,981,0x5B5028),"{E}",judge(615,981,0x494020),"{Q}",True,"{RButton}+{3}+{6}+{7}")
+;~ 	Return
+;~ }else if(Radio_Hero=29){	;蜘蛛。WEQ连招。W影分身只释放第一段的技能。
+;~ 	CaseWhenElseSend(judge(615,981,0x494020),"{Q}",judge(678,979,0xE9CD67),"{W}",judge(809,980,0x564C26),"{R}",True,"{RButton}+{3}+{6}+{7}")
+;~ 	Return
+;~ }else if(Radio_Hero=37){	;发条
+;~ 	CaseWhenElseSend(judge(615,981,0x494020),"{Q}",True,"{w}{E}+{3}+{6}+{7}")
+;~ 	Return
+;~ }else if(Radio_Hero=19){	;亚索
+;~ 	CaseWhenElseSend(judge(615,981,0x494020),"{Q}",True,"{E}{RButton}+{3}+{6}+{7}")
+;~ 	Return
+;~ }else if(Radio_Hero=45){	;贾克斯
+;~ 	CaseWhenElseSend(judge(615,981,0x494020),"{Q}",True,"{w}{e}+{3}+{6}+{7}{RButton}")
+;~ 	Return
+;~ }else if(Radio_Hero=39){	;维鲁斯。
+;~ 	CaseWhenElseSend(judge(744,981,0x5B5028),"{E}",True,"{Q}{RButton}+{3}+{6}+{7}")
+;~ 	Return
+;~ }else if(Radio_Hero=18){	;小炮
+;~ 	CaseWhenElseSend(judge(744,981,0x5B5028),"{E}",True,"{q}{RButton}+{3}+{6}+{7}")
+;~ 	Return
+;~ }else if(Radio_Hero=33){	;奥巴马式一秒6枪
+;~ 	RyzeShoot(1,17,2,18)	;瑞兹连招。1:Q 2:W 3:E 4:R 17:咒刃 18:A 19:A+D+3+6+7
+;~ 	Return
+;~ }
+;~ send %Sending_G_Str%
+;~ GetHealthy()
+;~ Return
+
+;Q=615,981,0x494020 W=678,979,0xE9CD67 E=744,981,0x5B5028 R=809,980,0x564C26 D=881,968,0x7E6F38 F=931,967,0x89783D
+RyzeShoot(act1,act2=0,act3=0,act4=0,act5=0,act6=0){	;六号物品栏 ok:1120,967,0x393A39  六号物品栏cd:  1120,967,0x39454B ,六号物品巫妖OK：1120,967,0x413A39。
+	global Last_Spell_Time,Last_Spell_Name,Skl_1,Skl_2,Skl_3,Skl_4,Skl_17,SklRdy_1,SklRdy_2,SklRdy_3,SklRdy_4,SklRdy_17,SklRdy_18,SklRdy_19,itmRdy_17,lastItmRdy_17,lastItmTime_17
+	SklRdy_1:=judge(615,981,0x494020)
+	SklRdy_2:=judge(678,979,0xE9CD67)
+	SklRdy_3:=judge(744,981,0x5B5028)
+	SklRdy_4:=judge(809,980,0x564C26)
+	TIME_NOW:=NowatimeStamp()
+
+	lastItmRdy_17:=itmRdy_17
+	itmRdy_17:=judge(1120,967,0x393A39,0x413A39)
+	if(lastItmRdy_17 and not itmRdy_17){
+		lastItmTime_17:=TIME_NOW
+	}
+	SklRdy_17:=TIME_NOW-Last_Spell_Time<0.8 and itmRdy_17 and TIME_NOW-lastItmTime_17>2.6
+
+	if(Last_Spell_Name<>SklRdy_1*1000+SklRdy_2*100+SklRdy_3*10+SklRdy_4 and itmRdy_17){
+		Last_Spell_Name:=SklRdy_1*1000+SklRdy_2*100+SklRdy_3*10+SklRdy_4
+		Last_Spell_Time:=TIME_NOW
+	}
+
+	Loop 6{
+		n:=act%A_Index%
+		if(SklRdy_%n%){
+			actStr:=Skl_%n%
+			send %actStr%
+			Break
+		}
+	}
+}
+
+;~ 873,1005,0x010D07  血不满65
+Qwer(num=0){	;QWER技能的CD判断。
+	xString:="617,681,746,811"
+	StringSplit x,xString,`,
+	if(num=0){
+		Return false
+	}else{
+		Return judge(x%num%,922,0xE7C37B)
+	}
+}
+
+IfThenElseSend(condition,thenStr,elseStr){
+	if(condition){
+		send %thenStr%
+	}else{
+		send %elseStr%
+	}
+}
+
+CaseWhenElseSend(condition1,thenStr1,condition2=False,thenStr2="",condition3=False,thenStr3="",condition4=False,thenStr4="",elseStr=""){
+	if(condition1){
+		send %thenStr1%
+	}else if(condition2){
+		send %thenStr2%
+	}else if(condition3){
+		send %thenStr3%
+	}else if(condition4){
+		send %thenStr4%
+	}else{
+		send %elseStr%
+	}
+}
+
+~v::
+IfEqual,Radio_Hero,25,send {W}	;若是卡牌大师则先按一下W
+TIME_ATT:=NowatimeStamp()
+SetTimer Combo_Mode,20
+KeyWait v,up
+SetTimer Combo_Mode,Off
+Return
+
+Get_Att_Rate(){
+	global var0xF7EF94,var0xFFF799,var0xF4EC92,var0xF3EC92,var0xF4ED92,var0xF1E990,var0xF8F095,var0xF5ED93,var0x0A0A06,var0xC0BA73,varr0xF5ED93,varr0xFFF799,varr0xF1E990
+
+	b:=0
+	PixelGetColor clr,307,997,RGB
+	if(clr=0x0A0A06 or clr=0xC0BA73){	;5::307,997,0x0A0A06 8::307,997,0xC0BA73
+		b+=var%clr%
+	}else{
+		PixelGetColor clr,309,991,RGB
+		b+=var%clr%
+	}
+	PixelGetColor clrr,294,991,RGB
+	b+=varr%clrr%
+
+	Return 1/b
+}
+
+Combo_Mode:	;人物中心点确定为765,495。
+if(Radio_Hero=12){	;瑞兹。QEW连招
+	RyzeShoot(1,17,2,3,19)	;瑞兹连招。1:Q 2:W 3:E 4:R 17:咒刃 18:A 19:A+D+3+6+7
+	Return
+}else if(Hero_AutoBeat_%Radio_Hero%>0.5){	;英雄自动射击开启。
+;~ 	b:=0
+;~ 	PixelGetColor clr,307,997,RGB
+;~ 	if(clr=0x0A0A06 or clr=0xC0BA73){	;5::307,997,0x0A0A06 8::307,997,0xC0BA73
+;~ 		b+=var%clr%
+;~ 	}else{
+;~ 		PixelGetColor clr,309,991,RGB
+;~ 		b+=var%clr%
+;~ 	}
+;~ 	PixelGetColor clrr,294,991,RGB
+;~ 	b+=varr%clrr%
+
+;~ 	Rate:=1/b	;RATE
+
+	TIME_NOW:=NowatimeStamp()
+	Rate:=Get_Att_Rate()
+
+;~ 	if(Hero_AutoBeat_%Radio_Hero%){	;默认62%的攻击间隔为攻击后摇。
+;~ 		forrate:=0.62
+;~ 	}else{	;可自定义攻击后摇
+		forrate:=Hero_AutoBeat_%Radio_Hero%
+;~ 	}
+
+	if(TIME_NOW-TIME_ATT <0.3 and (Radio_Hero=10 or Radio_Hero=36 or Radio_Hero=32)){ ;千珏\薇恩\寒冰之滚动杀
+		send {Q}{RButton}
+	}else if(TIME_NOW - TIME_ATT < Rate*forrate){ ;.33/.55
+		send {RButton}
+	}else if(TIME_NOW - TIME_ATT < Rate){
+		send {o}	;战斗移动。
+	}else{
+		send {o}
+		TIME_ATT:=TIME_NOW
+	}
+
+	CaseWhenElseSend(not judge(1169,985,0x0A50CB),"{1}")	;如果回城不可用，则使用1号物品。
+	Return
+}
+send %Sending_V_Str%
+Return
+
+Auto_HiEnRun(Hero_AutoBeat){
+	global TIME_NOW,TIME_ATT
+	TIME_NOW:=NowatimeStamp()
+	Rate:=Get_Att_Rate()
+
+	forrate:=Hero_AutoBeat
+
+	if(TIME_NOW - TIME_ATT < Rate*forrate){
+		send {RButton}
+	}else if(TIME_NOW - TIME_ATT < Rate){
+		send {o}	;攻击移动。
+	}else{
+		send {o}
+		TIME_ATT:=TIME_NOW
+	}
+}
+
+CalAtkAlternation(){
+	b:=0
+	PixelGetColor clr,307,997,RGB
+	if(clr=0x0A0A06 or clr=0xC0BA73){	;5::307,997,0x0A0A06 8::307,997,0xC0BA73
+		b+=var%clr%
+	}else{
+		PixelGetColor clr,309,991,RGB
+		b+=var%clr%
+	}
+	PixelGetColor clrr,294,991,RGB
+	b+=varr%clrr%
+	Return b
+}
+
+;~ Reversal_Att(condition,sendstr){
+;~ 	if not condition,Return
+;~
+;~ 	MouseGetPos RaX,RaY
+;~ 	ToX:=765-Rax+765
+;~ 	ToY:=495-RaY+495
+;~ 	MouseMove 888,444
+;~ 	send %sendstr%
+;~ 	Click %RaX%,%RaY%,Right
+;~ 	Return
+;~ }
+
+;~血量  空血  197,47,0x671D16  远程兵的血  220,47,0x862418  212,47,0x701918
+;~ 头像 远程兵 166,47,0xD6824A   近战兵头像 166,47,0x281728 炮车头像 166,47,0x361E0C
+;~ 334,45 满血
+;197,45 空血
+;~ 232,45,0x99211D   远程兵还剩75点血。
+;~ 215,45,0x010D07   近战兵
+
+;~ ~x::
+;~ SetTimer LastHit_Mode,20
+;~ KeyWait x,up
+;~ SetTimer LastHit_Mode,Off
+;~ Return
+
+;~ LastHit_Mode:
+;~ Head:=GetColor(166,47)
+;~ if(Head=0xD6824A and not judge(232,45,0x99211D)){
+;~ 	send {rbutton}
+;~ }else if(Head=0x281728 and not judge(215,45,0x731818)){
+;~ 	send {rbutton}
+;~ }else if(Head=0x361E0C and not judge(207,45,0x641413)){
+;~ 	send {rbutton}
+;~ }else{
+;~ 	send {LButton}{RButton}{s}
+;~ }
+;~ Return
+
+GetHealthy(){
+	global TIME_HLTH
+	now:=NowatimeStamp()
+;~ 	PixelGetColor Heal_CLR,910,1010,RGB
+;~ 	PixelGetColor Mana_CLR,910,1030,RGB
+;~ 	873,1005,0x010D07
+	if(judge(873,1005,0x010D07) and now-8>TIME_HLTH){	;不健康状态。魔法和血都小于85%。
+		send {2}
+		TIME_HLTH:=now
+	}
+}
+
+IfThenDo(Text_Status,n1,String1,n2="",String2=""){
+	if(Text_Status=n1){
+		Return String1
+	}else if(Text_Status=n2){
+		Return String2
+	}
+}
+
+NowatimeStamp(){
+	StringMid cal_Mssn_Hour,a_now,9,2
+	StringMid cal_Mssn_Min,a_now,11,2
+	StringMid cal_Mssn_Sec,a_now,13,2
+	Return cal_Mssn_Hour*3600+cal_Mssn_Min*60+cal_Mssn_Sec+A_MSec/1000
+}
+
+
+;~ ~c::
+;~ TIME_NOW:=NowatimeStamp()
+;~ SetTimer Move_Mode,20
+;~ KeyWait c,up
+;~ SetTimer Move_Mode,Off
+;~ send +{RButton}
+;~ Rate:=2.2*(NowatimeStamp()-TIME_NOW)
+;~ Return
+
+LButton_Mode:
+send {LButton}
+Return
+;===================================================
+;=                   公共函数                      =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+GetColorAndXy(x,y,binColor){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%x%,%y%,%gColor%
+	MsgBox %x%,%y%,%gColor%
+}
+
+GetColor(x,y){
+	PixelGetColor clr,x,y,RGB
+	Return clr
+}
+
+GetCxy(x,y){
+	PixelGetColor clr,x,y,RGB
+	cxy:=x . "," . y . "," . clr
+	Return cxy
+}
+
+Max(a,b){
+	if(a>b){
+		Return a
+	}else{
+		Return b
+	}
+}
+
+ButtonQ按钮:
+Button_Plus("{Q}")
+Return
+
+ButtonW按钮:
+Button_Plus("{W}")
+Return
+
+ButtonE按钮:
+Button_Plus("{E}")
+Return
+
+ButtonR按钮:
+Button_Plus("{R}")
+Return
+
+Button清空:
+Button_Plus()
+Return
+
+Button自我施法:
+Button_Plus("!")
+Return
+
+ButtonD按钮:
+Button_Plus("{D}")
+Return
+
+Button右键:
+Button_Plus("{RButton}")
+Return
+
+ButtonShift右键:
+Button_Plus("+{RButton}")
+Return
+
+ButtonShift3按钮:
+Button_Plus("+{3}")
+Return
+
+ButtonShift6按钮:
+Button_Plus("+{6}")
+Return
+
+ButtonShift7按钮:
+Button_Plus("+{7}")
+Return
+
+Button_Plus(pString=""){
+	global Sending_G_Str,Text_Status,Sending_V_Str
+	if(pString=""){
+		Sending_G_Str := "+{3}+{6}+{7}"
+	}else{
+		Sending_G_Str := Sending_G_Str . pString
+	}
+	GuiControl ,,Text_Status, G式: %Sending_G_Str%`nV式: %Sending_V_Str%
+}
+;======================================================================
+;     四个六撸啊撸配音助手	版本：#20170808#190542
+;======================================================================

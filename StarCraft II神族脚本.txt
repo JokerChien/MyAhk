@@ -1,0 +1,230 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed 0
+GroupAdd MyGroup,ahk_class XLMAIN
+GroupAdd MyGroup,ahk_class SciTEWindow
+;===================================================
+;=               钱教授的工具包                    =
+;===================================================
+^Numpad9::
+getColorAndXy(18,749,0x00FFD2)
+return
+
+^Numpad6::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard =%mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+
+;===================================================
+;=             右Ctrl快速得到颜色                  =
+;===================================================
+~RCtrl::
+    while(GetKeyState("RCtrl")){
+        MouseGetPos x,y
+		PixelGetColor mouse_color,x,y,RGB
+        ToolTip % x "," y "," mouse_color
+        Sleep 16
+    }
+    ToolTip
+return
+;===================================================
+;=               批量获取颜色                      =
+;===================================================
+
+^p::
+clipboard :=""
+x := 553
+y := 909+57+56
+while(x<=993){
+	PixelGetColor c,x,y,RGB
+	if(c=0x404040){
+		clpboard2 := clipboard
+		clpboard3 := RegExReplace(clpboard2,"$", x "," y "," c "`n")
+		clipboard = %clpboard3%
+		x+=4
+	}	
+	x++
+}
+msgbox "状态检查完毕！"
+return
+
+;===================================================
+;=                   正文                          =
+;===================================================
+#IfWinActive ahk_class StarCraft II
+~F2::
+send {9}
+if(judge(1413,995,0x5F604A)){
+	;折跃门状态。
+	MouseGetPos x,y
+	while(GetKeyState("F2")){
+		Training()
+		Click x,y
+	}
+}else if(judge(566,909,0x404040)){
+	;多个兵营的情况。
+	Training()
+}else if(judge(738,994,0x6EA9FE)){
+	;2号位空闲。
+	Training()
+}else if(judge(587,936,0x004D00) and not judge(862,996,0x6EA9FE)){
+	;兵营存在、4号位空闲。
+	Training()
+}
+Return
+
+
+Training(){
+	local rnd,max
+	if(judge(1480,840,0x90C0E6)){
+		max:=4
+	}else{
+		max:=1
+	}	
+	
+	Random rnd,1,max
+	if(rnd>2){
+		send {s}
+	}else if(rnd=2){
+		send {e}
+	}else{
+		send {z}
+	}
+}
+
+~F4::
+send {8}
+if(judge(566,909,0x404040)){
+	;多个兵营的情况。
+	T_training()
+}else if(judge(738,994,0x6EA9FE)){
+	;2号位空闲。
+	T_training()
+}else if(judge(587,936,0x00A700,0x00F100) and not judge(862,996,0x6EA9FE)){
+	;兵营存在、4号位空闲。
+	T_training()
+}
+Return
+
+T_training(){
+	if(judge(1546,840,0x69505F)){
+		send {c}
+		;巨象
+	}else if(judge(1479,840,0x251E22)){
+		send {i}
+		;不朽者
+	}else if(judge(1479,840,0xA19D87)){
+		send {c}
+		;航母。
+	}else if(judge(1412,840,0x646E70)){
+		send {v}
+		;虚空。
+	}
+	send {tab}
+	sleep 32
+}
+
+F3::
+send {0}
+if(judge(589,929,0x004600)){
+	;单个基地的情况。
+	if(not judge(738,994,0x9C8C5A)){
+		send {e}
+		;如果队列里没2个农民，造之。
+	}
+}else if(judge(566,909,0x404040)){
+	;多个基地、3号队列没造。
+	send {e}
+	
+}	
+Return
+
+~d::
+PixelGetColor ClrOne,747,947,RGB
+PixelGetColor ClrTwo,1351,859,RGB
+
+if(ClrOne=0x52452A or ClrTwo=0xB7CF9A){
+	;给基地编队。
+	send +{5}+{0}
+}else if(ClrOne=0x55574E or ClrTwo=0x736439){
+	;给兵营编队。
+	send +{4}+{9}
+}else if(ClrOne=0x6B718F or ClrTwo=0xEBE49E){
+	;给坦克房编队。
+	send +{4}+{8}
+}else if(ClrOne=0xA39672 or ClrTwo=0x646044){
+	;给飞机场编队。
+	send +{4}+{8}
+}
+Return
+;===================================================
+;=               常用函数、工具                    =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+Eql2(a,b,c="",d="",e="",f=""){
+	Return a=b or a=c or a=d or a=e or a=f
+}
+
+GetColorAndXy(x,y,binColor){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%x%,%y%,%gColor%
+	MsgBox %x%,%y%,%gColor%
+}
+
+GetColor(x,y){
+	PixelGetColor theColor,x,y,RGB
+	return theColor
+}
+
+^Numpad4::
+Clipboard = 0504aslan@163.com
+send ^{v}{Tab}
+sleep 128
+Clipboard = chao1986
+send ^{v}{enter}
+return
+
+;===================================================
+;=        Excel和SciTE针对judge()的修缮工具        =
+;===================================================
+#IfWinActive ahk_group MyGroup
+F1::
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F2::
+send +^{Right 2}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F3::
+send +^{Right 4}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F4::
+send +^{Right 6}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+
+F5::
+send +^{Right 8}
+send ^{x}{Right}{BackSpace}
+send ^{right 3}{,}^{v}
+Return
+;===================================================
+;=             StarCraft II 神族脚本               =
+;===================================================

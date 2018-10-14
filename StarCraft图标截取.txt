@@ -1,0 +1,88 @@
+;================================钱教授的工具宝
+^1::
+getColorAndXy(0x704329,646,973)
+return
+
+^2::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard =%c4%,%mx%,%my%
+MsgBox %c4%,%mx%,%my%
+return
+
+getColorAndXy(binColor,x,y){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%gColor%,%x%,%y%
+	MsgBox %gColor%,%x%,%y%
+}
+
+;写入数组:
+^3::
+;截取技能颜色。
+clipboard :=""
+sklClrX:=1345-67
+
+sklClrY:=855
+
+loop 15{
+	sklClrX+=67
+	PixelGetColor sklClr_%A_Index%, sklClrX,sklClrY,RGB
+	x := sklClrX
+	y := sklClrY
+	c := sklClr_%A_Index%
+	
+	clpboard2 := clipboard
+	clpboard3 := RegExReplace(clpboard2,"$", c "," x "," y "`n")
+	clipboard = %clpboard3%
+	
+	if(A_Index=5 or A_Index=10){
+		sklClrX:=1345-67
+		sklClrY+=67
+	}
+}
+msgbox "StarCraft II技能栏截取完毕"
+return
+
+^4::
+clipboard :=""
+sklClrX:=560
+sklClrX_1:=0
+sklClrX_2:=57
+sklClrX_3:=55
+sklClrX_4:=56
+sklClrX_5:=57
+sklClrX_6:=55
+sklClrX_7:=56
+sklClrX_8:=57
+
+sklClrY_1:=909
+
+loop 8{
+	sklClrX+=sklClrX_%A_Index%
+	PixelGetColor sklClr_%A_Index%, sklClrX,sklClrY_1,RGB
+	x := sklClrX
+	y := sklClrY_1
+	c := sklClr_%A_Index%
+;~ 	if(c=0x000000){
+;~ 		Continue
+;~ 	}
+	clpboard2 := clipboard
+	clpboard3 := RegExReplace(clpboard2,"$", c "," x "," y "`n")
+	clipboard = %clpboard3%
+	
+}
+msgbox "StarCraft II状态栏截取完毕！"
+Return
+
++Left::  MouseMove, -1,  0,, R
++Up::    MouseMove,  0, -1,, R
++Right:: MouseMove,  1,  0,, R
++Down::  MouseMove,  0,  1,, R
+
+^Left::  MouseMove, -56,  0,, R
+^Up::    MouseMove,  0, -56,, R
+^Right:: MouseMove,  56,  0,, R
+^Down::  MouseMove,  0,  56,, R
+
+;~ ;钱老师超有用的小工具。

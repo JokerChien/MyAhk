@@ -1,0 +1,193 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed 0
+GroupAdd MyGroup,ahk_class XLMAIN
+GroupAdd MyGroup,ahk_class SciTEWindow
+ActionButton_1:="4"
+ActionButton_2:="5"
+ActionButton_3:="6"
+ActionButton_4:="7"
+ActionButton_5:="8"
+ActionButton_6:="9"
+ActionButton_7:="0"
+ActionButton_8:="-"
+ActionButton_9:="="
+ActionButton_10:="y"
+ActionButton_11:="u"
+ActionButton_12:="i"
+
+ActionButton_61:="o"
+ActionButton_62:="p"
+ActionButton_63:="["
+ActionButton_64:="]"
+ActionButton_65:="\"
+ActionButton_66:="h"
+ActionButton_67:="j"
+ActionButton_68:="k"
+ActionButton_69:="l"
+ActionButton_70:=";"
+ActionButton_71:="'"
+ActionButton_72:="n"
+
+ActionButton_49:="m"
+ActionButton_50:=","
+ActionButton_51:="."
+ActionButton_52:="/"
+ActionButton_53:="{F5}"
+ActionButton_54:="{F6}"
+ActionButton_55:="{F7}"
+ActionButton_56:="{F8}"
+ActionButton_57:="{F9}"
+;===================================================
+;=                  截点工具包                     =
+;===================================================
+^Numpad8::
+GetColorAndXy(696,219,0x670000)
+return
+
+^Numpad9::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard = %mx%,%my%,%c4%
+MsgBox %mx%,%my%,%c4%
+return
+
+;~ ^1::  ;这个方法是可行的。
+;~ inputing:="a"
+;~ send %inputing%
+;~ Return
+
+;~ ^Numpad7::
+;~ Loop 12{
+;~ 	cout:=cout . GetColor(333+21+42*(A_Index-1),975) . "`n"
+;~ }
+;~ MsgBox %cout%
+;~ Return
+;===================================================
+;=                   正文                          =
+;===================================================
+#IfWinActive ahk_class GxWindowClass
+~1::
+AOE_CD_INSIDE:=0
+AOE_SWITCH:=1
+n:="SOLO 模式"
+ToolTip %n%,840,0
+SetTimer ActionBar1,55
+;~ SetTimer ActionBar2,55
+Return
+
+~2::
+AOE_CD_INSIDE:=0
+AOE_SWITCH:=2
+n:="AOE 模式"
+ToolTip %n%,840,0
+SetTimer ActionBar1,55
+;~ SetTimer ActionBar2,55
+Return
+
+~Esc::
+AOE_SWITCH:=0
+SetTimer ActionBar1,Off
+;~ SetTimer ActionBar2,Off
+SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+ToolTip
+Return
+
+ActionBar1:
+loop 12{
+	if(not judge(1663,469,0x00FF00)){	;如果目标不存在则终止。
+		Ending()
+		Break
+	}else if(judge(333+21+42*(A_Index-1),1028,0x00FF00)){
+		press_Button:=ActionButton_%A_Index%
+		send %press_Button%
+	}
+	
+	if(AOE_SWITCH=1 and (A_Index=1 or A_Index=4)){
+		
+	}else if(judge(333+21+42*(A_Index-1),975,0x00FF00)){
+		NUM_1:=A_Index+60
+		press_Button:=ActionButton_%NUM_1%
+		send %press_Button%
+	}
+	
+	if(A_Index>6){
+		
+	}else if(judge(863+42*(A_Index-1),975,0x00FF00)){
+		NUM_2:=A_Index+48
+		press_Button:=ActionButton_%NUM_2%
+		send %press_Button%
+	}
+}
+Return
+
+;~ ActionBar2:
+;~ loop 12{
+;~ 	if(not judge(1663,469,0x00FF00)){	;如果目标不存在则终止。
+;~ 		Ending()
+;~ 		Break
+;~ 	}else if(judge(333+21+42*(A_Index-1),975,0x00FF00)){
+;~ 		NUM:=A_Index+60
+;~ 		press_Button:=ActionButton_%NUM%
+;~ 		send %press_Button%
+;~ 		Break
+;~ 	}if(judge(333+21+42*(A_Index-1),975,0x00FF00)){
+;~ 		NUM:=A_Index+60
+;~ 		press_Button:=ActionButton_%NUM%
+;~ 		send %press_Button%
+;~ 		Break
+;~ 	}
+;~ }
+;~ Return
+
+Ending(){
+	global AOE_SWITCH
+	AOE_SWITCH:=0
+	SetTimer ActionBar1,Off
+;~ 	SetTimer ActionBar2,Off
+	SoundPlay %A_WinDir%\Media\Windows XP 注销音.wav
+	ToolTip
+}
+;===================================================
+;=               常用函数、工具                    =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+Eql2(a,b="",c="",d="",e="",f=""){
+	Return a=b or a=c or a=d or a=e or a=f
+}
+
+IsMoving(){
+	Return GetKeyState("w","p") or GetKeyState("a","p") or GetKeyState("s","p") or GetKeyState("d","p") or (GetKeyState("LButton","p") and GetKeyState("RButton","p"))
+}
+
+GetColorAndXy(x,y,binColor){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%x%,%y%,%gColor%
+	MsgBox %x%,%y%,%gColor%
+}
+
+GetColor(x,y){
+	PixelGetColor theColor,x,y,RGB
+	return theColor
+}
+
+;右Ctrl快速得到颜色。
+~RCtrl::
+    while(GetKeyState("RCtrl")){
+        MouseGetPos x,y
+		PixelGetColor mouse_color,x,y,RGB
+        ToolTip % x "," y "," mouse_color
+        Sleep 16
+    }
+    ToolTip
+return
+;===================================================
+;=           DK[冰霜][DPS][斯巴柔船长]             =
+;===================================================

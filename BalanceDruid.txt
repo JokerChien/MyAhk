@@ -1,0 +1,405 @@
+;================================钱教授的工具宝
+^1::
+getColorAndXy(0xE7D782,74,862)
+return
+
+^2::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard =%c4%,%mx%,%my%
+MsgBox %c4%,%mx%,%my%
+return
+
+!^+Left::  MouseMove,-1,0,,R
+!^+Up::    MouseMove,0,-1,,R
+!^+Right:: MouseMove,1,0,,R
+!^+Down::  MouseMove,0,1,,R
+
+getColorAndXy(binColor,x,y){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%gColor%,%x%,%y%
+	MsgBox %gColor%,%x%,%y%
+}
+
+^Numpad1::
+getColorAndXy(0x6B3D25,646,1016)
+return
+^Numpad2::
+getColorAndXy(0x71442A,689,1016)
+return
+^Numpad3::
+getColorAndXy(0x75492D,732,1016)
+return
+^Numpad4::
+getColorAndXy(0x531602,776,1016)
+return
+^Numpad5::
+getColorAndXy(0x4D1101,819,1016)
+return
+^Numpad6::
+getColorAndXy(0x460D01,862,1016)
+return
+
+;================================正文
+1::
+loop{
+	if(orjudge(0xA97600,0x3333A9,652,847)){
+		if(Breaking()){
+			send {up}
+			;打断。如果需要。
+		}
+	}else if(orjudge(0x1C2522,0xCE92D6,28,958)){
+		pvpMode()
+		;PVP模式。
+	}else if(TabIsDown()){
+		;什么也不做。
+	}else{
+		SoundPlay %A_WinDir%\Media\ding.wav
+		Break
+	}
+	sleep 256
+}
+return
+
+Breaking(){
+	Return judge(0x45412F,634,842) and judge(0xCDC6B0,862,973) or judge(0x191911,634,842) and judge(0x7A727C,732,973)
+	;纠缠根须、旋风。
+}
+
+pvpMode(){
+	PixelGetColor stanceColor,19,789,RGB
+	if(stanceColor=0x60526B){
+		CatForm()
+	}else if(stanceColor=0x5E515A){
+		HumForm()
+	}else if(stanceColor=0x35272F){
+		BearForm()
+	}else if(stanceColor=0x493824){
+		TravelForm()
+	}else if(stanceColor=0x120D10){
+		MoonkinForm()
+	}
+}
+
+CatForm(){
+	local isBleeding:=judge(0xDDCFB0,646,1016)
+	local oneStar:=judge(0xCA4646,533,22)
+	local triStar:=judge(0x953232,548,45)
+	local isSlowDown:=IsSlowDown()
+	local byStealth:=judge(0xA40079,74,958)
+	local isHelp:=judge(0x1C2522,28,958)
+	local isMoving:=IsMoving()
+	local isClose:=judge(0x670000,958,949)
+	local lookAtMe:=orjudge(0x282931,0x280000,466,119)
+	if(judge(0x3B1F80,168,1006)){
+		send {F9}
+		;潜行。技能可用。
+	}else if(isBleeding and not judge(0x930473,776,1016) and judge(0x940473,448,1006)){
+		send {Del}
+		;精灵之火。无该DEBUFF、技能可用。
+	}else if(isHelp){
+		send {Down}
+		;人形。友善、非隐形。
+	}else if(not oneStar and not isHelp and lookAtMe){
+		send {left}
+		;变熊。一颗星也没有、敌对、看着我、技能可用。
+	}
+	if(judge(0x660000,958,927)){
+		;5码以内。
+		if(isBleeding and judge(0x71644B,308,1006)){
+			send {Ins}
+			;猛虎之怒。技能可用。
+		}
+		if(oneStar and judge(0xBA868E,74,1006) and not judge(0x221033,862,973)){
+			send {F7}
+			;割碎。1星、技能可用、目标不被突袭。
+		}else if(judge(0x71181C,547,72) and (judge(0xC6C500,187,75) or not judge(0x00A900,341,60) and judge(0x953232,548,45))){
+			send {F6}
+			;凶猛撕咬。5星。55能量或目标20%血以下且3星。
+		}else if(not isBleeding and judge(0xC6C500,187,75)){
+			send {F10}
+			;斜掠。没有流血、55能量。
+		}else if(oneStar and not judge(0x340E04,862,973) and judge(0xC0BF00,179,75)){
+			send {F8}
+			;割裂。1星、无该DEBUFF、50能量。
+		}else if(judge(0xC9C700,195,75)){
+			send {F11}
+			;爪击。60能量。
+		}
+	}else if(not byStealth and not isClose and not isHelp and not isMoving and not judge(0x7A727C,732,973) and judge(0x332F2D,121,910)){
+		send {8}
+		;旋风。非近战、敌对、未移动、未被旋风、技能可用。
+	}else if(not byStealth and not isClose and not isHelp and not isMoving and not judge(0xCDC6B0,862,973) and judge(0x6A6862,355,910)){
+		send {u}
+		;纠缠根须。敌方、不在移动、未被缠绕、技能可用。
+	}
+}
+
+BearForm(){
+	local hasMana:=judge(0x000083,317,75)
+	local lookAtMe:=orjudge(0xA06768,0xA00000,466,119)
+	local isClose:=judge(0x670000,958,949)
+	local isHelp:=judge(0x1C2522,28,958)
+	local isMoving:=IsMoving()
+	if(lookAtMe and judge(0xE7D782,74,862)){
+		send {-}
+		;树皮术。看自己、技能可用。
+	}else if(not judge(0x930473,776,1016) and judge(0x7E0462,542,910)){
+		send {Del}
+		;精灵之火。无该DEBUFF、技能可用。
+	}else if(not lookAtMe and judge(0x610B03,28,1006)){
+		send {F6}
+		;低吼。不看我、技能可用。
+	}else if(not judge(0x0000D6,231,75) and judge(0x541A0A,308,1006) and judge(0xB30000,159,75)){
+		send {Ins}
+		;狂暴恢复。不满85绿、技能可用、35怒气。
+	}else if(not hasMana and judge(0xDC3FD9,261,1006)){
+		send {F11}
+		;激怒。对方无魔法、技能可用。
+	}else if(isHelp){
+		send {Left}
+		;人形。友善、非隐形。
+	}
+	if(judge(0x660000,958,927)){
+		;5码以内。
+		if(judge(0xF7E721,355,1006) and not judge(0x00CE00,210,60)){
+			send {Home}
+			;猛击。技能可用、不满75绿。
+		}else if(not hasMana and not judge(0x272005,819,1016) and judge(0xAA0000,134,75)){
+			send {F9}
+			;挫志咆哮。目标无蓝、无该DEBUFF、20怒气。
+		}else if(not judge(0x671C29,899,1040) and judge(0xAC0000,143,75)){
+			send {F7}
+			;割伤。无该debuff、25怒气。
+		}else if(judge(0x010000,448,1006) and judge(0xB30000,147,75)){
+			send {Del}
+			;裂伤。技能可用、30怒气。
+		}else if(judge(0xB30000,147,75)){
+			send {F10}
+			;横扫。30怒气。
+		}
+	}else if(not byStealth and not isClose and not isHelp and not isMoving and not judge(0x7A727C,732,973) and judge(0x332F2D,121,910)){
+		send {8}
+		;旋风。非近战、敌对、未移动、未被旋风、技能可用。
+	}else if(not byStealth and not isClose and not isHelp and not isMoving and not judge(0xCDC6B0,862,973) and judge(0x6A6862,355,910)){
+		send {u}
+		;纠缠根须。敌方、不在移动、未被缠绕、技能可用。
+	}
+}
+
+HumForm(){
+	local lookAtMe:=orjudge(0xB69890,0xB60000,466,119)
+	local isHelp:=judge(0x1C2522,28,958)
+	local isMoving:=IsMoving()
+	local has80Health:=judge(0x00D600,224,60)
+	local has40health:=judge(0x00B800,167,60)
+	local targethas80Helath:=judge(0x007600,430,65)
+	local hasMana:=judge(0x000083,317,75)
+	local isSlowedDown:=IsSlowDown()
+	local preparation:=judge(0x5871C1,862,1016)
+	local isClose:=judge(0x670000,958,949)
+	local playerHas10mana:=judge(0x0000A2,123,75)
+	local isSinging:=orjudge(0xA97600,0x3333A9,652,847)
+	
+	if(not isMoving and (isHelp and not judge(0x006900,373,65) or not has40health) and judge(0x114033,168,862) and judge(0x007300,317,60)){
+		send {[}
+		;自然迅捷。友军不满40绿或玩家绿不满40、技能可用、目标至少还有1绿。
+	}else if(not judge(0x0000BB,166,75) and judge(0x000142,121,862)){
+		send +{=}
+		;激活。玩家蓝不满40、技能可用。
+	}else if(not isHelp and lookAtMe and judge(0xE7D782,74,862)){
+		send {-}
+		;树皮术。敌对、看着我、技能可用。
+	}else if((isClose and not hasMana or hasMana) and not isHelp and lookAtMe and judge(0x101C29,24,727)){
+		send {Left}
+		;变熊。近战靠近或远程、敌对、看自己、技能可用。
+	}else if((judge(0x9DA855,732,973) or judge(0xE0EC77,991,973)) and judge(0x001E00,448,862)){
+		send {NumpadDot}
+		;饰品。有回春效果则使用饰品。
+	}else if(preparation and not orjudge(0xEE6DD6,0xBC4893,1034,973)){	
+		if(judge(0x99369A,308,1006)){
+			send {Ins}
+			;野性印记。准备、无野性赐福或野性印记。
+		}
+	}else if(preparation and not judge(0x3D3118,985,970)){
+		if(judge(0x6A6862,355,910)){
+			send {h}
+			;荆棘术。准备、无荆棘术。
+		}
+	}else if(isHelp and (judge(0x007600,430,65) or judge(0x006533,958,927))){	
+		send {F12}
+		;切目标。友军、有80血或在射程之外。
+	}
+
+	if(not hasMana and judge(0x984A06,737,925) and judge(0x684C30,28,910)){
+		send {6}
+		;休眠。德鲁伊的野兽形态、技能可用。
+	}else if(not isHelp and not isMoving and not judge(0x7A727C,732,973) and judge(0x332F2D,121,910)){
+		send {8}
+		;旋风。敌对、未移动、非树形态、未被旋风、技能可用。
+	}else if(not isHelp and not isMoving and not judge(0xCDC6B0,862,973) and judge(0x6A6862,355,910)){
+		send {u}
+		;纠缠根须。敌方、不在移动、未被缠绕、技能可用。
+	}else if(not has80Health and not isMoving and judge(0x6BA1D3,168,1006)){
+		send +{F9}
+		;治疗之触。玩家不满80血、不在移动、技能可用。
+	}else if(or5judge(0x380800,0x5A3B5A,0x2986EF,0x100031,0x9CBE6B,689,1016) and judge(0x59843A,448,1006)){
+		send +{Del}
+		;驱毒术。身上有毒药效果、技能可用。
+	}else if(not has80Health and not judge(0x9DA855,732,973) and judge(0xA79969,28,1006)){
+		send +{F6}
+		;回春术。不满80血、无该BUFF、技能可用。
+	}else if(not has80Health and not judge(0x182708,905,1016) and judge(0x172407,215,1006)){
+		send +{F10}
+		;生命绽放。不满80血、无该BUFF、技能可用。
+	}else if(not judge(0x00C700,195,60) and judge(0x172C44,542,1006)){
+		send {PGDN}
+		;迅捷治愈。玩家不满60血、技能可用。
+	}else if(not isMoving and not targethas80Helath and isHelp and judge(0x6BA1D3,168,1006)){
+		send {F9}
+		;治疗之触。未移动、不满80血、友方、无该BUFF。
+	}else if(isHelp and or5judge(0x380800,0x5A3B5A,0x2986EF,0x100031,0x9EC06D,991,1016) and judge(0x59843A,448,1006)){
+		send {del}
+		;驱毒术。友方目标身上有毒药效果、技能可用。
+	}else if(not targethas80Helath and isHelp and not judge(0xE0EC77,991,973) and judge(0xA79969,28,1006)){
+		send {F6}
+		;回春术。不满80血、友方、无该BUFF。
+	}else if(not targethas80Helath and isHelp and not judge(0x182708,905,973) and judge(0x172407,215,1006)){
+		send {F10}
+		;生命绽放。不满80血、友方、无该BUFF。
+	}else if(isHelp and not judge(0x006E00,402,65) and judge(0x718581,261,1006)){
+		send {F11}
+		;迅捷治愈。友方、目标不满60血、技能可用。
+	}else if(not isHelp and not judge(0x930473,776,1016) and judge(0x78045E,308,910)){
+		send {y}
+		;精灵之火。敌方、无该DEBUFF、技能可用。
+	}else if(not isHelp and not judge(0x000010,646,1016) and judge(0x00000B,215,910)){
+		send {0}
+		;月火术。敌方、无该DEBUFF、技能可用。
+	}else if(not isHelp and not isMoving and judge(0x09C39C,74,910)){
+		send {7}
+		;愤怒。敌方、不在移动、技能可用。
+	}else if(not preparation and not judge(0x162F2C,1034,1016) and judge(0x0F1E19,402,910)){
+		send {i}
+		;自然之握。无该BUFF、技能可用。
+	}
+}
+
+TravelForm(){
+	local isClose:=judge(0x670000,958,949)
+	local isFar:=judge(0x006634,958,949)
+	local lookAtMe:=orjudge(0x615847,0x610000,466,119)
+	local isHelp:=judge(0x1C2522,28,958)
+
+	if(isClose and not isHelp and lookAtMe and judge(0x2D6C7E,261,862)){
+		send {\}
+		sleep 1024
+		;变熊。近战、敌对、看着我、技能可用。
+	}else if(isFar or isHelp){
+		send {right}
+		sleep 1024
+		;人形。远距离或友军。
+	}
+}
+
+MoonkinForm(){
+}
+
+;================================钱教授的百宝盒
+judge(tar_color,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color=get_color){
+		return true
+	}else{
+		return false
+	}
+}
+
+orjudge(tar_color1,tar_color2,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+
+or3judge(tar_color1,tar_color2,tar_color3,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color or tar_color3=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+
+or4judge(tar_color1,tar_color2,tar_color3,tar_color4,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+
+or5judge(tar_color1,tar_color2,tar_color3,tar_color4,tar_color5,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+
+IsSlowDown(){
+	return or4judge(0x757065,0x080808,0xB13708,0x5A3B5A,689,1016) or or4judge(0xDD979F,0x420000,0x4D4455,0xFFFBE7,948,1016) or or5judge(0x3401D1,0x938AE0,0xDEFFFF,0xE7F5FE,0x3401D1,991,1016) or orjudge(0xCDC6B0,0x221033,862,973)
+	;断筋、刺耳怒吼、减速、减速药膏。野兽之心、自由之手、保护之手、圣盾术。冰霜陷阱光环、寒冰箭、冰霜震击、冰锥术、冰霜新星。缠绕根须、突袭。
+}
+
+cantIntercept(){
+	return judge(0x7ED0F8,732,1016) or judge(0xFFFBE7,948,1016) or judge(0x8F8B9C,689,973)
+	;寒冰屏障、圣盾术、利刃风暴。
+}
+
+TabIsDown(){
+	GetKeyState state,Tab,p
+	if state=D
+		return true
+	Else
+		return False
+}
+
+;是否移动状态，即WASD是否被按下。
+IsMoving(){
+	GetKeyState state,w,p
+	if state=D
+	;这里state=D不能加括号，确实非常之奇怪。
+		return true
+	Else
+		return AIsDown()
+}
+
+AIsDown(){
+	GetKeyState state,a,p
+	if state=D
+		return true
+	Else
+		return SIsDown()
+}
+
+SIsDown(){
+	GetKeyState state,s,p
+	if state=D
+		return true
+	Else
+		return DIsDown()
+}
+
+DIsDown(){
+	GetKeyState state,d,p
+	if state=D
+		return true
+	Else
+		return false
+}

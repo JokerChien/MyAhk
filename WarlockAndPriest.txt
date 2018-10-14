@@ -1,0 +1,234 @@
+WinGet, wowid, List, 魔兽世界
+;================================钱教授的工具宝
+^1::
+getColorAndXy(0x704329,646,973)
+return
+
+^2::
+MouseGetPos,mx,my
+PixelGetColor c4,mx,my,RGB
+clipboard =%c4%,%mx%,%my%
+MsgBox %c4%,%mx%,%my%
+return
+
+!^+Left::  MouseMove,-1,0,,R
+!^+Up::    MouseMove,0,-1,,R
+!^+Right:: MouseMove,1,0,,R
+!^+Down::  MouseMove,0,1,,R
+
+getColorAndXy(binColor,x,y){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%gColor%,%x%,%y%
+	MsgBox %gColor%,%x%,%y%
+}
+
+^Numpad1::
+getColorAndXy(0x6B3D25,646,1016)
+return
+^Numpad2::
+getColorAndXy(0x71442A,689,1016)
+return
+^Numpad3::
+getColorAndXy(0x75492D,732,1016)
+return
+^Numpad4::
+getColorAndXy(0x531602,776,1016)
+return
+^Numpad5::
+getColorAndXy(0x4D1101,819,1016)
+return
+^Numpad6::
+getColorAndXy(0x460D01,862,1016)
+return
+
+;================================正文
+1::
+send {\}
+loop{
+	PixelGetColor targetColor,317,60,RGB
+	if(targetColor=0x007300){
+		pvpMode()
+		;PVP模式
+	}else if(targetColor=0x007402){
+		pvpMode()
+		;精英模式。
+	}else{
+		SoundPlay %A_WinDir%\Media\ding.wav
+		Break
+	}
+	sleep 256
+}
+return
+
+pvpMode(){
+	if(judge(0x660000,958,927)){
+		;5码内
+		ControlSend,, {PGDN}, ahk_id %wowid1%
+		ControlSend,, {PGDN}, ahk_id %wowid2%
+	}else{
+		warlock()
+		priest()
+	}
+}
+
+warlock(){
+	local IsMoving:=IsMoving()
+	if(not judge(0x002A84,466,119)){
+		send {\}
+	}
+	if(not judge(0x080000,689,1016) and not IsMoving){
+		ControlSend,, {PGUP}, ahk_id %wowid1%
+		ControlSend,, {PGUP}, ahk_id %wowid2%
+		;献祭
+	}else if(not judge(0xC7C6BC,732,1016)){
+		ControlSend,, 7, ahk_id %wowid1%
+		ControlSend,, 7, ahk_id %wowid2%
+		;痛苦诅咒
+	}else if(not judge(0xE1CCD3,776,1016)){
+		ControlSend,, 8, ahk_id %wowid1%
+		ControlSend,, 8, ahk_id %wowid2%
+		;腐蚀术
+	}else if(not IsMoving and judge(0x3D74B8,121,862)){
+		ControlSend,, =, ahk_id %wowid1%
+	}
+}
+priest(){
+	local IsMoving:=IsMoving()
+	if(IsMoving){
+		ControlSend,, {[}, ahk_id %wowid1%
+		ControlSend,, {[}, ahk_id %wowid2%
+	}
+	if(not judge(0x00D600,240,60) and not judge(0xF7FFA6,948,1016)){
+		ControlSend,, {F10}, ahk_id %wowid1%
+		ControlSend,, {F10}, ahk_id %wowid2%
+	}else if(not judge(0x46200A,646,1016)){
+		ControlSend,, {F6}, ahk_id %wowid1%
+		ControlSend,, {F6}, ahk_id %wowid2%
+	}else{
+		ControlSend,, =, ahk_id %wowid2%
+	}	
+}
+
+;================================钱教授的百宝盒
+NeedToBeDispersed(){
+	return or4judge(0x420000,0x4D4455,0x100818,0xFEF2CD,948,1016) or judge(0x2CACA7,732,1016) or or3judge(0xBD4994,0xF7B77D,0x181018,991,1016)
+	;自由之手、保护之手、闪电之盾、真言术盾。寒冰护体。野性赐福、力量祝福、王者祝福。
+}
+
+IsSlowDown(){
+	return or4judge(0x757065,0x080808,0xB13708,0x5A3B5A,689,1016) or or4judge(0xDD979F,0x420000,0x4D4455,0xFFFBE7,948,1016) or or5judge(0x3401D1,0x938AE0,0xDEFFFF,0xE7F5FE,0x3401D1,991,1016)
+	;断筋、刺耳怒吼、减速、减速药膏。野兽之心、自由之手、保护之手、圣盾术。冰霜陷阱光环、寒冰箭、冰霜震击、冰锥术、冰霜新星。
+}
+
+cantIntercept(){
+	return judge(0x7ED0F8,732,1016) or judge(0xFFFBE7,948,1016) or judge(0x8F8B9C,689,973)
+	;寒冰屏障、圣盾术、利刃风暴。
+}
+
+judge(tar_color,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color=get_color){
+		return true
+	}else{
+		return false
+	}
+}
+
+orjudge(tar_color1,tar_color2,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+
+or3judge(tar_color1,tar_color2,tar_color3,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color or tar_color3=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+
+or4judge(tar_color1,tar_color2,tar_color3,tar_color4,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+
+or5judge(tar_color1,tar_color2,tar_color3,tar_color4,tar_color5,x,y){
+	PixelGetColor get_color,x,y,RGB
+	if(tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color){
+		return true
+	}else{
+		Return false
+	}
+}
+;Tab键和鼠标右键是不是被按下。
+TabIsDown(){
+	GetKeyState state,Tab,p
+	if state=D
+		return true
+	Else
+		return RButtonIsDown()
+}
+
+RButtonIsDown(){
+	GetKeyState state,RButton,p
+	if state=D
+		return true
+	Else
+		return False
+}
+
+;是否移动状态，即WASD是否被按下。
+IsMoving(){
+	GetKeyState state,w,p
+	if state=D
+	;这里state=D不能加括号，确实非常之奇怪。
+		return true
+	Else
+		return AIsDown()
+}
+
+AIsDown(){
+	GetKeyState state,a,p
+	if state=D
+		return true
+	Else
+		return SIsDown()
+}
+
+SIsDown(){
+	GetKeyState state,s,p
+	if state=D
+		return true
+	Else
+		return DIsDown()
+}
+
+DIsDown(){
+	GetKeyState state,d,p
+	if state=D
+		return true
+	Else
+		return RIsDown()
+}
+
+RIsDown(){
+	GetKeyState state,r,p
+	if state=D
+		return true
+	Else
+		return false
+}
+
+interinterceptionIsReady(){
+	return orjudge(0xBC9D6A,0xFFBE7B,261,1006) or judge(0xBE8C4F,74,958) or judge(0x899798,168,958)
+}

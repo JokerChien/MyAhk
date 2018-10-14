@@ -1,0 +1,224 @@
+CoordMode Mouse,Screen	; 将 Mouse 放置在相对于屏幕坐标的地方:
+CoordMode ToolTip,Screen	; 将 ToolTips 放置在相对于屏幕坐标的地方:
+SetDefaultMouseSpeed, 0
+
+Gui, Add, Button, x22 y19 w100 h30 , 任务开始
+Gui, Add, Button, x142 y19 w100 h30 , TIMER测试
+Gui, Add, Tab, x2 y69 w850 h160 , 战斗界面|系统配置|策略设置
+Gui, Add, Button, x692 y99  w60 h50 , +100
+Gui, Add, Button, x692 y149 w60 h50 , -100
+Gui, Add, Button, x632 y149 w60 h50 , -0.5s
+Gui, Add, Button, x752 y149 w60 h50 , +0.5s
+Gui, Add, GroupBox, x12 y99  w160 h50 , 本地时间
+Gui, Add, GroupBox, x12 y159 w160 h50 , 任务时间
+Gui, Add, GroupBox, x182 y99 w160 h50 , 我的价格
+Gui, Add, Text, vLocalTime x22 y119 w140 h20 , 任务未开启
+Gui, Add, Text, vMissionTime x22 y179 w140 h20 , 任务未开启
+Gui, Add, Text, vMyPrice x192 y119 w140 h20 , 82600
+Gui, Add, Text, x365 y112 w60 h20 , 人肉输价格
+Gui, Add, Edit, vMyManualPrice x432 y109 w110 h20 , 输入价格	;手动输入价格
+;~ Gui, Add, Button,x552 y109 w60 h20 , 确定1						;手动输入价格确定
+Gui, Add, Text, x365 y142 w60 h20 , 人肉输延时	
+Gui, Add, Edit, vMyLag x432 y139 w110 h20 , 输入延时		;手动输入延时
+Gui, Add, Button, x432 y169 w110 h20 , 确定						;全部确定
+Gui, Tab, 系统配置
+Gui, Add, Text, x32 y99 w90 h20  , 1、点击出价
+Gui, Add, Text, x32 y129 w90 h20 , 2、输完价点提交
+Gui, Add, Text, x32 y159 w90 h20 , 3、点击验证码框
+Gui, Add, Text, x32 y189 w90 h20 , 4、点击确定
+
+Gui, Add, Edit, vEditStp1 x135 y99  w100 h20 , None
+Gui, Add, Edit, vEditStp2 x135 y129 w100 h20 , None
+Gui, Add, Edit, vEditStp3 x135 y159 w100 h20 , None
+Gui, Add, Edit, vEditStp4 x135 y189 w100 h20 , None
+
+Gui, Add, Button, x240 y99  w100 h20 , 标记1
+Gui, Add, Button, x240 y129 w100 h20 , 标记2
+Gui, Add, Button, x240 y159 w100 h20 , 标记3
+Gui, Add, Button, x240 y189 w100 h20 , 标记4
+
+Gui, Add, Button, x345 y99  w100 h20 , 测试1
+Gui, Add, Button, x345 y129 w100 h20 , 测试2
+Gui, Add, Button, x345 y159 w100 h20 , 测试3
+Gui, Add, Button, x345 y189 w100 h20 , 测试4
+
+Gui, Add, CheckBox,vCheckBox_MZY gCheckBox_MZY x465 y99  w80 h20 , 价格瞄准仪
+Gui, Add, Edit, vMZY_MsXY x560 y99 w100 h20 , 请点击标记
+Gui, Add, Button, x665 y99 w100 h20 , 瞄准仪标记
+
+Gui, Add, CheckBox,vCheckBox_ZD gCheckBox_ZD x465 y129 w80 h20 , 界面置顶
+Gui, Add, CheckBox, x465 y159 w80 h20 , 落点提示
+;~ Gui, Add, CheckBox, x712 y169 w80 h20 , CheckBox
+;~ Gui, Add, CheckBox, x612 y109 w80 h20 , CheckBox
+;~ Gui, Add, CheckBox, x612 y139 w80 h20 , CheckBox
+;~ Gui, Add, CheckBox, x612 y169 w80 h20 , CheckBox
+Gui, Tab, 策略设置
+; Generated using SmartGUI Creator 4.0
+;~ Gui, Submit ; 保存每个与控件相关联的变量
+Gui, Show, x176 y215 h214 w851, 6666代拍服务
+Return
+
+Button任务开始:
+;~ MsgBox "任务开始了"
+SetTimer,MyTimer,100
+Return
+
+MyTimer:
+FormatTime MyLocalTime,a_now,HH:mm:ss
+GuiControl ,,LocalTime,%MyLocalTime%
+GetMissionTime:=a_now
+GetMissionTime+=%MyLag%,Seconds
+FormatTime MyMissionTime,%GetMissionTime%,HH:mm:ss
+GuiControl ,,MissionTime,%MyMissionTime%
+Return
+
+Button确定:
+Gui, Submit ,NoHide	;保存每个与控件相关联的变量
+MyManualPrice:=MyManualPrice-mod(MyManualPrice,100)
+GuiControl ,,MyPrice,%MyManualPrice%
+GuiControl ,,MyManualPrice,%MyManualPrice%
+Return
+
+~up::
+Button+100:
+MyManualPrice+=100
+GuiControl ,,MyPrice,%MyManualPrice%
+GuiControl ,,MyManualPrice,%MyManualPrice%
+Return
+
+~Down::
+Button-100:
+MyManualPrice-=100
+GuiControl ,,MyPrice,%MyManualPrice%
+GuiControl ,,MyManualPrice,%MyManualPrice%
+Return
+
+~Left::
+Button-0.5s:
+GetMissionTime:=a_now
+MyLag-=0.5
+GetMissionTime+=%MyLag%,Seconds
+FormatTime MyMissionTime,%GetMissionTime%,HH:mm:ss
+GuiControl ,,MissionTime,%MyMissionTime%
+SetFormat Float,0.1
+MyLag+=0
+GuiControl ,,MyLag,%MyLag%
+Return
+
+~Right::
+Button+0.5s:
+GetMissionTime:=a_now
+MyLag+=0.5
+GetMissionTime+=%MyLag%,Seconds
+FormatTime MyMissionTime,%GetMissionTime%,HH:mm:ss
+GuiControl ,,MissionTime,%MyMissionTime%
+SetFormat Float,0.1
+MyLag+=0
+GuiControl ,,MyLag,%MyLag%
+Return
+
+Button标记1:
+SetTimer ToolTipOfMus,32
+KeyWait lbutton,d
+SetTimer ToolTipOfMus,Off
+ToolTip,,,,1
+MouseGetPos MsX_Stp_1,MsY_Stp_1
+;~ GetListViewStp1:=%MsX_Stp_1% , %MsX_Stp_1%
+;~ MsgBox %MsX_Stp_1% , %MsY_Stp_1%
+GuiControl ,,EditStp1,%MsX_Stp_1%,%MsY_Stp_1%
+Return
+
+Button标记2:
+SetTimer ToolTipOfMus,32
+KeyWait lbutton,d
+SetTimer ToolTipOfMus,Off
+ToolTip,,,,1
+MouseGetPos MsX_Stp_2,MsY_Stp_2
+;~ GetListViewStp1:=%MsX_Stp_1% , %MsX_Stp_1%
+;~ MsgBox %MsX_Stp_2% , %MsY_Stp_2%
+GuiControl ,,EditStp2,%MsX_Stp_2%,%MsY_Stp_2%
+Return
+
+Button标记3:
+SetTimer ToolTipOfMus,32
+KeyWait lbutton,d
+SetTimer ToolTipOfMus,Off
+ToolTip,,,,1
+MouseGetPos MsX_Stp_3,MsY_Stp_3
+;~ GetListViewStp1:=%MsX_Stp_1% , %MsX_Stp_1%
+;~ MsgBox %MsX_Stp_3% , %MsY_Stp_3%
+GuiControl ,,EditStp3,%MsX_Stp_3%,%MsY_Stp_3%
+Return
+
+Button标记4:
+SetTimer ToolTipOfMus,32
+KeyWait lbutton,d
+SetTimer ToolTipOfMus,Off
+ToolTip,,,,1
+MouseGetPos MsX_Stp_4,MsY_Stp_4
+;~ GetListViewStp1:=%MsX_Stp_1% , %MsX_Stp_1%
+;~ MsgBox %MsX_Stp_4% , %MsY_Stp_4%
+GuiControl ,,EditStp4,%MsX_Stp_4%,%MsY_Stp_4%
+Return
+
+Button瞄准仪标记:
+SetTimer ToolTipOfMus,32
+KeyWait lbutton,d
+SetTimer ToolTipOfMus,Off
+ToolTip,,,,1
+MouseGetPos MsX_Stp_MZY,MsY_Stp_MZY
+;~ GetListViewStp1:=%MsX_Stp_1% , %MsX_Stp_1%
+;~ MsgBox %MsX_Stp_MZY% , %MsY_Stp_MZY%
+GuiControl ,,MZY_MsXY,%MsX_Stp_MZY%,%MsY_Stp_MZY%
+Return
+
+ToolTipOfMus:
+MouseGetPos TTMsx,TTMsY
+ToolTip,"请点击目标位置",TTMsx+8,TTMsY,1
+Return
+
+GuiClose:
+ExitApp
+
+CheckBox_ZD:	;置顶多选框。
+Gui, Submit ,NoHide	;保存每个与控件相关联的变量
+if(CheckBox_ZD=1){
+	Gui +AlwaysOnTop
+}Else{
+	Gui -AlwaysOnTop
+}
+Return
+
+Button测试1:
+Click %MsX_Stp_1%,%MsY_Stp_1%
+Return
+
+Button测试2:
+Click %MsX_Stp_2%,%MsY_Stp_2%
+Return
+
+Button测试3:
+Click %MsX_Stp_3%,%MsY_Stp_3%
+Return
+
+Button测试4:
+Click %MsX_Stp_4%,%MsY_Stp_4%
+Return
+
+CheckBox_MZY:
+Gui, Submit ,NoHide	;保存每个与控件相关联的变量
+if(CheckBox_MZY=1){
+	SetTimer MZY_Timer,100
+}else{
+	SetTimer MZY_Timer,Off
+	ToolTip,,,,2
+}
+Return
+
+MZY_Timer:
+	MZY_cout := MyManualPrice . "`n" . MyMissionTime
+	ToolTip,%MZY_cout%,%MsX_Stp_MZY%,%MsY_Stp_MZY%,2
+Return
+;~ ==========================================================================
+;~ 	山寨大茅拍牌软件   2015年10月29日 23:46:05
+;~ ==========================================================================
