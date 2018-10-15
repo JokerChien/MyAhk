@@ -99,7 +99,7 @@ settimer F4Button,Off
 Return
 
 F4Button:
-send "suzrh"
+send {s}{u}{z}{r}{h}{a}
 Return
 
 $~w::
@@ -132,7 +132,11 @@ settimer F5Button,Off
 Return
 
 F5Button:
-send {s}{u}{d}{z}{r}{h}{q}
+send {s}{u}{d}{z}{r}{h}{a}
+Return
+
+~f6::
+send "5sv"
 Return
 
 Home::
