@@ -1,0 +1,131 @@
+;===================================================
+;=                   抬头                          =
+;===================================================
+CoordMode Mouse,Screen
+SetDefaultMouseSpeed, 0
+;===================================================
+;=              Grid_Health配置文件                =
+;===================================================
+HERO_COUNT:=0
+Loop, read, e:\Program Files\AutoHotkey\Wow_DataBase\Hero_List.txt		;读取配置文件。
+{
+	HERO_COUNT++
+	Line%HERO_COUNT%:= A_LoopReadLine	;行数、行内容。
+}
+
+Loop %HERO_COUNT%
+{
+	element:=Line%A_Index%		;中间变量
+
+	StringSplit ARRAY,element,`,
+	Hero_Color_%A_Index%:=ARRAY1
+	Hero_SN_%A_Index%:=ARRAY2
+	Hero_Name_%A_Index%:=ARRAY3
+}
+
+;===================================================
+;=                   全局变量初始化                =
+;===================================================
+#IfWinActive ahk_class StarCraft II
+N_Base:=0
+N_Base_Act:=0
+SwiShot_1:="!^{p}"
+SwiShot_2:="!^{o}"
+SwiShot_3:="!^{i}"
+SwiShot_4:="!^{j}"
+SwiShot_5:="!^{k}"
+SwiShot_6:="!^{l}"
+SwiShot_7:="!^{;}"
+SwiShot_8:="!^{9}"
+
+
+~!p::
+send {alt ctrl}
+N_Base:=1
+send ^{o}
+Return
+
+~!o::
+send {alt ctrl}
+N_Base:=2
+send ^{o}
+Return
+
+~!i::
+send {alt ctrl}
+N_Base:=3
+send ^{o}
+Return
+
+~!j::
+send {alt ctrl}
+N_Base:=4
+send ^{o}
+Return
+
+~!k::
+send {alt ctrl}
+N_Base:=5
+send ^{o}
+Return
+
+~!l::
+send {alt ctrl}
+N_Base:=6
+send ^{o}
+Return
+
+~!;::
+send {alt ctrl}
+N_Base:=7
+send ^{o}
+Return
+
+~!9::
+send {alt ctrl}
+N_Base:=8
+send ^{o}
+Return
+
+~l::
+N_Base_Act++
+N_Base_Act:=(N_Base_Act>N_Base) ? 1 : N_Base_Act
+Str_Send:=SwiShot_%N_Base_Act%
+send %Str_Send%
+
+ToolTip %Str_Send%,840,0
+;~ a:=SwiShot_%N_Base_Act%
+;~ MsgBox %a%
+Return
+
+;===================================================
+;=              	   正文				   		   =
+;===================================================
+;~ sc029::
+;~ if(ISNOTCHAT){
+;~ 	send {Numpad7}
+;~ }
+;~ return
+;===================================================
+;=                钱教授的百宝盒                   =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+getColorAndXy(x,y,binColor=""){
+	MouseMove x,y
+	PixelGetColor mouse_color,x,y,RGB
+	cout:=x . "," . y . "," . mouse_color
+	MsgBox %cout%
+	Return cout
+}
+
+GetColor(x,y){
+	PixelGetColor clr,x,y,RGB
+	Return clr
+}
+;===================================================
+;=             StarCraft II插件                    =
+;===================================================

@@ -1,0 +1,185 @@
+;===================================================
+;=               环境配置                          =
+;===================================================
+CoordMode Mouse,Relative	;坐标相对于激活的窗口。
+SetDefaultMouseSpeed, 0	;鼠标瞬间移动
+;===================================================
+;=                   GUI                           =
+;===================================================
+gui,font,s18 bold,Center
+gui,	Add,	Text,	cBlue	vText_Hero	x20	y15	w200	h30	,	未选定
+gui,font
+Gui,	Add,	Text,	vText_Status	x20	y55	w600	h35	,	未指定
+Gui,	Add,	Text,		x20	y550	w600	h100	,	热键:`n1..只以英雄为目标:T、G。`n2..玩家攻击移动点击：O。★★`n3..打开商店：V。`n4..打开数据面板★★
+Gui,	Add,	Radio,cblue	vRadio_Hero	gRadio_Hero	x20		y75	w100	h20	,	Cammy
+
+Hero_Name_1:="CAMMY"
+W_Send_1:="{w}{w}"
+E_Send_1:="{e}{e}{RButton}"
+;===================================================
+;=               公共变量                          =
+;===================================================
+
+
+Gui, Show, x200 y200 h666 w440, StreetFighterV 版本：#20171115#112201
+
+Radio_Hero:			;gRadio_Hero的触发更新。
+Gui, Submit ,NoHide	;保存每个与控件相关联的变量。
+HERO_NAME:=Hero_Name_%Radio_Hero%
+StringSplit gSend_%Radio_Hero%_,G_Send_%Radio_Hero%,`,
+StringSplit rSend_%Radio_Hero%_,R_Send_%Radio_Hero%,`,
+GuiControl ,,Text_Hero,%HERO_NAME%
+Return
+
+;~ ================================游戏窗口================================
+;~ #IfWinActive ahk_class MultitaskingViewFrame
+
+$~u::
+;~ send {s down}{s up}
+send {s Down}
+send {n down}{n up}
+sleep 22
+send {n down}{n up}
+send {d down}{a Down}
+send {s up}
+sleep 22
+send {b down}{b up}
+sleep 22
+send {b down}{b up}
+sleep 22
+send {b down}{b up}
+send {d up}{a up}
+Return
+
+$~i::
+send {down down}
+send {b down}{b up}
+sleep 22
+send {b down}{b up}
+sleep 22
+send {g down}{g up}
+sleep 22
+send {g down}{g up}
+sleep 22
+send {g down}{g up}
+sleep 22
+send {g down}{g up}
+send {Right Down}{Left Down}
+	sleep 22
+send {down up}
+sleep 22
+send {b down}{b up}
+sleep 22
+send {b down}{b up}
+send {Right up}{Left up}
+Return
+
+$~o::
+send {Right Down}{Left Down}
+send {down down}
+send {Right up}{Left up}
+send {Right Down}{Left Down}
+send {down Up}
+	sleep 22
+send {b down}{b up}
+sleep 22
+send {b down}{b up}
+	send {Right up}{Left up}
+Return
+
+;~ 2::u
+
+;===================================================
+;=                   公共函数                      =
+;===================================================
+judge(x,y,tar_color1,tar_color2="",tar_color3="",tar_color4="",tar_color5=""){
+	PixelGetColor get_color,x,y,RGB
+	return tar_color1=get_color or tar_color2=get_color or tar_color3=get_color or tar_color4=get_color or tar_color5=get_color
+}
+
+GetColorAndXy(x,y,binColor){
+	PixelGetColor gColor,x,y,RGB
+	mousemove x,y
+	clipboard=%x%,%y%,%gColor%
+	MsgBox %x%,%y%,%gColor%
+}
+
+GetColor(x,y){
+	PixelGetColor clr,x,y,RGB
+	Return clr
+}
+
+GetCxy(x,y){
+	PixelGetColor clr,x,y,RGB
+	cxy:=x . "," . y . "," . clr
+	Return cxy
+}
+
+Max(a,b){
+	if(a>b){
+		Return a
+	}else{
+		Return b
+	}
+}
+
+ButtonQ按钮:
+Button_Plus("{Q}")
+Return
+
+ButtonW按钮:
+Button_Plus("{W}")
+Return
+
+ButtonE按钮:
+Button_Plus("{E}")
+Return
+
+ButtonR按钮:
+Button_Plus("{R}")
+Return
+
+Button清空:
+Button_Plus()
+Return
+
+Button自我施法:
+Button_Plus("!")
+Return
+
+ButtonD按钮:
+Button_Plus("{D}")
+Return
+
+Button右键:
+Button_Plus("{RButton}")
+Return
+
+ButtonShift右键:
+Button_Plus("+{RButton}")
+Return
+
+ButtonShift3按钮:
+Button_Plus("+{3}")
+Return
+
+ButtonShift6按钮:
+Button_Plus("+{6}")
+Return
+
+ButtonShift7按钮:
+Button_Plus("+{7}")
+Return
+
+Button_Plus(pString=""){
+	global Sending_G_Str,Text_Status,Sending_V_Str
+	if(pString=""){
+		Sending_G_Str := "+{3}+{6}+{7}"
+	}else{
+		Sending_G_Str := Sending_G_Str . pString
+	}
+	GuiControl ,,Text_Status, G式: %Sending_G_Str%`nV式: %Sending_V_Str%
+}
+;======================================================================
+;     StreetFighterV	2018-12-27
+;======================================================================
