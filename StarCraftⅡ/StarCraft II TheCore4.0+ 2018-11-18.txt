@@ -23,79 +23,259 @@ Loop %HERO_COUNT%
 	Hero_Name_%A_Index%:=ARRAY3
 }
 
+N_Base:=0
+N_Base_Act:=0
+;~ SwiShot_1:="!^{p}"
+;~ SwiShot_2:="!^{o}"
+;~ SwiShot_3:="!^{i}"
+;~ SwiShot_4:="!^{j}"
+;~ SwiShot_5:="!^{k}"
+;~ SwiShot_6:="!^{l}"
+;~ SwiShot_7:="!^{;}"
+;~ SwiShot_8:="!^{9}"
+SwiShot_1:="{1}"
+SwiShot_2:="{2}"
+SwiShot_3:="{3}"
+SwiShot_4:="{4}"
+SwiShot_5:="{r}"
+SwiShot_6:="{e}"
+SwiShot_7:="{w}"
+SwiShot_8:="{q}"
+
+dichotomy_1:=	0.5
+dichotomy_2:=	0.1	;0.25
+dichotomy_3:=	0.9	;0.75
+dichotomy_4:=	0.375
+dichotomy_5:=	0.875
+dichotomy_6:=	0.625
+dichotomy_7:=	0.125
+dichotomy_8:=	0.1875
+dichotomy_9:=	0.8125
+dichotomy_10:=	0.3125
+dichotomy_11:=	0.6875
+dichotomy_12:=	0.4375
+dichotomy_13:=	0.0625
+dichotomy_14:=	0.5625
+dichotomy_15:=	0.9375
+dichotomy_16:=	0.03125
+dichotomy_17:=	0.53125
+dichotomy_18:=	0.09375
+dichotomy_19:=	0.59375
+dichotomy_20:=	0.15625
+dichotomy_21:=	0.65625
+dichotomy_22:=	0.21875
+dichotomy_23:=	0.71875
+dichotomy_24:=	0.28125
+dichotomy_25:=	0.78125
+dichotomy_26:=	0.34375
+dichotomy_27:=	0.84375
+dichotomy_28:=	0.40625
+dichotomy_29:=	0.90625
+dichotomy_30:=	0.46875
+dichotomy_31:=	0.96875
+
+Output_1:="1920*1080"
+Output_2:="1680*1080"
+
+gui,font,s10 bold,Center
+gui,Add,Text,	cBlue	vText_Hero	x20	y15	w200	h20,未选定	;需要配合触发更新来展现。
+gui,font
+Gui,Add,Radio,Checked	cblue	vRadio_Hero	gRadio_Hero	x20		y40	w100	h20	,1920*1080
+Gui,Add,Radio,		cblue	gRadio_Hero				x20		y60	w100	h20	,1680*1080
+Gui,Show,	x200	y200	h666	w255, Starcraft II 配音助理 2018年12月8日
+
+Radio_Hero:			;gRadio_Hero的触发更新。第N个选项值是N。
+Gui, Submit ,NoHide	;保存每个与控件相关联的变量。
+
+Text_Output:="当前分辨率为: " . Output_%Radio_Hero%
+GuiControl ,,Text_Hero,%Text_Output%
+Return
+
 ;===================================================
 ;=                   全局变量初始化                =
 ;===================================================
 #IfWinActive ahk_class StarCraft II
-N_Base:=0
-N_Base_Act:=0
-SwiShot_1:="!^{p}"
-SwiShot_2:="!^{o}"
-SwiShot_3:="!^{i}"
-SwiShot_4:="!^{j}"
-SwiShot_5:="!^{k}"
-SwiShot_6:="!^{l}"
-SwiShot_7:="!^{;}"
-SwiShot_8:="!^{9}"
 
 
+;小地图：左上角28,787 右下角 284,1034 克隆点 576,888 中心点 156,910
+BackSpace::
+n_dichotomy:=1
+MouseGetPos mapX,mapY
+if(Radio_Hero=1){
+	SetTimer SpyTeam_1920,33
+}else{
+	SetTimer SpyTeam,33
+}
+KeyWait BackSpace,Up
+SetTimer SpyTeam_1920,Off
+SetTimer SpyTeam,Off
+Return
+
+SpyTeam:
+if(mapX>284 or mapX<28 or mapY>1034 or mapY<787){
+	Return
+}
+
+;~ a:=dichotomy_%n_dichotomy%
+;~ ToolTip %mapX%`n%mapY%`n%a%,28,787
+if(mapX<156 and mapY<910){
+	x1:=28+mapX-28+mapY-787
+	y1:=787
+	x2:=28
+	y2:=787+mapY-787+mapX-28
+
+	clickX:=(x1-x2)*dichotomy_%n_dichotomy%+x2
+	clickY:=(y1-y2)*dichotomy_%n_dichotomy%+y2
+}else if(mapX>=156 and mapY>=910){
+	x1:=284
+	y1:=1034-(1034-mapY)-(284-mapX)
+	x2:=284-(284-mapX)-(1034-mapY)
+	y2:=1034
+
+	clickX:=(x1-x2)*dichotomy_%n_dichotomy%+x2
+	clickY:=(y1-y2)*dichotomy_%n_dichotomy%+y2
+}else if(mapX>=156 and mapY<910){
+	x1:=284
+	y1:=787+mapY-787+284-mapX
+	x2:=284-(284-mapX)-(mapY-787)
+	y2:=787
+
+	clickX:=(x1-x2)*dichotomy_%n_dichotomy%+x2
+	clickY:=(y1-y2)*dichotomy_%n_dichotomy%+y2
+}else if(mapX<156 and mapY>=910){
+	x1:=28+mapX-28+1034-mapY
+	y1:=1034
+	x2:=28
+	y2:=1034-(1034-mapY)-(mapX-28)
+
+	clickX:=(x1-x2)*dichotomy_%n_dichotomy%+x2
+	clickY:=(y1-y2)*dichotomy_%n_dichotomy%+y2
+}
+
+n_dichotomy++
+n_dichotomy:=(n_dichotomy>31) ? 1 : n_dichotomy
+;~ ToolTip %clickX%`n%clickY%`n%n_dichotomy%,28,787
+;~ Click %clickX%,%clickY%,Right
+MouseMove %clickX%,%clickY%
+send {=}{LButton}
+MouseMove 576,888
+send +{lbutton}
+Return
+
+SpyTeam_1920:
+if(mapX>289 or mapX<28 or mapY>1065 or mapY<808){
+	Return
+}
+
+if(mapX<156 and mapY<937){
+	x1:=28+mapX-28+mapY-808
+	y1:=808
+	x2:=28
+	y2:=808+mapY-808+mapX-28
+
+	clickX:=(x1-x2)*dichotomy_%n_dichotomy%+x2
+	clickY:=(y1-y2)*dichotomy_%n_dichotomy%+y2
+}else if(mapX>=156 and mapY>=937){
+	x1:=289
+	y1:=1065-(1065-mapY)-(289-mapX)
+	x2:=289-(289-mapX)-(1065-mapY)
+	y2:=1065
+
+	clickX:=(x1-x2)*dichotomy_%n_dichotomy%+x2
+	clickY:=(y1-y2)*dichotomy_%n_dichotomy%+y2
+}else if(mapX>=156 and mapY<937){
+	x1:=289
+	y1:=808+mapY-808+289-mapX
+	x2:=289-(289-mapX)-(mapY-808)
+	y2:=808
+
+	clickX:=(x1-x2)*dichotomy_%n_dichotomy%+x2
+	clickY:=(y1-y2)*dichotomy_%n_dichotomy%+y2
+}else if(mapX<156 and mapY>=937){
+	x1:=28+mapX-28+1065-mapY
+	y1:=1065
+	x2:=28
+	y2:=1065-(1065-mapY)-(mapX-28)
+
+	clickX:=(x1-x2)*dichotomy_%n_dichotomy%+x2
+	clickY:=(y1-y2)*dichotomy_%n_dichotomy%+y2
+}
+
+n_dichotomy++
+n_dichotomy:=(n_dichotomy>31) ? 1 : n_dichotomy
+
+MouseMove %clickX%,%clickY%
+send {=}{LButton}
+MouseMove 691,916
+send +{lbutton}
+Return
+
+\::
+send {]}{[}{p}{;}
+Return
+
+~1::
 ~!p::
-send {alt ctrl}
 N_Base:=1
-send ^{o}
+send {a}{v}
 Return
 
+~2::
 ~!o::
-send {alt ctrl}
 N_Base:=2
-send ^{o}
+send {a}{v}
 Return
 
+~3::
 ~!i::
-send {alt ctrl}
 N_Base:=3
-send ^{o}
+send {a}{v}
 Return
 
+~4::
 ~!j::
-send {alt ctrl}
 N_Base:=4
-send ^{o}
+send {a}{v}
 Return
 
+~r::
 ~!k::
-send {alt ctrl}
 N_Base:=5
-send ^{o}
+send {a}{v}
 Return
 
+~e::
 ~!l::
-send {alt ctrl}
 N_Base:=6
-send ^{o}
+send {a}{v}
 Return
 
+~w::
 ~!;::
-send {alt ctrl}
 N_Base:=7
-send ^{o}
+send {a}{v}
 Return
 
+~q::
 ~!9::
-send {alt ctrl}
 N_Base:=8
-send ^{o}
+send {a}{v}
 Return
 
 ~l::
 N_Base_Act++
 N_Base_Act:=(N_Base_Act>N_Base) ? 1 : N_Base_Act
+
 Str_Send:=SwiShot_%N_Base_Act%
 send %Str_Send%
+send {j}
 
-ToolTip %Str_Send%,840,0
-;~ a:=SwiShot_%N_Base_Act%
-;~ MsgBox %a%
+;~ ToolTip %N_Base_Act%`n%Str_Send%,840,0
+if(Radio_Hero=1){
+	Click 960,500
+}else{
+	click 840,450
+}
 Return
 
 ;===================================================

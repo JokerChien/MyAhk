@@ -11,7 +11,7 @@ gui,	Add,	Text,	cBlue	vText_Hero	x20	y15	w200	h30	,	未选定
 gui,font
 Gui,	Add,	Text,	vText_Status	x20	y55	w600	h35	,	未指定
 Gui,	Add,	Text,		x20	y550	w600	h100	,	热键:`n1..只以英雄为目标:T、G。`n2..玩家攻击移动点击：O。★★`n3..打开商店：V。`n4..打开数据面板★★
-Gui,	Add,	Radio,cblue	vRadio_Hero	gRadio_Hero	x20		y75	w100	h20	,	Cammy
+Gui,	Add,	Radio,cblue Checked	vRadio_Hero	gRadio_Hero	x20		y75	w100	h20	,	Cammy
 
 Hero_Name_1:="CAMMY"
 W_Send_1:="{w}{w}"
@@ -32,40 +32,107 @@ GuiControl ,,Text_Hero,%HERO_NAME%
 Return
 
 ;~ ================================游戏窗口================================
-;~ #IfWinActive ahk_class MultitaskingViewFrame
-
+#IfWinActive ahk_class UnrealWindow
 $~u::
-;~ send {s down}{s up}
-send {s Down}
+send {Down Down}
 send {n down}{n up}
 sleep 22
 send {n down}{n up}
-send {d down}{a Down}
-send {s up}
 sleep 22
-send {b down}{b up}
-sleep 22
-send {b down}{b up}
-sleep 22
-send {b down}{b up}
-send {d up}{a up}
+send {Down up}
+SetTimer Btn_8_Circle,22
+KeyWait u
+SetTimer Btn_8_Circle,Off
 Return
+
+~d::
+FaceToTheRight:=False
+Return
+
+~a::
+FaceToTheRight:=True
+Return
+
+$~l::
+if(FaceToTheRight){
+	send {down down}{Left down}
+}else{
+	send {down down}{Right down}
+}
+send {g Down}{g up}
+Sleep 22
+send {g Down}{g up}
+Sleep 22
+send {g Down}{g up}
+send {down up}
+Loop 5{
+	Sleep 22
+	send {h Down}{h Up}}
+}
+Loop 4{
+	Sleep 22
+	send {m Down}{m Up}
+}
+send {Left Up}{Right Up}
+SetTimer Btn_8_Circle,22
+KeyWait l
+SetTimer Btn_8_Circle,Off
+Return
+
+$~Space::
+Gosub space_Cir
+Gosub Btn_8_Circle
+Gosub Btn_8_Circle
+;~ SetTimer Btn_8_Circle,22
+;~ KeyWait Space
+;~ SetTimer Btn_8_Circle,Off
+Return
+
+space_Cir:
+send {right Down}{Left Down}
+send {down Down}
+send {right up}{Left up}
+send {right Down}{Left Down}
+send {down up}
+loop 3{
+	send {h down}{h up}
+	sleep 22
+}
+send {right up}{Left up}
+;~ Gosub Btn_8_Circle
+Return
+
 
 $~i::
 send {down down}
-send {b down}{b up}
-sleep 22
-send {b down}{b up}
-sleep 22
-send {g down}{g up}
-sleep 22
-send {g down}{g up}
-sleep 22
-send {g down}{g up}
-sleep 22
-send {g down}{g up}
-send {Right Down}{Left Down}
+loop 3{
+	send {h down}{h up}
 	sleep 22
+}
+send {down Up}
+SetTimer Btn_8_Circle,22
+KeyWait i
+SetTimer Btn_8_Circle,Off
+Return
+
+$~8::
+Loop 3{
+	send {h Down}{h up}
+	sleep 22
+}
+
+loop 8{
+	send {j Down}{j up}
+	Sleep 20
+}
+SetTimer Btn_8_Circle,22
+KeyWait 8
+SetTimer Btn_8_Circle,Off
+Return
+
+Btn_8_Circle:
+send {down down}
+send {Right Down}{Left Down}
 send {down up}
 sleep 22
 send {b down}{b up}
@@ -74,21 +141,77 @@ send {b down}{b up}
 send {Right up}{Left up}
 Return
 
+$~y::
+SetTimer y_Circle,22
+KeyWait y
+SetTimer y_Circle,off
+Return
+
+y_Circle:
+send {g down}{b down}
+sleep 22
+send {g up}{b up}
+Return
+
+$~7::
+send {h down}{n down}{h up}{n up}
+Return
+
+$~e::
+FaceToTheRight:=True
+send {d down}{w Down}
+sleep 22
+send {w up}
+sleep 88
+send {d up}{s down}
+sleep 166
+send {a down}
+Sleep 60
+send {s up}
+send {n down}{n up}
+Sleep 22
+send {n down}{n up}
+Sleep 22
+send {n down}{n up}{a up}
+Return
+
+$~q::
+FaceToTheRight:=False
+send {left down}{up Down}
+sleep 22
+send {up up}
+sleep 88
+send {left up}{down down}
+sleep 166
+send {right down}
+Sleep 60
+send {down up}
+send {n down}{n up}
+Sleep 22
+send {n down}{n up}
+Sleep 22
+send {n down}{n up}
+send {right up}
+Return
+
 $~o::
+SetTimer io_Circle,22
+KeyWait o
+SetTimer io_Circle,Off
+Return
+
+io_Circle:
 send {Right Down}{Left Down}
 send {down down}
 send {Right up}{Left up}
 send {Right Down}{Left Down}
 send {down Up}
+Loop 2{
 	sleep 22
-send {b down}{b up}
-sleep 22
-send {b down}{b up}
-	send {Right up}{Left up}
+	send {m down}{m up}
+}
+send {Right up}{Left up}
 Return
-
-;~ 2::u
-
 ;===================================================
 ;=                   公共函数                      =
 ;===================================================
