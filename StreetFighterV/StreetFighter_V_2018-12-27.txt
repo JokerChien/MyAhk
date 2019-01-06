@@ -36,9 +36,10 @@ Return
 $~u::
 send {Down Down}
 send {n down}{n up}
+loop 2{
 sleep 22
 send {n down}{n up}
-sleep 22
+}
 send {Down up}
 SetTimer Btn_8_Circle,22
 KeyWait u
@@ -65,11 +66,13 @@ send {g Down}{g up}
 Sleep 22
 send {g Down}{g up}
 send {down up}
+send {h Down}{h Up}}
 Loop 5{
 	Sleep 22
 	send {h Down}{h Up}}
 }
-Loop 4{
+send {m Down}{m Up}
+Loop 3{
 	Sleep 22
 	send {m Down}{m Up}
 }
@@ -82,10 +85,8 @@ Return
 $~Space::
 Gosub space_Cir
 Gosub Btn_8_Circle
+Sleep 22
 Gosub Btn_8_Circle
-;~ SetTimer Btn_8_Circle,22
-;~ KeyWait Space
-;~ SetTimer Btn_8_Circle,Off
 Return
 
 space_Cir:
@@ -95,19 +96,35 @@ send {right up}{Left up}
 send {right Down}{Left Down}
 send {down up}
 loop 3{
-	send {h down}{h up}
 	sleep 22
+	send {h down}{h up}
 }
 send {right up}{Left up}
-;~ Gosub Btn_8_Circle
 Return
 
 
+$k::
+send {down down}
+send {b down}{b up}
+	sleep 22
+	send {b down}{b up}
+send {g down}{g up}
+loop 4{
+	sleep 22
+	send {g down}{g up}
+}
+send {down Up}
+SetTimer Btn_8_Circle,22
+KeyWait k
+SetTimer Btn_8_Circle,Off
+Return
+
 $~i::
 send {down down}
-loop 3{
-	send {h down}{h up}
+send {h down}{h up}
+loop 2{
 	sleep 22
+	send {h down}{h up}
 }
 send {down Up}
 SetTimer Btn_8_Circle,22
@@ -118,12 +135,10 @@ Return
 $~8::
 Loop 3{
 	send {h Down}{h up}
-	sleep 22
 }
-
-loop 8{
-	send {j Down}{j up}
+loop 9{
 	Sleep 20
+	send {j Down}{j up}
 }
 SetTimer Btn_8_Circle,22
 KeyWait 8
@@ -131,8 +146,7 @@ SetTimer Btn_8_Circle,Off
 Return
 
 Btn_8_Circle:
-send {down down}
-send {Right Down}{Left Down}
+send {down down}{Right Down}{Left Down}
 send {down up}
 sleep 22
 send {b down}{b up}
@@ -201,16 +215,18 @@ SetTimer io_Circle,Off
 Return
 
 io_Circle:
+send {down down}
 send {Right Down}{Left Down}
 send {down down}
 send {Right up}{Left up}
 send {Right Down}{Left Down}
 send {down Up}
+send {b down}{b up}
 Loop 2{
 	sleep 22
-	send {m down}{m up}
+	send {b down}{b up}
 }
-send {Right up}{Left up}
+send {Right up}{Left up}{down Up}
 Return
 ;===================================================
 ;=                   ¹«¹²º¯Êý                      =
